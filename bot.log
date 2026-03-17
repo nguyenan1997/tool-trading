@@ -113,3 +113,9 @@
 2026-03-17 20:10:00  INFO      ⏳ Chờ 299.5s đến khi nến M5 đóng...
 2026-03-17 20:11:10  INFO      Bot dừng bởi người dùng (Ctrl+C).
 2026-03-17 20:11:10  INFO      MT5 disconnected.
+2026-03-17 20:11:13  INFO      ============================================================
+2026-03-17 20:11:13  INFO         XAUUSD M5  SuperTrend(10,3) + EMA100  Bot  START
+2026-03-17 20:11:13  INFO         LOT_MODE=FIXED  FIXED_LOT=0.1  RISK=10.0%
+2026-03-17 20:11:13  INFO      ============================================================
+2026-03-17 20:11:13  INFO      Connected  |  Account: 104517852  |  Balance: 3000.00 USD  |  Broker: MetaQuotes Ltd.
+2026-03-17 20:11:13  INFO      ⏳ Chờ 226.5s đến khi nến M5 đóng...
