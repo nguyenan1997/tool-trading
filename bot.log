@@ -82,3 +82,34 @@
 2026-03-17 13:40:00  INFO      [2026-03-17 08:35:00]  Close=5014.13  |  ST=5029.51 (Bear)  |  EMA100=5020.42
 2026-03-17 13:40:00  INFO      Không có tín hiệu  (no ST flip)
 2026-03-17 13:40:00  INFO      ⏳ Chờ 299.5s đến khi nến M5 đóng...
+2026-03-17 19:56:06  INFO      ============================================================
+2026-03-17 19:56:06  INFO         XAUUSD M5  SuperTrend(10,3) + EMA100  Bot  START
+2026-03-17 19:56:06  INFO         LOT_MODE=FIXED  FIXED_LOT=0.1  RISK=10.0%
+2026-03-17 19:56:06  INFO      ============================================================
+2026-03-17 19:56:06  INFO      Connected  |  Account: 104517852  |  Balance: 3000.00 USD  |  Broker: MetaQuotes Ltd.
+2026-03-17 19:56:06  INFO      ⏳ Chờ 233.6s đến khi nến M5 đóng...
+2026-03-17 19:56:37  INFO      ============================================================
+2026-03-17 19:56:37  INFO         XAUUSD M5  SuperTrend(10,3) + EMA100  Bot  START
+2026-03-17 19:56:37  INFO         LOT_MODE=FIXED  FIXED_LOT=0.1  RISK=10.0%
+2026-03-17 19:56:37  INFO      ============================================================
+2026-03-17 19:56:37  INFO      Connected  |  Account: 104517852  |  Balance: 3000.00 USD  |  Broker: MetaQuotes Ltd.
+2026-03-17 19:56:37  INFO      ⏳ Chờ 202.2s đến khi nến M5 đóng...
+2026-03-17 20:00:00  INFO      [2026-03-17 14:55:00]  Close=5011.67  |  ST=5007.21 (Bull)  |  EMA100=5013.65
+2026-03-17 20:00:00  INFO      Không có tín hiệu  (no ST flip)
+2026-03-17 20:00:00  INFO      ⏳ Chờ 299.5s đến khi nến M5 đóng...
+2026-03-17 20:00:00  INFO      [2026-03-17 14:55:00]  Close=5011.67  |  ST=5007.21 (Bull)  |  EMA100=5013.65
+2026-03-17 20:00:00  INFO      Không có tín hiệu  (no ST flip)
+2026-03-17 20:00:00  INFO      ⏳ Chờ 299.5s đến khi nến M5 đóng...
+2026-03-17 20:05:00  INFO      [2026-03-17 15:00:00]  Close=5016.99  |  ST=5007.21 (Bull)  |  EMA100=5013.72
+2026-03-17 20:05:00  INFO      Không có tín hiệu  (no ST flip)
+2026-03-17 20:05:00  INFO      Không có tín hiệu  (no ST flip)
+2026-03-17 20:05:00  INFO      ⏳ Chờ 299.5s đến khi nến M5 đóng...
+2026-03-17 20:05:00  INFO      ⏳ Chờ 299.5s đến khi nến M5 đóng...
+2026-03-17 20:10:00  INFO      [2026-03-17 15:05:00]  Close=5014.10  |  ST=5007.21 (Bull)  |  EMA100=5013.73
+2026-03-17 20:10:00  INFO      [2026-03-17 15:05:00]  Close=5014.10  |  ST=5007.21 (Bull)  |  EMA100=5013.73
+2026-03-17 20:10:00  INFO      Không có tín hiệu  (no ST flip)
+2026-03-17 20:10:00  INFO      ⏳ Chờ 299.5s đến khi nến M5 đóng...
+2026-03-17 20:10:00  INFO      Không có tín hiệu  (no ST flip)
+2026-03-17 20:10:00  INFO      ⏳ Chờ 299.5s đến khi nến M5 đóng...
+2026-03-17 20:11:10  INFO      Bot dừng bởi người dùng (Ctrl+C).
+2026-03-17 20:11:10  INFO      MT5 disconnected.

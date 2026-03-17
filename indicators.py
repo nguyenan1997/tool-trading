@@ -8,22 +8,11 @@ import pandas as pd
 
 
 # ────────────────────────────────────────────────
-#  ATR (Wilder's smoothing = RMA)
+#  EMA Smoothing for ATR
 # ────────────────────────────────────────────────
-def _rma(series: pd.Series, period: int) -> pd.Series:
-    """Wilder's Moving Average (RMA / SMMA) – giống Pine Script."""
-    alpha = 1.0 / period
-    result = np.zeros(len(series))
-    result[:] = np.nan
-
-    # Seed với SMA của `period` candle đầu tiên
-    first_valid = period - 1
-    result[first_valid] = series.iloc[:period].mean()
-
-    for i in range(first_valid + 1, len(series)):
-        result[i] = alpha * series.iloc[i] + (1 - alpha) * result[i - 1]
-
-    return pd.Series(result, index=series.index)
+def _ema_smoothing(series: pd.Series, period: int) -> pd.Series:
+    """Sử dụng EMA chuẩn (Exponential Moving Average)."""
+    return series.ewm(span=period, adjust=False).mean()
 
 
 def _true_range(df: pd.DataFrame) -> pd.Series:
@@ -59,7 +48,7 @@ def calculate_supertrend(
     hl2   = (df["high"] + df["low"]) / 2
 
     tr  = _true_range(df)
-    atr = _rma(tr, period)
+    atr = _ema_smoothing(tr, period)
 
     # Basic bands
     raw_upper = hl2 + multiplier * atr
