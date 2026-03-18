@@ -3,7 +3,7 @@ strategies/triple_ema.py
 Chiến lược 3 EMA (9, 21, 50).
 """
 import config
-from indicators import calculate_ema
+from core.indicators import calculate_ema
 import pandas as pd
 from .base import BaseStrategy
 

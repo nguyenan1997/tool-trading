@@ -3,8 +3,8 @@ strategy_manager.py
 Quản lý việc lựa chọn và truy xuất chiến lược.
 """
 
-from strategies.st_ema import STEmaStrategy
-from strategies.triple_ema import TripleEmaStrategy
+from .st_ema import STEmaStrategy
+from .triple_ema import TripleEmaStrategy
 
 class StrategyManager:
     def __init__(self):

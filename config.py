@@ -30,5 +30,5 @@ ORDER_COMMENT   = "EMA_Crossover_Bot"
 TRADE_HOURS     = []        # [] = no restriction
 
 # --- Logging ---
-LOG_FILE        = "bot.log"
+LOG_FILE = "logs/bot.log"
 LOG_LEVEL       = "INFO"    # DEBUG / INFO / WARNING / ERROR
