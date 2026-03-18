@@ -462,3 +462,8 @@
 2026-03-19 01:52:00  INFO      [2026-03-18 20:51:00]  Close=4869.54  |  ST=4879.55 (Bear)  |  EMA100=4882.59
 2026-03-19 01:52:00  INFO      Đang giữ lệnh SELL  |  Ticket=7775830994  |  Profit=76.60
 2026-03-19 01:52:00  INFO      ⏳ Chờ 59.5s đến khi nến M1 đóng...
+2026-03-19 01:52:38  INFO      127.0.0.1 - - [19/Mar/2026 01:52:38] "GET /api/status HTTP/1.1" 200 -
+2026-03-19 01:52:38  INFO      Connected  |  Account: 104517852  |  Balance: 2013.14 USD  |  Broker: MetaQuotes Ltd.
+2026-03-19 01:52:38  INFO      127.0.0.1 - - [19/Mar/2026 01:52:38] "GET /api/account HTTP/1.1" 200 -
+2026-03-19 01:52:38  INFO      Connected  |  Account: 104517852  |  Balance: 2013.14 USD  |  Broker: MetaQuotes Ltd.
+2026-03-19 01:52:38  INFO      127.0.0.1 - - [19/Mar/2026 01:52:38] "GET /api/positions HTTP/1.1" 200 -
