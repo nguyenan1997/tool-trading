@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Bot - Control Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.1) 0px, transparent 50%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Dashboard Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Glass Card */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-title {
+            color: var(--text-dim);
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        /* Bot Status Logic */
+        .status-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-running { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .status-stopped { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+        /* Controls */
+        .controls {
+            grid-column: span 3;
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .control-card {
+            flex: 1;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover { background: var(--primary-hover); }
+        .btn-stop { background: var(--danger); }
+        .btn-stop:hover { background: #dc2626; }
+
+        select {
+            background: #334155;
+            color: white;
+            border: 1px solid var(--border);
+            padding: 0.6rem 1rem;
+            border-radius: 0.75rem;
+            outline: none;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        /* Trades Table */
+        .table-container {
+            margin-top: 2rem;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .profit-pos { color: var(--success); }
+        .profit-neg { color: var(--danger); }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .live-dot {
+            height: 8px;
+            width: 8px;
+            background-color: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i data-lucide="zap"></i>
+                QUANTUM TRADER
+            </div>
+            <div id="connection-status">
+                <span class="live-dot"></span> Live Terminal
+            </div>
+        </header>
+
+        <div class="grid">
+            <!-- Account Info -->
+            <div class="card">
+                <div class="card-title"><i data-lucide="wallet"></i> Balance</div>
+                <div id="balance" class="value">---</div>
+                <div style="color: var(--text-dim); font-size: 0.875rem; margin-top: 0.5rem;">USD Account</div>
+            </div>
+
+            <!-- Bot Status -->
+            <div class="card">
+                <div class="card-title"><i data-lucide="activity"></i> Engine Status</div>
+                <div id="bot-status-text" class="value">Loading...</div>
+                <div id="bot-tag-container" style="margin-top: 0.5rem;"></div>
+            </div>
+
+            <!-- Current Strategy -->
+            <div class="card">
+                <div class="card-title"><i data-lucide="layers"></i> Current Strategy</div>
+                <div id="active-strategy-name" class="value" style="font-size: 1.5rem;">---</div>
+                <div id="symbol-info" style="color: var(--text-dim); font-size: 0.875rem; margin-top: 0.5rem;">XAUUSD · M1</div>
+            </div>
+
+            <!-- Trade List -->
+            <div class="card" style="grid-column: span 2;">
+                <div class="card-title"><i data-lucide="list"></i> Active Positions</div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ticket</th>
+                                <th>Type</th>
+                                <th>Volume</th>
+                                <th>Open Price</th>
+                                <th>Profit</th>
+                            </tr>
+                        </thead>
+                        <tbody id="positions-body">
+                            <tr><td colspan="5" style="text-align: center; color: var(--text-dim);">No active trades</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="card">
+                <div class="card-title"><i data-lucide="settings"></i> Control Panel</div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="font-size: 0.75rem; color: var(--text-dim);">Switch Method</label>
+                    <select id="strategy-select">
+                        <option value="">Loading strategies...</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button id="toggle-btn" class="btn" onclick="toggleBot()">
+                        <i data-lucide="play"></i> Start Bot
+                    </button>
+                    <button class="btn btn-stop" style="padding: 0.75rem" onclick="refreshData()">
+                        <i data-lucide="refresh-cw"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        const API_BASE = "http://localhost:5000/api";
+
+        async function fetchData() {
+            try {
+                // 1. Status
+                const statusRes = await fetch(`${API_BASE}/status`);
+                const status = await statusRes.json();
+                
+                document.getElementById('bot-status-text').innerText = status.bot_running ? "Running" : "Stopped";
+                const tagCont = document.getElementById('bot-tag-container');
+                tagCont.innerHTML = `<span class="status-tag ${status.bot_running ? 'status-running' : 'status-stopped'}">${status.bot_status}</span>`;
+                
+                const toggleBtn = document.getElementById('toggle-btn');
+                if (status.bot_running) {
+                    toggleBtn.innerHTML = `<i data-lucide="square"></i> Stop Bot`;
+                    toggleBtn.className = "btn btn-stop";
+                } else {
+                    toggleBtn.innerHTML = `<i data-lucide="play"></i> Start Bot`;
+                    toggleBtn.className = "btn";
+                }
+                lucide.createIcons();
+
+                // 2. Account
+                const accRes = await fetch(`${API_BASE}/account`);
+                const acc = await accRes.json();
+                document.getElementById('balance').innerText = `$${acc.balance.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+
+                // 3. Positions
+                const posRes = await fetch(`${API_BASE}/positions`);
+                const positions = await posRes.json();
+                const posBody = document.getElementById('positions-body');
+                
+                if (positions.length === 0) {
+                    posBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-dim);">No active trades</td></tr>';
+                } else {
+                    posBody.innerHTML = positions.map(p => `
+                        <tr>
+                            <td>#${p.ticket}</td>
+                            <td style="color: ${p.type === 'BUY' ? '#4ade80' : '#f87171'}">${p.type}</td>
+                            <td>${p.volume}</td>
+                            <td>${p.price_open}</td>
+                            <td class="${p.profit >= 0 ? 'profit-pos' : 'profit-neg'}">${p.profit.toFixed(2)} USD</td>
+                        </tr>
+                    `).join('');
+                }
+
+                // 4. Update strategy name highlight
+                const stratSelect = document.getElementById('strategy-select');
+                if (stratSelect.value === "") {
+                    // Update dropdown once
+                    loadStrategies(status.current_strategy);
+                }
+                
+            } catch (e) {
+                console.error("Fetch Error:", e);
+            }
+        }
+
+        async function loadStrategies(currentKey) {
+            const res = await fetch(`${API_BASE}/strategies`);
+            const strategies = await res.json();
+            const select = document.getElementById('strategy-select');
+            select.innerHTML = strategies.map(s => 
+                `<option value="${s.id}" ${s.id === currentKey ? 'selected' : ''}>${s.name}</option>`
+            ).join('');
+            
+            document.getElementById('active-strategy-name').innerText = strategies.find(s => s.id === currentKey)?.name || "---";
+        }
+
+        document.getElementById('strategy-select').onchange = async (e) => {
+            const id = e.target.id;
+            await fetch(`${API_BASE}/strategy`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ strategy_id: e.target.value })
+            });
+            refreshData();
+        };
+
+        async function toggleBot() {
+            await fetch(`${API_BASE}/toggle-bot`, { method: 'POST' });
+            refreshData();
+        }
+
+        function refreshData() {
+            fetchData();
+        }
+
+        // Auto Refresh
+        setInterval(fetchData, 3000);
+        fetchData();
+    </script>
+</body>
+</html>

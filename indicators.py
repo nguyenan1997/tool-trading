@@ -1,115 +1,64 @@
 """
 indicators.py
-Tính toán SuperTrend và EMA từ DataFrame OHLCV.
+Tính toán các chỉ báo kỹ thuật: EMA, SuperTrend.
 """
 
-import numpy as np
 import pandas as pd
+import numpy as np
 
-
-# ────────────────────────────────────────────────
-#  EMA Smoothing for ATR
-# ────────────────────────────────────────────────
-def _ema_smoothing(series: pd.Series, period: int) -> pd.Series:
-    """Sử dụng EMA chuẩn (Exponential Moving Average)."""
-    return series.ewm(span=period, adjust=False).mean()
-
-
-def _true_range(df: pd.DataFrame) -> pd.Series:
-    high  = df["high"]
-    low   = df["low"]
-    prev_close = df["close"].shift(1)
-
-    tr1 = high - low
-    tr2 = (high - prev_close).abs()
-    tr3 = (low  - prev_close).abs()
-
-    return pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
-
-
-# ────────────────────────────────────────────────
-#  SuperTrend
-# ────────────────────────────────────────────────
-def calculate_supertrend(
-    df: pd.DataFrame,
-    period: int = 10,
-    multiplier: float = 3.0
-) -> pd.DataFrame:
-    """
-    Thêm các cột vào df:
-        supertrend  – giá trị đường ST (điểm SL)
-        st_dir      – 1 = bullish (xanh), -1 = bearish (đỏ)
-        st_upper    – upper band
-        st_lower    – lower band
-
-    Trả về df (đã modify inplace).
-    """
-    close = df["close"]
-    hl2   = (df["high"] + df["low"]) / 2
-
-    tr  = _true_range(df)
-    atr = _ema_smoothing(tr, period)
-
-    # Basic bands
-    raw_upper = hl2 + multiplier * atr
-    raw_lower = hl2 - multiplier * atr
-
-    upper  = raw_upper.copy()
-    lower  = raw_lower.copy()
-    st     = pd.Series(np.nan, index=df.index)
-    st_dir = pd.Series(0,      index=df.index)
-
-    # Khởi tạo row đầu tiên có đủ ATR
-    start = period - 1
-    upper.iloc[start] = raw_upper.iloc[start]
-    lower.iloc[start] = raw_lower.iloc[start]
-    st_dir.iloc[start] = 1
-    st.iloc[start]     = lower.iloc[start]
-
-    for i in range(start + 1, len(df)):
-        # ----- Final upper band -----
-        if raw_upper.iloc[i] < upper.iloc[i - 1] or close.iloc[i - 1] > upper.iloc[i - 1]:
-            upper.iloc[i] = raw_upper.iloc[i]
-        else:
-            upper.iloc[i] = upper.iloc[i - 1]
-
-        # ----- Final lower band -----
-        if raw_lower.iloc[i] > lower.iloc[i - 1] or close.iloc[i - 1] < lower.iloc[i - 1]:
-            lower.iloc[i] = raw_lower.iloc[i]
-        else:
-            lower.iloc[i] = lower.iloc[i - 1]
-
-        # ----- Direction & SuperTrend value -----
-        prev_st = st.iloc[i - 1]
-
-        if prev_st == upper.iloc[i - 1]:           # trước đó đang Bear
-            if close.iloc[i] > upper.iloc[i]:       # flip → Bull
-                st_dir.iloc[i] = 1
-                st.iloc[i]     = lower.iloc[i]
-            else:
-                st_dir.iloc[i] = -1
-                st.iloc[i]     = upper.iloc[i]
-        else:                                       # trước đó đang Bull
-            if close.iloc[i] < lower.iloc[i]:       # flip → Bear
-                st_dir.iloc[i] = -1
-                st.iloc[i]     = upper.iloc[i]
-            else:
-                st_dir.iloc[i] = 1
-                st.iloc[i]     = lower.iloc[i]
-
-    df["st_upper"] = upper
-    df["st_lower"] = lower
-    df["supertrend"] = st
-    df["st_dir"]     = st_dir
-
-    return df
-
-
-# ────────────────────────────────────────────────
-#  EMA
-# ────────────────────────────────────────────────
-def calculate_ema(df: pd.DataFrame, period: int = 100) -> pd.DataFrame:
+def calculate_ema(df: pd.DataFrame, period: int) -> pd.DataFrame:
     """Thêm cột `ema{period}` vào df."""
     col = f"ema{period}"
     df[col] = df["close"].ewm(span=period, adjust=False).mean()
+    return df
+
+def _ema_smoothing(series: pd.Series, period: int) -> pd.Series:
+    """Sử dụng EMA cho quá trình làm mượt ATR (nhanh hơn RMA)."""
+    return series.ewm(span=period, adjust=False).mean()
+
+def calculate_supertrend(df: pd.DataFrame, period: int, multiplier: float) -> pd.DataFrame:
+    """Tính toán chỉ báo SuperTrend."""
+    # HL2
+    df["hl2"] = (df["high"] + df["low"]) / 2
+    
+    # ATR
+    df["tr"] = np.maximum(
+        df["high"] - df["low"],
+        np.maximum(
+            abs(df["high"] - df["close"].shift(1)),
+            abs(df["low"] - df["close"].shift(1))
+        )
+    )
+    df["atr"] = _ema_smoothing(df["tr"], period)
+    
+    # Bands
+    df["upper_band"] = df["hl2"] + (multiplier * df["atr"])
+    df["lower_band"] = df["hl2"] - (multiplier * df["atr"])
+    
+    # SuperTrend
+    st = [True] * len(df)
+    final_upper = [0.0] * len(df)
+    final_lower = [0.0] * len(df)
+    
+    for i in range(1, len(df)):
+        # Final Upper
+        if df["upper_band"][i] < final_upper[i-1] or df["close"][i-1] > final_upper[i-1]:
+            final_upper[i] = df["upper_band"][i]
+        else:
+            final_upper[i] = final_upper[i-1]
+            
+        # Final Lower
+        if df["lower_band"][i] > final_lower[i-1] or df["close"][i-1] < final_lower[i-1]:
+            final_lower[i] = df["lower_band"][i]
+        else:
+            final_lower[i] = final_lower[i-1]
+            
+        # Trend
+        if st[i-1]:
+            st[i] = True if df["close"][i] > final_upper[i] else False
+        else:
+            st[i] = False if df["close"][i] < final_lower[i] else True
+            
+    df["st_trend"] = st
+    df["st_val"] = [final_lower[i] if st[i] else final_upper[i] for i in range(len(df))]
     return df
