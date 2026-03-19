@@ -1,19 +1,9 @@
 {
-    "python.defaultInterpreterPath": "C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
-    "python.terminal.activateEnvironment": false,
-    "terminal.integrated.env.windows": {
-        "PYTHONPATH": "C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python312"
-    },
-    "python.analysis.typeCheckingMode": "off",
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
     "python.analysis.extraPaths": [
-        "C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages"
+        "${workspaceFolder}"
     ],
-    "python.analysis.diagnosticSeverityOverrides": {
-        "reportMissingModuleSource": "none",
-        "reportMissingImports": "none",
-        "reportMissingTypeStubs": "none"
-    },
-    "[python]": {
-        "editor.defaultFormatter": "ms-python.autopep8"
-    }
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.typeCheckingMode": "basic",
+    "python.terminal.activateEnvInCurrentTerminal": true
 }

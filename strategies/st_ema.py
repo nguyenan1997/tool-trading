@@ -46,16 +46,16 @@ class STEmaStrategy(BaseStrategy):
         sig_candle = df.iloc[-2]
         st_val = sig_candle["st_val"] # Giá trị SuperTrend làm SL
         
-        sl = round(st_val, digits)
+        sl = round(float(st_val), int(digits))
         
         if order_type == "BUY":
             dist = entry_price - sl
             if dist <= 0: return None, None
             # TP mặc định cũ (ví dụ dùng 2:1 RR hoặc tương đương)
-            tp = round(entry_price + (dist * 2.0), digits)
+            tp = round(float(entry_price + (dist * 2.0)), int(digits))
         else: # SELL
             dist = sl - entry_price
             if dist <= 0: return None, None
-            tp = round(entry_price - (dist * 2.0), digits)
+            tp = round(float(entry_price - (dist * 2.0)), int(digits))
             
         return sl, tp

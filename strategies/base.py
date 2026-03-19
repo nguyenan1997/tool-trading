@@ -23,6 +23,6 @@ class BaseStrategy(ABC):
         return None
 
     @abstractmethod
-    def get_sl_tp(self, df: pd.DataFrame, entry_price: float, digits: int):
+    def get_sl_tp(self, df: pd.DataFrame, entry_price: float, digits: int, order_type: str):
         """Tính toán SL và TP cho lệnh."""
         pass
