@@ -2422,3 +2422,133 @@
 2026-03-20 00:05:35  INFO      127.0.0.1 - - [20/Mar/2026 00:05:35] "GET /api/account HTTP/1.1" 200 -
 2026-03-20 00:05:35  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
 2026-03-20 00:05:35  INFO      127.0.0.1 - - [20/Mar/2026 00:05:35] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:06:32  INFO      127.0.0.1 - - [20/Mar/2026 00:06:32] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:06:32  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:32  INFO      127.0.0.1 - - [20/Mar/2026 00:06:32] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:06:33  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:33  INFO      127.0.0.1 - - [20/Mar/2026 00:06:33] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:06:33  INFO      127.0.0.1 - - [20/Mar/2026 00:06:33] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:06:33  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:33  INFO      127.0.0.1 - - [20/Mar/2026 00:06:33] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:06:33  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:33  INFO      127.0.0.1 - - [20/Mar/2026 00:06:33] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:06:37  INFO      127.0.0.1 - - [20/Mar/2026 00:06:37] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:06:37  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:37  INFO      127.0.0.1 - - [20/Mar/2026 00:06:37] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:06:37  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:37  INFO      127.0.0.1 - - [20/Mar/2026 00:06:37] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:06:40  INFO      127.0.0.1 - - [20/Mar/2026 00:06:40] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:06:40  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:40  INFO      127.0.0.1 - - [20/Mar/2026 00:06:40] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:06:40  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:40  INFO      127.0.0.1 - - [20/Mar/2026 00:06:40] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:06:43  INFO      127.0.0.1 - - [20/Mar/2026 00:06:43] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:06:43  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:43  INFO      127.0.0.1 - - [20/Mar/2026 00:06:43] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:06:43  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:43  INFO      127.0.0.1 - - [20/Mar/2026 00:06:43] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:06:46  INFO      127.0.0.1 - - [20/Mar/2026 00:06:46] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:06:46  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:46  INFO      127.0.0.1 - - [20/Mar/2026 00:06:46] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:06:46  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:46  INFO      127.0.0.1 - - [20/Mar/2026 00:06:46] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:06:49  INFO      127.0.0.1 - - [20/Mar/2026 00:06:49] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:06:49  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:49  INFO      127.0.0.1 - - [20/Mar/2026 00:06:49] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:06:49  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:49  INFO      127.0.0.1 - - [20/Mar/2026 00:06:49] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:06:52  INFO      127.0.0.1 - - [20/Mar/2026 00:06:52] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:06:52  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:52  INFO      127.0.0.1 - - [20/Mar/2026 00:06:52] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:06:52  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:52  INFO      127.0.0.1 - - [20/Mar/2026 00:06:52] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:06:55  INFO      127.0.0.1 - - [20/Mar/2026 00:06:55] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:06:55  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:55  INFO      127.0.0.1 - - [20/Mar/2026 00:06:55] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:06:55  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:55  INFO      127.0.0.1 - - [20/Mar/2026 00:06:55] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:06:58  INFO      127.0.0.1 - - [20/Mar/2026 00:06:58] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:06:58  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:58  INFO      127.0.0.1 - - [20/Mar/2026 00:06:58] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:06:58  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:06:58  INFO      127.0.0.1 - - [20/Mar/2026 00:06:58] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:07:01  INFO      127.0.0.1 - - [20/Mar/2026 00:07:01] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:07:01  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:01  INFO      127.0.0.1 - - [20/Mar/2026 00:07:01] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:07:01  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:01  INFO      127.0.0.1 - - [20/Mar/2026 00:07:01] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:07:04  INFO      127.0.0.1 - - [20/Mar/2026 00:07:04] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:07:04  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:04  INFO      127.0.0.1 - - [20/Mar/2026 00:07:04] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:07:04  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:04  INFO      127.0.0.1 - - [20/Mar/2026 00:07:04] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:07:07  INFO      127.0.0.1 - - [20/Mar/2026 00:07:07] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:07:07  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:07  INFO      127.0.0.1 - - [20/Mar/2026 00:07:07] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:07:07  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:07  INFO      127.0.0.1 - - [20/Mar/2026 00:07:07] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:07:10  INFO      127.0.0.1 - - [20/Mar/2026 00:07:10] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:07:10  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:10  INFO      127.0.0.1 - - [20/Mar/2026 00:07:10] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:07:10  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:10  INFO      127.0.0.1 - - [20/Mar/2026 00:07:10] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:07:13  INFO      127.0.0.1 - - [20/Mar/2026 00:07:13] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:07:13  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:13  INFO      127.0.0.1 - - [20/Mar/2026 00:07:13] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:07:13  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:13  INFO      127.0.0.1 - - [20/Mar/2026 00:07:13] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:07:16  INFO      127.0.0.1 - - [20/Mar/2026 00:07:16] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:07:16  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:16  INFO      127.0.0.1 - - [20/Mar/2026 00:07:16] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:07:16  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:16  INFO      127.0.0.1 - - [20/Mar/2026 00:07:16] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:07:19  INFO      127.0.0.1 - - [20/Mar/2026 00:07:19] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:07:19  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:19  INFO      127.0.0.1 - - [20/Mar/2026 00:07:19] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:07:19  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:19  INFO      127.0.0.1 - - [20/Mar/2026 00:07:19] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:07:22  INFO      127.0.0.1 - - [20/Mar/2026 00:07:22] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:07:22  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:22  INFO      127.0.0.1 - - [20/Mar/2026 00:07:22] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:07:22  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:22  INFO      127.0.0.1 - - [20/Mar/2026 00:07:22] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:07:25  INFO      127.0.0.1 - - [20/Mar/2026 00:07:25] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:07:25  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:25  INFO      127.0.0.1 - - [20/Mar/2026 00:07:25] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:07:25  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:25  INFO      127.0.0.1 - - [20/Mar/2026 00:07:25] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:07:28  INFO      127.0.0.1 - - [20/Mar/2026 00:07:28] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:07:28  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:28  INFO      127.0.0.1 - - [20/Mar/2026 00:07:28] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:07:28  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:28  INFO      127.0.0.1 - - [20/Mar/2026 00:07:28] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:07:31  INFO      127.0.0.1 - - [20/Mar/2026 00:07:31] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:07:31  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:31  INFO      127.0.0.1 - - [20/Mar/2026 00:07:31] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:07:31  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:31  INFO      127.0.0.1 - - [20/Mar/2026 00:07:31] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:07:35  INFO      127.0.0.1 - - [20/Mar/2026 00:07:35] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:07:35  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:35  INFO      127.0.0.1 - - [20/Mar/2026 00:07:35] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:07:35  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:07:35  INFO      127.0.0.1 - - [20/Mar/2026 00:07:35] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:08:35  INFO      127.0.0.1 - - [20/Mar/2026 00:08:35] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:08:35  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:08:35  INFO      127.0.0.1 - - [20/Mar/2026 00:08:35] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:08:35  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:08:35  INFO      127.0.0.1 - - [20/Mar/2026 00:08:35] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:09:35  INFO      127.0.0.1 - - [20/Mar/2026 00:09:35] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:09:35  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:09:35  INFO      127.0.0.1 - - [20/Mar/2026 00:09:35] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:09:35  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:09:35  INFO      127.0.0.1 - - [20/Mar/2026 00:09:35] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:10:35  INFO      127.0.0.1 - - [20/Mar/2026 00:10:35] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:10:35  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:10:35  INFO      127.0.0.1 - - [20/Mar/2026 00:10:35] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:10:35  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:10:35  INFO      127.0.0.1 - - [20/Mar/2026 00:10:35] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 00:11:35  INFO      127.0.0.1 - - [20/Mar/2026 00:11:35] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 00:11:35  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:11:35  INFO      127.0.0.1 - - [20/Mar/2026 00:11:35] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 00:11:35  INFO      Connected  |  Account: 104517852  |  Balance: 2600.44 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 00:11:35  INFO      127.0.0.1 - - [20/Mar/2026 00:11:35] "GET /api/positions HTTP/1.1" 200 -
