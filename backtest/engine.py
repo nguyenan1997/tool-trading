@@ -32,21 +32,23 @@ class Backtester:
             print("Dữ liệu quá ngắn để Back-test")
             return []
 
-        for i in range(start_idx, len(df)):
+        for i in range(start_idx, len(df) - 1):
             current_candle = df.iloc[i]
+            next_candle = df.iloc[i+1]
+            
             # 1. Kiểm tra xem có lệnh nào đang mở bị chạm SL/TP không
             if self.current_position:
                 self._check_exit(current_candle)
 
             # 2. Nếu không có lệnh, kiểm tra tín hiệu mới
             if not self.current_position:
-                # Cung cấp dữ liệu tính đến nến hiện tại cho chiến lược
-                # CHÚ Ý: Chiến lược check_signal dùng df.iloc[-2] để tránh look-ahead bias
+                # Tính tín hiệu dựa trên nến đã đóng (nến i)
                 sub_df = df.iloc[:i+1]
                 signal = self.strategy.check_signal(sub_df)
                 
                 if signal:
-                    entry_price = current_candle["open"] # Vào lệnh tại giá Open nến hiện tại (ngay sau nến signal)
+                    # Vào lệnh tại giá OPEN của nến TIẾP THEO (nến i+1)
+                    entry_price = next_candle["open"]
                     sl, tp = self.strategy.get_sl_tp(sub_df, entry_price, self.digits, signal)
                     
                     if sl and tp:
@@ -55,7 +57,7 @@ class Backtester:
                             "entry": entry_price,
                             "sl": sl,
                             "tp": tp,
-                            "entry_time": current_candle.name if hasattr(current_candle, 'name') else i
+                            "entry_time": next_candle.name if hasattr(next_candle, 'name') else (i+1)
                         }
 
         self._print_summary()

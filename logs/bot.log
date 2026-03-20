@@ -5957,3 +5957,97 @@
 2026-03-21 00:46:08  INFO      127.0.0.1 - - [21/Mar/2026 00:46:08] "POST /api/backtest/run HTTP/1.1" 200 -
 2026-03-21 00:52:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4571.28 | SL: 4566.54 | TP: 4580.76
 2026-03-21 00:52:00  INFO      🟢 BUY OPENED  |  Ticket=7822018581  |  Price=4571.28000  |  SL=4566.54000  |  TP=4580.76000  |  Lot=0.1
+2026-03-21 00:57:35  INFO      Connected  |  Account: 104517852  |  Balance: 3242.98 USD  |  Broker: MetaQuotes Ltd.
+2026-03-21 00:57:35  INFO      Bot Engine STARTED
+2026-03-21 00:57:35  INFO      [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2026-03-21 00:57:35  INFO      [33mPress CTRL+C to quit[0m
+2026-03-21 00:57:39  INFO      127.0.0.1 - - [21/Mar/2026 00:57:39] "GET /backtest HTTP/1.1" 200 -
+2026-03-21 00:58:00  INFO      MT5 disconnected.
+2026-03-21 00:58:04  INFO      127.0.0.1 - - [21/Mar/2026 00:58:04] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 00:58:59  INFO      127.0.0.1 - - [21/Mar/2026 00:58:59] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 00:59:23  INFO      127.0.0.1 - - [21/Mar/2026 00:59:23] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 01:00:20  INFO      Connected  |  Account: 104517852  |  Balance: 3242.98 USD  |  Broker: MetaQuotes Ltd.
+2026-03-21 01:00:20  INFO      MT5 disconnected.
+2026-03-21 01:00:28  INFO      127.0.0.1 - - [21/Mar/2026 01:00:28] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 01:02:29  INFO      127.0.0.1 - - [21/Mar/2026 01:02:29] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 01:04:00  INFO      Connected  |  Account: 104517852  |  Balance: 3242.98 USD  |  Broker: MetaQuotes Ltd.
+2026-03-21 01:06:31  INFO      127.0.0.1 - - [21/Mar/2026 01:06:31] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 01:08:16  INFO      127.0.0.1 - - [21/Mar/2026 01:08:16] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 01:08:45  INFO      127.0.0.1 - - [21/Mar/2026 01:08:45] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 01:11:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4561.46 | SL: 4570.52 | TP: 4534.28
+2026-03-21 01:11:00  INFO      🔴 SELL OPENED  |  Ticket=7822279350  |  Price=4561.46000  |  SL=4570.52000  |  TP=4534.28000  |  Lot=0.1
+2026-03-21 01:14:43  INFO      127.0.0.1 - - [21/Mar/2026 01:14:43] "GET /backtest HTTP/1.1" 200 -
+2026-03-21 01:14:47  INFO      MT5 disconnected.
+2026-03-21 01:14:47  INFO      127.0.0.1 - - [21/Mar/2026 01:14:47] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 01:15:00  INFO      Connected  |  Account: 104517852  |  Balance: 3107.28 USD  |  Broker: MetaQuotes Ltd.
+2026-03-21 01:15:08  INFO      127.0.0.1 - - [21/Mar/2026 01:15:08] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 01:15:36  INFO      127.0.0.1 - - [21/Mar/2026 01:15:36] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 01:18:08  INFO      MT5 disconnected.
+2026-03-21 01:18:11  INFO      127.0.0.1 - - [21/Mar/2026 01:18:11] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 01:18:20  ERROR     Exception on /api/backtest/run [POST]
+Traceback (most recent call last):
+  File "D:\src\Tool-Trading\tool-trading\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "D:\src\Tool-Trading\tool-trading\venv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "D:\src\Tool-Trading\tool-trading\venv\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "D:\src\Tool-Trading\tool-trading\venv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "D:\src\Tool-Trading\tool-trading\venv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "D:\src\Tool-Trading\tool-trading\api\routes.py", line 30, in run_backtest_api
+    count = int(data.get("count", 1000))
+ValueError: invalid literal for int() with base 10: ''
+2026-03-21 01:18:20  INFO      127.0.0.1 - - [21/Mar/2026 01:18:20] "[35m[1mPOST /api/backtest/run HTTP/1.1[0m" 500 -
+2026-03-21 01:18:27  ERROR     Exception on /api/backtest/run [POST]
+Traceback (most recent call last):
+  File "D:\src\Tool-Trading\tool-trading\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "D:\src\Tool-Trading\tool-trading\venv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "D:\src\Tool-Trading\tool-trading\venv\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "D:\src\Tool-Trading\tool-trading\venv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "D:\src\Tool-Trading\tool-trading\venv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "D:\src\Tool-Trading\tool-trading\api\routes.py", line 30, in run_backtest_api
+    count = int(data.get("count", 1000))
+ValueError: invalid literal for int() with base 10: ''
+2026-03-21 01:18:27  INFO      127.0.0.1 - - [21/Mar/2026 01:18:27] "[35m[1mPOST /api/backtest/run HTTP/1.1[0m" 500 -
+2026-03-21 01:18:32  ERROR     Exception on /api/backtest/run [POST]
+Traceback (most recent call last):
+  File "D:\src\Tool-Trading\tool-trading\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "D:\src\Tool-Trading\tool-trading\venv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "D:\src\Tool-Trading\tool-trading\venv\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "D:\src\Tool-Trading\tool-trading\venv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "D:\src\Tool-Trading\tool-trading\venv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "D:\src\Tool-Trading\tool-trading\api\routes.py", line 30, in run_backtest_api
+    count = int(data.get("count", 1000))
+ValueError: invalid literal for int() with base 10: ''
+2026-03-21 01:18:32  INFO      127.0.0.1 - - [21/Mar/2026 01:18:32] "[35m[1mPOST /api/backtest/run HTTP/1.1[0m" 500 -
+2026-03-21 01:19:00  INFO      Connected  |  Account: 104517852  |  Balance: 3107.28 USD  |  Broker: MetaQuotes Ltd.
+2026-03-21 01:22:25  INFO      Connected  |  Account: 104517852  |  Balance: 3107.28 USD  |  Broker: MetaQuotes Ltd.
+2026-03-21 01:22:25  INFO      Bot Engine STARTED
+2026-03-21 01:22:25  INFO      [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2026-03-21 01:22:25  INFO      [33mPress CTRL+C to quit[0m
+2026-03-21 01:22:40  INFO      127.0.0.1 - - [21/Mar/2026 01:22:40] "GET /backtest HTTP/1.1" 200 -
+2026-03-21 01:23:00  INFO      127.0.0.1 - - [21/Mar/2026 01:23:00] "POST /api/backtest/run HTTP/1.1" 200 -

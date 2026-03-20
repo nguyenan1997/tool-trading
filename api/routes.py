@@ -27,14 +27,22 @@ def register_routes(app):
         data = request.json
         symbol = data.get("symbol", config.SYMBOL)
         tf = data.get("timeframe", config.TIMEFRAME)
-        count = int(data.get("count", 1000))
-        balance = float(data.get("balance", 10000))
-        lot = float(data.get("lot", 0.1))
+        # Xử lý chuỗi rỗng từ UI tránh lỗi ValueError
+        count_val = data.get("count")
+        count = int(count_val) if count_val else 1000
+        
+        start_date = data.get("start_date") # YYYY-MM-DD
+        
+        balance_val = data.get("balance")
+        balance = float(balance_val) if balance_val else 100.0
+        
+        lot_val = data.get("lot")
+        lot = float(lot_val) if lot_val else 0.01
         
         # Lấy dữ liệu
-        df = get_historical_data(symbol, tf, count=count)
+        df = get_historical_data(symbol, tf, count=count, start_date=start_date)
         if df is None or df.empty:
-            return jsonify({"error": "Failed to get data"}), 400
+            return jsonify({"error": "Failed to get data for the specified range"}), 400
             
         # Khởi tạo chiến lược (Hiện tại mặc định TripleEMA)
         strategy = TripleEmaStrategy()

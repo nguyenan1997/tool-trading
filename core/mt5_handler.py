@@ -77,6 +77,28 @@ def get_candles(symbol: str, timeframe_str: str, count: int = 300) -> pd.DataFra
                         "tick_volume": "volume"}, inplace=True)
     return df
 
+def get_candles_range(symbol: str, timeframe_str: str, date_from, date_to) -> pd.DataFrame | None:
+    # Đảm bảo luôn kết nối
+    if not connect():
+        return None
+        
+    tf = _TF_MAP.get(timeframe_str.upper())
+    if tf is None:
+        logger.error(f"Unknown timeframe: {timeframe_str}")
+        return None
+
+    rates = mt5.copy_rates_range(symbol, tf, date_from, date_to)
+    if rates is None or len(rates) == 0:
+        logger.error(f"copy_rates_range failed for {symbol} {timeframe_str} from {date_from} → {mt5.last_error()}")
+        return None
+
+    df = pd.DataFrame(rates)
+    df["time"] = pd.to_datetime(df["time"], unit="s")
+    df.rename(columns={"open": "open", "high": "high",
+                        "low": "low", "close": "close",
+                        "tick_volume": "volume"}, inplace=True)
+    return df
+
 
 def get_account_balance() -> float:
     if not connect():

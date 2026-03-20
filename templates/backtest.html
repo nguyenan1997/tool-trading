@@ -153,9 +153,14 @@
                         </select>
                     </div>
                     <div style="flex: 1;">
-                        <label>Candle Count</label>
-                        <input type="number" id="count" value="1000">
+                        <label>Start Date (Optional)</label>
+                        <input type="date" id="start_date">
                     </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Or Candle Count (if no date)</label>
+                    <input type="number" id="count" value="1000">
                 </div>
 
                 <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
@@ -239,6 +244,21 @@
     <script>
         lucide.createIcons();
 
+        // Tự động vô hiệu hóa ô nhập nến khi chọn ngày để tránh nhầm lẫn
+        document.getElementById('start_date').addEventListener('change', function() {
+            const countInput = document.getElementById('count');
+            const countLabel = countInput.parentElement.querySelector('label');
+            if (this.value) {
+                countInput.disabled = true;
+                countInput.style.opacity = '0.3';
+                countLabel.innerText = 'Candle Count (Ignored - using Date)';
+            } else {
+                countInput.disabled = false;
+                countInput.style.opacity = '1';
+                countLabel.innerText = 'Or Candle Count (if no date)';
+            }
+        });
+
         async function runBacktest() {
             const btn = document.getElementById('run-btn');
             btn.disabled = true;
@@ -248,6 +268,7 @@
             const params = {
                 symbol: document.getElementById('symbol').value,
                 timeframe: document.getElementById('timeframe').value,
+                start_date: document.getElementById('start_date').value,
                 count: document.getElementById('count').value,
                 balance: document.getElementById('balance').value,
                 lot: document.getElementById('lot').value,
