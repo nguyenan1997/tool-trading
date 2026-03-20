@@ -12,7 +12,7 @@ EMA_MEDIUM      = 21
 EMA_SLOW        = 50
 
 # --- Strategy Settings ---
-RR_RATIO        = 2.0       # Tỷ lệ Risk:Reward (1:2)
+RR_RATIO        = 3.0       # Tỷ lệ Risk:Reward (1:3)
 
 # --- Lot Size Mode ---
 # "FIXED"  → always use FIXED_LOT

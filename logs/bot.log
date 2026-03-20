@@ -5843,3 +5843,117 @@
 2026-03-20 19:52:00  INFO      🟢 BUY OPENED  |  Ticket=7815068122  |  Price=4679.22000  |  SL=4672.39000  |  TP=4692.88000  |  Lot=0.1
 2026-03-20 20:05:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4670.64 | SL: 4674.83 | TP: 4662.26
 2026-03-20 20:05:00  INFO      🔴 SELL OPENED  |  Ticket=7815282325  |  Price=4670.64000  |  SL=4674.83000  |  TP=4662.26000  |  Lot=0.1
+2026-03-20 20:29:28  INFO      Connected  |  Account: 104517852  |  Balance: 3417.78 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 20:29:28  INFO      Bot Engine STARTED
+2026-03-20 20:29:28  INFO      [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2026-03-20 20:29:28  INFO      [33mPress CTRL+C to quit[0m
+2026-03-20 20:45:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4662.78 | SL: 4657.58 | TP: 4673.18
+2026-03-20 20:45:00  INFO      🟢 BUY OPENED  |  Ticket=7816197759  |  Price=4662.78000  |  SL=4657.58000  |  TP=4673.18000  |  Lot=0.1
+2026-03-20 20:48:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4653.66 | SL: 4657.21 | TP: 4646.56
+2026-03-20 20:48:00  INFO      🔴 SELL OPENED  |  Ticket=7816269853  |  Price=4653.66000  |  SL=4657.21000  |  TP=4646.56000  |  Lot=0.1
+2026-03-20 22:07:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4568.11 | SL: 4568.98 | TP: 4566.37
+2026-03-20 22:07:00  INFO      🔴 SELL OPENED  |  Ticket=7818604611  |  Price=4568.11000  |  SL=4568.98000  |  TP=4566.37000  |  Lot=0.1
+2026-03-20 22:13:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4578.44 | SL: 4568.71 | TP: 4597.9
+2026-03-20 22:13:00  INFO      🟢 BUY OPENED  |  Ticket=7818726297  |  Price=4578.44000  |  SL=4568.71000  |  TP=4597.90000  |  Lot=0.1
+2026-03-20 22:19:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4567.15 | SL: 4569.25 | TP: 4562.95
+2026-03-20 22:19:01  INFO      🔴 SELL OPENED  |  Ticket=7818858550  |  Price=4567.15000  |  SL=4569.25000  |  TP=4562.95000  |  Lot=0.1
+2026-03-20 22:34:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4574.57 | SL: 4563.66 | TP: 4596.39
+2026-03-20 22:34:00  INFO      🟢 BUY OPENED  |  Ticket=7819223537  |  Price=4574.57000  |  SL=4563.66000  |  TP=4596.39000  |  Lot=0.1
+2026-03-20 22:40:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4560.52 | SL: 4563.75 | TP: 4554.06
+2026-03-20 22:40:00  INFO      🔴 SELL OPENED  |  Ticket=7819338042  |  Price=4560.52000  |  SL=4563.75000  |  TP=4554.06000  |  Lot=0.1
+2026-03-20 23:32:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4573.39 | SL: 4586.42 | TP: 4547.33
+2026-03-20 23:32:00  INFO      🔴 SELL OPENED  |  Ticket=7820540552  |  Price=4573.39000  |  SL=4586.42000  |  TP=4547.33000  |  Lot=0.1
+2026-03-20 23:39:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4588.62 | SL: 4585.66 | TP: 4594.54
+2026-03-20 23:39:00  INFO      🟢 BUY OPENED  |  Ticket=7820690477  |  Price=4588.62000  |  SL=4585.66000  |  TP=4594.54000  |  Lot=0.1
+2026-03-20 23:45:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4580.11 | SL: 4585.66 | TP: 4569.01
+2026-03-20 23:45:00  INFO      🔴 SELL OPENED  |  Ticket=7820801606  |  Price=4580.11000  |  SL=4585.66000  |  TP=4569.01000  |  Lot=0.1
+2026-03-20 23:58:32  INFO      127.0.0.1 - - [20/Mar/2026 23:58:32] "GET / HTTP/1.1" 200 -
+2026-03-20 23:58:32  INFO      127.0.0.1 - - [20/Mar/2026 23:58:32] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 23:58:33  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 23:58:33  INFO      127.0.0.1 - - [20/Mar/2026 23:58:33] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 23:58:33  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 23:58:33  INFO      127.0.0.1 - - [20/Mar/2026 23:58:33] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 23:58:33  INFO      127.0.0.1 - - [20/Mar/2026 23:58:33] "GET /api/strategies HTTP/1.1" 200 -
+2026-03-20 23:58:35  INFO      127.0.0.1 - - [20/Mar/2026 23:58:35] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 23:58:35  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 23:58:35  INFO      127.0.0.1 - - [20/Mar/2026 23:58:35] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 23:58:36  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 23:58:36  INFO      127.0.0.1 - - [20/Mar/2026 23:58:36] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 23:58:38  INFO      127.0.0.1 - - [20/Mar/2026 23:58:38] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 23:58:38  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 23:58:38  INFO      127.0.0.1 - - [20/Mar/2026 23:58:38] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 23:58:39  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 23:58:39  INFO      127.0.0.1 - - [20/Mar/2026 23:58:39] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 23:58:41  INFO      127.0.0.1 - - [20/Mar/2026 23:58:41] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 23:58:41  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 23:58:41  INFO      127.0.0.1 - - [20/Mar/2026 23:58:41] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 23:58:42  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 23:58:42  INFO      127.0.0.1 - - [20/Mar/2026 23:58:42] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 23:58:44  INFO      127.0.0.1 - - [20/Mar/2026 23:58:44] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 23:58:44  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 23:58:44  INFO      127.0.0.1 - - [20/Mar/2026 23:58:44] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 23:58:45  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 23:58:45  INFO      127.0.0.1 - - [20/Mar/2026 23:58:45] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 23:58:46  INFO      127.0.0.1 - - [20/Mar/2026 23:58:46] "GET / HTTP/1.1" 200 -
+2026-03-20 23:58:46  INFO      127.0.0.1 - - [20/Mar/2026 23:58:46] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 23:58:46  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 23:58:46  INFO      127.0.0.1 - - [20/Mar/2026 23:58:46] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 23:58:46  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 23:58:46  INFO      127.0.0.1 - - [20/Mar/2026 23:58:46] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 23:58:46  INFO      127.0.0.1 - - [20/Mar/2026 23:58:46] "GET /api/strategies HTTP/1.1" 200 -
+2026-03-20 23:58:49  INFO      127.0.0.1 - - [20/Mar/2026 23:58:49] "GET /api/status HTTP/1.1" 200 -
+2026-03-20 23:58:49  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 23:58:49  INFO      127.0.0.1 - - [20/Mar/2026 23:58:49] "GET /api/account HTTP/1.1" 200 -
+2026-03-20 23:58:49  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 23:58:49  INFO      127.0.0.1 - - [20/Mar/2026 23:58:49] "GET /api/positions HTTP/1.1" 200 -
+2026-03-20 23:58:50  INFO      127.0.0.1 - - [20/Mar/2026 23:58:50] "GET /backtest HTTP/1.1" 200 -
+2026-03-20 23:58:57  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 23:58:57  INFO      MT5 disconnected.
+2026-03-20 23:58:57  INFO      127.0.0.1 - - [20/Mar/2026 23:58:57] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-20 23:59:00  ERROR     copy_rates_from_pos failed for XAUUSD M1 → (-10004, 'No IPC connection')
+2026-03-20 23:59:38  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-20 23:59:38  INFO      MT5 disconnected.
+2026-03-20 23:59:42  INFO      127.0.0.1 - - [20/Mar/2026 23:59:42] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 00:00:00  ERROR     copy_rates_from_pos failed for XAUUSD M1 → (-10004, 'No IPC connection')
+2026-03-21 00:00:26  INFO      127.0.0.1 - - [21/Mar/2026 00:00:26] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 00:00:40  INFO      127.0.0.1 - - [21/Mar/2026 00:00:40] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 00:01:00  ERROR     copy_rates_from_pos failed for XAUUSD M1 → (-10004, 'No IPC connection')
+2026-03-21 00:02:00  ERROR     copy_rates_from_pos failed for XAUUSD M1 → (-10004, 'No IPC connection')
+2026-03-21 00:03:00  ERROR     copy_rates_from_pos failed for XAUUSD M1 → (-10004, 'No IPC connection')
+2026-03-21 00:03:08  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-21 00:03:08  INFO      Bot Engine STARTED
+2026-03-21 00:03:08  INFO      [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2026-03-21 00:03:08  INFO      [33mPress CTRL+C to quit[0m
+2026-03-21 00:05:30  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-21 00:05:30  INFO      Bot Engine STARTED
+2026-03-21 00:05:30  INFO      [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2026-03-21 00:05:30  INFO      [33mPress CTRL+C to quit[0m
+2026-03-21 00:09:31  INFO      127.0.0.1 - - [21/Mar/2026 00:09:31] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 00:15:31  INFO      127.0.0.1 - - [21/Mar/2026 00:15:31] "GET /backtest HTTP/1.1" 200 -
+2026-03-21 00:15:39  INFO      MT5 disconnected.
+2026-03-21 00:15:39  INFO      127.0.0.1 - - [21/Mar/2026 00:15:39] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 00:16:00  INFO      Connected  |  Account: 104517852  |  Balance: 3078.18 USD  |  Broker: MetaQuotes Ltd.
+2026-03-21 00:16:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4576.87 | SL: 4585.1 | TP: 4560.41
+2026-03-21 00:16:00  INFO      🔴 SELL OPENED  |  Ticket=7821425351  |  Price=4576.87000  |  SL=4585.10000  |  TP=4560.41000  |  Lot=0.1
+2026-03-21 00:34:20  INFO      MT5 disconnected.
+2026-03-21 00:34:21  INFO      127.0.0.1 - - [21/Mar/2026 00:34:21] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 00:34:26  INFO      Connected  |  Account: 104517852  |  Balance: 3242.98 USD  |  Broker: MetaQuotes Ltd.
+2026-03-21 00:34:26  INFO      MT5 disconnected.
+2026-03-21 00:34:27  INFO      127.0.0.1 - - [21/Mar/2026 00:34:27] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 00:35:00  INFO      Connected  |  Account: 104517852  |  Balance: 3242.98 USD  |  Broker: MetaQuotes Ltd.
+2026-03-21 00:41:29  INFO      127.0.0.1 - - [21/Mar/2026 00:41:29] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 00:41:47  INFO      MT5 disconnected.
+2026-03-21 00:41:50  INFO      127.0.0.1 - - [21/Mar/2026 00:41:50] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 00:42:00  INFO      Connected  |  Account: 104517852  |  Balance: 3242.98 USD  |  Broker: MetaQuotes Ltd.
+2026-03-21 00:46:08  INFO      127.0.0.1 - - [21/Mar/2026 00:46:08] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-21 00:52:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4571.28 | SL: 4566.54 | TP: 4580.76
+2026-03-21 00:52:00  INFO      🟢 BUY OPENED  |  Ticket=7822018581  |  Price=4571.28000  |  SL=4566.54000  |  TP=4580.76000  |  Lot=0.1

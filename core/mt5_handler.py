@@ -27,6 +27,12 @@ _TF_MAP = {
 _MT5_PATH = r"C:\Program Files\MetaTrader 5\terminal64.exe"
 
 def connect() -> bool:
+    # Kiểm tra xem MT5 đã được khởi tạo chưa
+    terminal_info = mt5.terminal_info()
+    if terminal_info is not None:
+        return True # Đã kết nối
+        
+    # Nếu chưa, thực hiện initialize
     if not mt5.initialize(path=_MT5_PATH):
         logger.error(f"MT5 initialize() failed → {mt5.last_error()}")
         return False
@@ -50,6 +56,10 @@ def disconnect():
 #  Market Data
 # ────────────────────────────────────────────────
 def get_candles(symbol: str, timeframe_str: str, count: int = 300) -> pd.DataFrame | None:
+    # Đảm bảo luôn kết nối trước khi lấy dữ liệu
+    if not connect():
+        return None
+        
     tf = _TF_MAP.get(timeframe_str.upper())
     if tf is None:
         logger.error(f"Unknown timeframe: {timeframe_str}")
@@ -69,11 +79,15 @@ def get_candles(symbol: str, timeframe_str: str, count: int = 300) -> pd.DataFra
 
 
 def get_account_balance() -> float:
+    if not connect():
+        return 0.0
     acc = mt5.account_info()
     return acc.balance if acc else 0.0
 
 
 def get_symbol_info(symbol: str):
+    if not connect():
+        return None
     info = mt5.symbol_info(symbol)
     if info is None:
         logger.error(f"Symbol not found: {symbol}")
@@ -85,6 +99,8 @@ def get_symbol_info(symbol: str):
 
 
 def get_tick(symbol: str):
+    if not connect():
+        return None
     tick = mt5.symbol_info_tick(symbol)
     if tick is None:
         logger.error(f"Cannot get tick for {symbol}")
