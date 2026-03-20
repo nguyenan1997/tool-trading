@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Bot - Backtest System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body {
+            background: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.1) 0px, transparent 50%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .grid { display: grid; grid-template-columns: 350px 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            color: var(--text-dim);
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .input-group { margin-bottom: 1rem; }
+        label { display: block; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.4rem; }
+        input, select {
+            background: #1e293b;
+            color: white;
+            border: 1px solid var(--border);
+            padding: 0.6rem 0.8rem;
+            border-radius: 0.75rem;
+            width: 100%;
+            outline: none;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+        .btn:hover { background: var(--primary-hover); transform: scale(1.02); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .summary-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+        .stat-box { background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 1rem; border: 1px solid var(--border); }
+        .stat-label { font-size: 0.7rem; color: var(--text-dim); }
+        .stat-value { font-size: 1.2rem; font-weight: 700; margin-top: 0.2rem; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
+        th { text-align: left; padding: 0.75rem; color: var(--text-dim); border-bottom: 1px solid var(--border); }
+        td { padding: 0.75rem; border-bottom: 1px solid var(--border); }
+        
+        .row-profit { color: var(--success); }
+        .row-loss { color: var(--danger); }
+
+        #equity-chart { width: 100%; height: 450px; }
+
+        nav { display: flex; gap: 2rem; align-items: center; }
+        nav a { text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i data-lucide="zap"></i>
+                QUANTUM TRADER
+            </div>
+            <nav>
+                <a href="/" style="color: var(--text-dim);">Live Trading</a>
+                <a href="/backtest" style="color: var(--primary);">Back-test</a>
+            </nav>
+        </header>
+
+        <div class="grid">
+            <!-- Sidebar: Inputs -->
+            <div class="card">
+                <div class="card-title"><i data-lucide="settings-2"></i> Parameters</div>
+                
+                <div class="input-group">
+                    <label>Symbol</label>
+                    <input type="text" id="symbol" value="XAUUSD">
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="flex: 1;">
+                        <label>Timeframe</label>
+                        <select id="timeframe">
+                            <option value="M1">M1</option>
+                            <option value="M5">M5</option>
+                            <option value="M15">M15</option>
+                            <option value="H1">H1</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Candle Count</label>
+                        <input type="number" id="count" value="1000">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="flex: 1;">
+                        <label>Init Balance ($)</label>
+                        <input type="number" id="balance" value="100">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Lot Size</label>
+                        <input type="number" id="lot" step="0.01" value="0.01">
+                    </div>
+                </div>
+
+                <hr style="opacity: 0.1; margin: 1.5rem 0;">
+                <div class="card-title" style="margin-bottom: 1rem;">Strategy Engine</div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
+                    <div><label>Fast</label><input type="number" id="ema_fast" value="9"></div>
+                    <div><label>Mid</label><input type="number" id="ema_medium" value="21"></div>
+                    <div><label>Slow</label><input type="number" id="ema_slow" value="50"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label>RR Ratio (1:X)</label>
+                    <input type="number" id="rr" step="0.1" value="2.0">
+                </div>
+
+                <button id="run-btn" class="btn" onclick="runBacktest()">
+                    <i data-lucide="play-circle" style="vertical-align: middle; margin-right: 5px;"></i> Run Simulation
+                </button>
+
+                <!-- Summary Panel -->
+                <div id="summary-panel" class="summary-mini" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; display: none;">
+                    <div class="stat-box">
+                        <div class="stat-label">Trades</div>
+                        <div id="res-trades" class="stat-value">--</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Win Rate</div>
+                        <div id="res-winrate" class="stat-value">--%</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Net Profit</div>
+                        <div id="res-profit" class="stat-value" style="color: var(--success);">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main: Chart & Results -->
+            <div class="card" style="padding: 0;">
+                <div style="padding: 1.5rem 1.5rem 0 1.5rem;">
+                    <div class="card-title"><i data-lucide="line-chart"></i> Equity Performance</div>
+                </div>
+                <div id="equity-chart">
+                    <div style="display: flex; height: 100%; align-items: center; justify-content: center; color: var(--text-dim);">
+                        Set parameters and click Run to see chart
+                    </div>
+                </div>
+                
+                <!-- Table for Trades -->
+                <div style="padding: 1.5rem; max-height: 300px; overflow-y: auto;">
+                    <div class="card-title"><i data-lucide="history"></i> Recent Simulated Trades</div>
+                    <table id="trades-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Type</th>
+                                <th>Entry</th>
+                                <th>Exit</th>
+                                <th>Result</th>
+                                <th>PnL ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trades-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        async function runBacktest() {
+            const btn = document.getElementById('run-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Processing...';
+            lucide.createIcons();
+
+            const params = {
+                symbol: document.getElementById('symbol').value,
+                timeframe: document.getElementById('timeframe').value,
+                count: document.getElementById('count').value,
+                balance: document.getElementById('balance').value,
+                lot: document.getElementById('lot').value,
+                ema_fast: document.getElementById('ema_fast').value,
+                ema_medium: document.getElementById('ema_medium').value,
+                ema_slow: document.getElementById('ema_slow').value,
+                rr: document.getElementById('rr').value
+            };
+
+            try {
+                const res = await fetch('/api/backtest/run', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(params)
+                });
+                const data = await res.json();
+
+                if (data.error) {
+                    alert("Error: " + data.error);
+                    return;
+                }
+
+                displayResults(data);
+            } catch (e) {
+                console.error(e);
+                alert("Request failed. Check if server is running.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="play-circle"></i> Run Simulation';
+                lucide.createIcons();
+            }
+        }
+
+        function displayResults(data) {
+            // 1. Update Summary
+            document.getElementById('summary-panel').style.display = 'grid';
+            document.getElementById('res-trades').innerText = data.summary.total_trades;
+            document.getElementById('res-winrate').innerText = data.summary.win_rate + '%';
+            document.getElementById('res-profit').innerText = '$' + data.summary.profit.toLocaleString();
+            document.getElementById('res-profit').style.color = data.summary.profit >= 0 ? 'var(--success)' : 'var(--danger)';
+
+            // 2. Plot Chart
+            const balances = data.trades.map(t => t.balance);
+            const times = data.trades.map((t, i) => i + 1);
+            
+            const trace = {
+                x: times,
+                y: balances,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Equity',
+                line: { color: '#6366f1', width: 2 },
+                marker: {
+                    color: data.trades.map(t => t.result === 'PROFIT' ? '#22c55e' : '#ef4444'),
+                    size: 6
+                }
+            };
+
+            const layout = {
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: '#94a3b8' },
+                margin: { t: 20, b: 40, l: 60, r: 20 },
+                xaxis: { gridcolor: 'rgba(255,255,255,0.05)', zeroline: false },
+                yaxis: { gridcolor: 'rgba(255,255,255,0.05)', zeroline: false }
+            };
+
+            Plotly.newPlot('equity-chart', [trace], layout, {responsive: true});
+
+            // 3. Update Table
+            const body = document.getElementById('trades-body');
+            body.innerHTML = data.trades.map(t => `
+                <tr class="${t.result === 'PROFIT' ? 'row-profit' : 'row-loss'}">
+                    <td>${t.entry_time.split(' ')[1] || t.entry_time}</td>
+                    <td>${t.type}</td>
+                    <td>${t.entry.toFixed(2)}</td>
+                    <td>${t.exit.toFixed(2)}</td>
+                    <td>${t.result}</td>
+                    <td>${t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(2)}</td>
+                </tr>
+            `).reverse().join('');
+        }
+    </script>
+</body>
+</html>

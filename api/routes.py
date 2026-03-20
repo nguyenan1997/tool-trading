@@ -5,13 +5,75 @@ Các liên kết API cho Control Center.
 from flask import jsonify, request, render_template
 import core.mt5_handler as mt5h
 import config
+from datetime import datetime
+import pandas as pd
 from core.bot_engine import bot_engine
 from strategies.manager import strategy_manager
+from backtest.engine import Backtester
+from backtest.data_loader import get_historical_data
+from strategies.triple_ema import TripleEmaStrategy
 
 def register_routes(app):
     @app.route('/')
     def index():
         return render_template('index.html')
+
+    @app.route('/backtest')
+    def backtest_page():
+        return render_template('backtest.html')
+
+    @app.route('/api/backtest/run', methods=['POST'])
+    def run_backtest_api():
+        data = request.json
+        symbol = data.get("symbol", config.SYMBOL)
+        tf = data.get("timeframe", config.TIMEFRAME)
+        count = int(data.get("count", 1000))
+        balance = float(data.get("balance", 10000))
+        lot = float(data.get("lot", 0.1))
+        
+        # Lấy dữ liệu
+        df = get_historical_data(symbol, tf, count=count)
+        if df is None or df.empty:
+            return jsonify({"error": "Failed to get data"}), 400
+            
+        # Khởi tạo chiến lược (Hiện tại mặc định TripleEMA)
+        strategy = TripleEmaStrategy()
+        
+        # Cấu hình lại các thông số EMA nếu có gửi từ client
+        if "ema_fast" in data: strategy.fast = int(data["ema_fast"])
+        if "ema_medium" in data: strategy.medium = int(data["ema_medium"])
+        if "ema_slow" in data: strategy.slow = int(data["ema_slow"])
+        if "rr" in data: strategy.rr = float(data["rr"])
+        
+        # Chạy backtest
+        # XAUUSD thường dùng 2 digits cho giá
+        tester = Backtester(strategy, initial_balance=balance, lot_size=lot, digits=2)
+        trades = tester.run(df)
+        
+        # Chuyển đổi datetime sang string để tránh lỗi jsonify
+        formatted_trades = []
+        for t in trades:
+            t_copy = t.copy()
+            if isinstance(t_copy["entry_time"], (datetime, pd.Timestamp)):
+                t_copy["entry_time"] = t_copy["entry_time"].strftime('%Y-%m-%d %H:%M')
+            if isinstance(t_copy["exit_time"], (datetime, pd.Timestamp)):
+                t_copy["exit_time"] = t_copy["exit_time"].strftime('%Y-%m-%d %H:%M')
+            formatted_trades.append(t_copy)
+
+        # Tính toán một số chỉ số nhanh
+        wins = len([t for t in trades if t["result"] == "PROFIT"])
+        total = len(trades)
+        win_rate = (wins / total * 100) if total > 0 else 0
+        
+        return jsonify({
+            "summary": {
+                "total_trades": total,
+                "win_rate": round(win_rate, 2),
+                "final_balance": round(tester.balance, 2),
+                "profit": round(tester.balance - balance, 2)
+            },
+            "trades": formatted_trades # Gửi toàn bộ lịch sử
+        })
 
     @app.route('/api/status', methods=['GET'])
     def get_status():
