@@ -4,7 +4,7 @@ Chạy thử nghiệm chiến lược trên dữ liệu lịch sử.
 """
 from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data
-from backtest.visualizer import plot_results
+# from backtest.visualizer import plot_results # Đã loại bỏ
 from strategies.triple_ema import TripleEmaStrategy
 import config
 import logging
@@ -49,19 +49,12 @@ def main():
     
     trades = tester.run(df)
 
-    # 5. Hiển thị danh sách lệnh và vẽ biểu đồ
+    # 5. Hiển thị kết quả tóm tắt
     if trades:
         print("\n--- CHI TIẾT 5 LỆNH CUỐI ---")
         trades_df = pd.DataFrame(trades).tail(5)
+        # Chỉ hiển thị các cột quan trọng
         print(trades_df[["type", "entry", "exit", "result", "pnl", "balance"]])
-        
-        # Vẽ biểu đồ
-        plot_results(trades, initial_balance, symbol, timeframe)
-        
-        # Lưu kết quả ra CSV
-        trades_full_df = pd.DataFrame(trades)
-        trades_full_df.to_csv(f"backtest/results_{symbol}_{timeframe}.csv", index=False)
-        print(f"\n✅ Đã lưu kết quả chi tiết vào: backtest/results_{symbol}_{timeframe}.csv")
     else:
         print("\n⚠️ Không có lệnh nào được thực hiện trong khoảng thời gian này.")
 

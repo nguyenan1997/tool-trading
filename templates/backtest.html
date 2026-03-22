@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Bot - Backtest System</title>
+    <title>Trading Bot - Hệ thống Backtest</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
@@ -127,24 +127,24 @@
                 QUANTUM TRADER
             </div>
             <nav>
-                <a href="/" style="color: var(--text-dim);">Live Trading</a>
-                <a href="/backtest" style="color: var(--primary);">Back-test</a>
+                <a href="/" style="color: var(--text-dim);">Giao dịch trực tiếp</a>
+                <a href="/backtest" style="color: var(--primary);">Kiểm tra lại (Backtest)</a>
             </nav>
         </header>
 
         <div class="grid">
             <!-- Sidebar: Inputs -->
             <div class="card">
-                <div class="card-title"><i data-lucide="settings-2"></i> Parameters</div>
+                <div class="card-title"><i data-lucide="settings-2"></i> Thông số cấu hình</div>
                 
                 <div class="input-group">
-                    <label>Symbol</label>
+                    <label>Cặp tài sản</label>
                     <input type="text" id="symbol" value="XAUUSD">
                 </div>
                 
                 <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
                     <div style="flex: 1;">
-                        <label>Timeframe</label>
+                        <label>Khung thời gian</label>
                         <select id="timeframe">
                             <option value="M1">M1</option>
                             <option value="M5">M5</option>
@@ -153,57 +153,57 @@
                         </select>
                     </div>
                     <div style="flex: 1;">
-                        <label>Start Date (Optional)</label>
+                        <label>Ngày bắt đầu (Tùy chọn)</label>
                         <input type="date" id="start_date">
                     </div>
                 </div>
                 
                 <div class="input-group">
-                    <label>Or Candle Count (if no date)</label>
+                    <label>Số lượng nến (nếu không chọn ngày)</label>
                     <input type="number" id="count" value="1000">
                 </div>
 
                 <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
                     <div style="flex: 1;">
-                        <label>Init Balance ($)</label>
+                        <label>Vốn khởi đầu ($)</label>
                         <input type="number" id="balance" value="100">
                     </div>
                     <div style="flex: 1;">
-                        <label>Lot Size</label>
+                        <label>Khối lượng lệnh (Lot)</label>
                         <input type="number" id="lot" step="0.01" value="0.01">
                     </div>
                 </div>
 
                 <hr style="opacity: 0.1; margin: 1.5rem 0;">
-                <div class="card-title" style="margin-bottom: 1rem;">Strategy Engine</div>
+                <div class="card-title" style="margin-bottom: 1rem;">Chiến lược giao dịch</div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
-                    <div><label>Fast</label><input type="number" id="ema_fast" value="9"></div>
-                    <div><label>Mid</label><input type="number" id="ema_medium" value="21"></div>
-                    <div><label>Slow</label><input type="number" id="ema_slow" value="50"></div>
+                    <div><label>EMA Nhanh</label><input type="number" id="ema_fast" value="9"></div>
+                    <div><label>EMA Vừa</label><input type="number" id="ema_medium" value="21"></div>
+                    <div><label>EMA Chậm</label><input type="number" id="ema_slow" value="50"></div>
                 </div>
                 
                 <div class="input-group">
-                    <label>RR Ratio (1:X)</label>
+                    <label>Tỉ lệ lợi nhuận RR (1:X)</label>
                     <input type="number" id="rr" step="0.1" value="3.0">
                 </div>
 
                 <button id="run-btn" class="btn" onclick="runBacktest()">
-                    <i data-lucide="play-circle" style="vertical-align: middle; margin-right: 5px;"></i> Run Simulation
+                    <i data-lucide="play-circle" style="vertical-align: middle; margin-right: 5px;"></i> Bắt đầu mô phỏng
                 </button>
 
                 <!-- Summary Panel -->
                 <div id="summary-panel" class="summary-mini" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; display: none;">
                     <div class="stat-box">
-                        <div class="stat-label">Trades</div>
+                        <div class="stat-label">Tổng lệnh</div>
                         <div id="res-trades" class="stat-value">--</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-label">Win Rate</div>
+                        <div class="stat-label">Tỉ lệ thắng</div>
                         <div id="res-winrate" class="stat-value">--%</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-label">Net Profit</div>
+                        <div class="stat-label">Lợi nhuận ròng</div>
                         <div id="res-profit" class="stat-value" style="color: var(--success);">--</div>
                     </div>
                 </div>
@@ -212,26 +212,26 @@
             <!-- Main: Chart & Results -->
             <div class="card" style="padding: 0;">
                 <div style="padding: 1.5rem 1.5rem 0 1.5rem;">
-                    <div class="card-title"><i data-lucide="line-chart"></i> Equity Performance</div>
+                    <div class="card-title"><i data-lucide="line-chart"></i> Hiệu suất tài khoản (Equity)</div>
                 </div>
                 <div id="equity-chart">
                     <div style="display: flex; height: 100%; align-items: center; justify-content: center; color: var(--text-dim);">
-                        Set parameters and click Run to see chart
+                        Thiết lập thông số và nhấn Bắt đầu để xem kết quả
                     </div>
                 </div>
                 
                 <!-- Table for Trades -->
                 <div style="padding: 1.5rem; max-height: 300px; overflow-y: auto;">
-                    <div class="card-title"><i data-lucide="history"></i> Recent Simulated Trades</div>
+                    <div class="card-title"><i data-lucide="history"></i> Lịch sử giao dịch mô phỏng</div>
                     <table id="trades-table">
                         <thead>
                             <tr>
-                                <th>Time</th>
-                                <th>Type</th>
-                                <th>Entry</th>
-                                <th>Exit</th>
-                                <th>Result</th>
-                                <th>PnL ($)</th>
+                                <th>Thời gian</th>
+                                <th>Loại</th>
+                                <th>Giá vào</th>
+                                <th>Giá đóng</th>
+                                <th>Kết quả</th>
+                                <th>Lợi nhuận ($)</th>
                             </tr>
                         </thead>
                         <tbody id="trades-body"></tbody>
@@ -244,25 +244,24 @@
     <script>
         lucide.createIcons();
 
-        // Tự động vô hiệu hóa ô nhập nến khi chọn ngày để tránh nhầm lẫn
         document.getElementById('start_date').addEventListener('change', function() {
             const countInput = document.getElementById('count');
             const countLabel = countInput.parentElement.querySelector('label');
             if (this.value) {
                 countInput.disabled = true;
                 countInput.style.opacity = '0.3';
-                countLabel.innerText = 'Candle Count (Ignored - using Date)';
+                countLabel.innerText = 'Số lượng nến (Bị bỏ qua - dùng Ngày)';
             } else {
                 countInput.disabled = false;
                 countInput.style.opacity = '1';
-                countLabel.innerText = 'Or Candle Count (if no date)';
+                countLabel.innerText = 'Số lượng nến (nếu không chọn ngày)';
             }
         });
 
         async function runBacktest() {
             const btn = document.getElementById('run-btn');
             btn.disabled = true;
-            btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Processing...';
+            btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Đang xử lý...';
             lucide.createIcons();
 
             const params = {
@@ -287,69 +286,90 @@
                 const data = await res.json();
 
                 if (data.error) {
-                    alert("Error: " + data.error);
+                    alert("Lỗi: " + data.error);
                     return;
                 }
 
                 displayResults(data);
             } catch (e) {
                 console.error(e);
-                alert("Request failed. Check if server is running.");
+                alert("Yêu cầu thất bại. Hãy kiểm tra server.");
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i data-lucide="play-circle"></i> Run Simulation';
+                btn.innerHTML = '<i data-lucide="play-circle"></i> Bắt đầu mô phỏng';
                 lucide.createIcons();
             }
         }
 
         function displayResults(data) {
-            // 1. Update Summary
             document.getElementById('summary-panel').style.display = 'grid';
             document.getElementById('res-trades').innerText = data.summary.total_trades;
             document.getElementById('res-winrate').innerText = data.summary.win_rate + '%';
             document.getElementById('res-profit').innerText = '$' + data.summary.profit.toLocaleString();
             document.getElementById('res-profit').style.color = data.summary.profit >= 0 ? 'var(--success)' : 'var(--danger)';
 
-            // 2. Plot Chart
             const balances = data.trades.map(t => t.balance);
-            const times = data.trades.map((t, i) => i + 1);
+            const times = data.trades.map(t => t.entry_time);
             
             const trace = {
                 x: times,
                 y: balances,
                 type: 'scatter',
                 mode: 'lines+markers',
-                name: 'Equity',
+                name: 'Số dư',
                 line: { color: '#6366f1', width: 2 },
                 marker: {
                     color: data.trades.map(t => t.result === 'PROFIT' ? '#22c55e' : '#ef4444'),
                     size: 6
-                }
+                },
+                hovertemplate: '<b>%{x}</b><br>Số dư: $%{y:.2f}<extra></extra>'
             };
 
             const layout = {
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
                 font: { color: '#94a3b8' },
-                margin: { t: 20, b: 40, l: 60, r: 20 },
-                xaxis: { gridcolor: 'rgba(255,255,255,0.05)', zeroline: false },
-                yaxis: { gridcolor: 'rgba(255,255,255,0.05)', zeroline: false }
+                margin: { t: 20, b: 60, l: 60, r: 20 },
+                hovermode: 'closest',
+                dragmode: 'pan',
+                xaxis: { 
+                    gridcolor: 'rgba(255,255,255,0.05)', 
+                    zeroline: false,
+                    title: 'Thời gian',
+                    fixedrange: false
+                },
+                yaxis: { 
+                    gridcolor: 'rgba(255,255,255,0.05)', 
+                    zeroline: false,
+                    fixedrange: false 
+                }
             };
 
-            Plotly.newPlot('equity-chart', [trace], layout, {responsive: true});
+            const config = {
+                responsive: true,
+                scrollZoom: true,
+                displayModeBar: true,
+                modeBarButtonsToAdd: ['dragmode', 'pan2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d'],
+                displaylogo: false
+            };
 
-            // 3. Update Table
+            Plotly.newPlot('equity-chart', [trace], layout, config);
+
             const body = document.getElementById('trades-body');
-            body.innerHTML = data.trades.map(t => `
-                <tr class="${t.result === 'PROFIT' ? 'row-profit' : 'row-loss'}">
-                    <td>${t.entry_time.split(' ')[1] || t.entry_time}</td>
-                    <td>${t.type}</td>
-                    <td>${t.entry.toFixed(2)}</td>
-                    <td>${t.exit.toFixed(2)}</td>
-                    <td>${t.result}</td>
-                    <td>${t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(2)}</td>
-                </tr>
-            `).reverse().join('');
+            body.innerHTML = data.trades.map(t => {
+                const resText = t.result === 'PROFIT' ? 'THẮNG' : 'THUA';
+                const typeText = t.type === 'BUY' ? 'MUA' : 'BÁN';
+                return `
+                    <tr class="${t.result === 'PROFIT' ? 'row-profit' : 'row-loss'}">
+                        <td>${t.entry_time}</td>
+                        <td>${typeText}</td>
+                        <td>${t.entry.toFixed(2)}</td>
+                        <td>${t.exit.toFixed(2)}</td>
+                        <td>${resText}</td>
+                        <td>${t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).reverse().join('');
         }
     </script>
 </body>
