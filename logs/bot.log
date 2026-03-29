@@ -1,0 +1,488 @@
+2026-03-22 12:48:06  ERROR     MT5 initialize() failed → (-6, 'Terminal: Authorization failed')
+2026-03-22 12:48:06  INFO      Bot Engine STARTED
+2026-03-22 12:48:06  INFO      [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2026-03-22 12:48:06  INFO      [33mPress CTRL+C to quit[0m
+2026-03-22 12:49:16  INFO      127.0.0.1 - - [22/Mar/2026 12:49:16] "GET / HTTP/1.1" 200 -
+2026-03-22 12:49:17  INFO      127.0.0.1 - - [22/Mar/2026 12:49:17] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:49:17  ERROR     MT5 initialize() failed → (-6, 'Terminal: Authorization failed')
+2026-03-22 12:49:17  INFO      127.0.0.1 - - [22/Mar/2026 12:49:17] "[35m[1mGET /api/account HTTP/1.1[0m" 500 -
+2026-03-22 12:49:19  INFO      127.0.0.1 - - [22/Mar/2026 12:49:19] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:49:20  ERROR     MT5 initialize() failed → (-6, 'Terminal: Authorization failed')
+2026-03-22 12:49:20  INFO      127.0.0.1 - - [22/Mar/2026 12:49:20] "[35m[1mGET /api/account HTTP/1.1[0m" 500 -
+2026-03-22 12:49:23  INFO      127.0.0.1 - - [22/Mar/2026 12:49:23] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:49:23  ERROR     MT5 initialize() failed → (-6, 'Terminal: Authorization failed')
+2026-03-22 12:49:23  INFO      127.0.0.1 - - [22/Mar/2026 12:49:23] "[35m[1mGET /api/account HTTP/1.1[0m" 500 -
+2026-03-22 12:49:26  INFO      127.0.0.1 - - [22/Mar/2026 12:49:26] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:49:26  ERROR     MT5 initialize() failed → (-6, 'Terminal: Authorization failed')
+2026-03-22 12:49:26  INFO      127.0.0.1 - - [22/Mar/2026 12:49:26] "[35m[1mGET /api/account HTTP/1.1[0m" 500 -
+2026-03-22 12:49:28  INFO      127.0.0.1 - - [22/Mar/2026 12:49:28] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:49:29  ERROR     MT5 initialize() failed → (-6, 'Terminal: Authorization failed')
+2026-03-22 12:49:29  INFO      127.0.0.1 - - [22/Mar/2026 12:49:29] "[35m[1mGET /api/account HTTP/1.1[0m" 500 -
+2026-03-22 12:49:31  INFO      127.0.0.1 - - [22/Mar/2026 12:49:31] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:49:35  INFO      Connected  |  Account: 104517852  |  Balance: 3091.98 USD  |  Broker: MetaQuotes Ltd.
+2026-03-22 12:49:35  INFO      127.0.0.1 - - [22/Mar/2026 12:49:35] "GET /api/account HTTP/1.1" 200 -
+2026-03-22 12:49:35  INFO      127.0.0.1 - - [22/Mar/2026 12:49:35] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:49:36  INFO      127.0.0.1 - - [22/Mar/2026 12:49:36] "GET /api/positions HTTP/1.1" 200 -
+2026-03-22 12:49:36  INFO      127.0.0.1 - - [22/Mar/2026 12:49:36] "GET /api/account HTTP/1.1" 200 -
+2026-03-22 12:49:36  INFO      127.0.0.1 - - [22/Mar/2026 12:49:36] "GET /api/strategies HTTP/1.1" 200 -
+2026-03-22 12:49:36  INFO      127.0.0.1 - - [22/Mar/2026 12:49:36] "GET /api/positions HTTP/1.1" 200 -
+2026-03-22 12:49:38  INFO      127.0.0.1 - - [22/Mar/2026 12:49:38] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:49:38  INFO      127.0.0.1 - - [22/Mar/2026 12:49:38] "GET /api/account HTTP/1.1" 200 -
+2026-03-22 12:49:38  INFO      127.0.0.1 - - [22/Mar/2026 12:49:38] "GET /api/positions HTTP/1.1" 200 -
+2026-03-22 12:49:41  INFO      127.0.0.1 - - [22/Mar/2026 12:49:41] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:49:41  INFO      127.0.0.1 - - [22/Mar/2026 12:49:41] "GET /api/account HTTP/1.1" 200 -
+2026-03-22 12:49:41  INFO      127.0.0.1 - - [22/Mar/2026 12:49:41] "GET /api/positions HTTP/1.1" 200 -
+2026-03-22 12:49:44  INFO      127.0.0.1 - - [22/Mar/2026 12:49:44] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:49:44  INFO      127.0.0.1 - - [22/Mar/2026 12:49:44] "GET /api/account HTTP/1.1" 200 -
+2026-03-22 12:49:44  INFO      127.0.0.1 - - [22/Mar/2026 12:49:44] "GET /api/positions HTTP/1.1" 200 -
+2026-03-22 12:49:47  INFO      127.0.0.1 - - [22/Mar/2026 12:49:47] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:49:47  INFO      127.0.0.1 - - [22/Mar/2026 12:49:47] "GET /api/account HTTP/1.1" 200 -
+2026-03-22 12:49:47  INFO      127.0.0.1 - - [22/Mar/2026 12:49:47] "GET /api/positions HTTP/1.1" 200 -
+2026-03-22 12:49:50  INFO      127.0.0.1 - - [22/Mar/2026 12:49:50] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:49:50  INFO      127.0.0.1 - - [22/Mar/2026 12:49:50] "GET /api/account HTTP/1.1" 200 -
+2026-03-22 12:49:50  INFO      127.0.0.1 - - [22/Mar/2026 12:49:50] "GET /api/positions HTTP/1.1" 200 -
+2026-03-22 12:49:53  INFO      127.0.0.1 - - [22/Mar/2026 12:49:53] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:49:53  INFO      127.0.0.1 - - [22/Mar/2026 12:49:53] "GET /api/account HTTP/1.1" 200 -
+2026-03-22 12:49:53  INFO      127.0.0.1 - - [22/Mar/2026 12:49:53] "GET /api/positions HTTP/1.1" 200 -
+2026-03-22 12:49:56  INFO      127.0.0.1 - - [22/Mar/2026 12:49:56] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:49:56  INFO      127.0.0.1 - - [22/Mar/2026 12:49:56] "GET /api/account HTTP/1.1" 200 -
+2026-03-22 12:49:56  INFO      127.0.0.1 - - [22/Mar/2026 12:49:56] "GET /api/positions HTTP/1.1" 200 -
+2026-03-22 12:49:59  INFO      127.0.0.1 - - [22/Mar/2026 12:49:59] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:49:59  INFO      127.0.0.1 - - [22/Mar/2026 12:49:59] "GET /api/account HTTP/1.1" 200 -
+2026-03-22 12:49:59  INFO      127.0.0.1 - - [22/Mar/2026 12:49:59] "GET /api/positions HTTP/1.1" 200 -
+2026-03-22 12:50:02  INFO      127.0.0.1 - - [22/Mar/2026 12:50:02] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:50:02  INFO      127.0.0.1 - - [22/Mar/2026 12:50:02] "GET /api/account HTTP/1.1" 200 -
+2026-03-22 12:50:02  INFO      127.0.0.1 - - [22/Mar/2026 12:50:02] "GET /api/positions HTTP/1.1" 200 -
+2026-03-22 12:50:05  INFO      127.0.0.1 - - [22/Mar/2026 12:50:05] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:50:05  INFO      127.0.0.1 - - [22/Mar/2026 12:50:05] "GET /api/account HTTP/1.1" 200 -
+2026-03-22 12:50:05  INFO      127.0.0.1 - - [22/Mar/2026 12:50:05] "GET /api/positions HTTP/1.1" 200 -
+2026-03-22 12:50:08  INFO      127.0.0.1 - - [22/Mar/2026 12:50:08] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:50:08  INFO      127.0.0.1 - - [22/Mar/2026 12:50:08] "GET /api/account HTTP/1.1" 200 -
+2026-03-22 12:50:08  INFO      127.0.0.1 - - [22/Mar/2026 12:50:08] "GET /api/positions HTTP/1.1" 200 -
+2026-03-22 12:50:11  INFO      127.0.0.1 - - [22/Mar/2026 12:50:11] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:50:11  INFO      127.0.0.1 - - [22/Mar/2026 12:50:11] "GET /api/account HTTP/1.1" 200 -
+2026-03-22 12:50:11  INFO      127.0.0.1 - - [22/Mar/2026 12:50:11] "GET /api/positions HTTP/1.1" 200 -
+2026-03-22 12:50:14  INFO      127.0.0.1 - - [22/Mar/2026 12:50:14] "GET /api/status HTTP/1.1" 200 -
+2026-03-22 12:50:17  INFO      Connected  |  Account: 104517852  |  Balance: 3091.98 USD  |  Broker: MetaQuotes Ltd.
+2026-03-22 12:50:17  INFO      127.0.0.1 - - [22/Mar/2026 12:50:17] "GET /api/account HTTP/1.1" 200 -
+2026-03-23 00:25:44  INFO      Connected  |  Account: 104517852  |  Balance: 3091.98 USD  |  Broker: MetaQuotes Ltd.
+2026-03-23 00:25:44  INFO      Bot Engine STARTED
+2026-03-23 00:25:44  INFO      [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2026-03-23 00:25:44  INFO      [33mPress CTRL+C to quit[0m
+2026-03-23 05:10:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4511.78 | SL: 4493.06 | TP: 4567.94
+2026-03-23 05:10:00  INFO      🟢 BUY OPENED  |  Ticket=7825913018  |  Price=4511.78000  |  SL=4493.06000  |  TP=4567.94000  |  Lot=0.1
+2026-03-23 05:38:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4508.45 | SL: 4515.33 | TP: 4487.81
+2026-03-23 05:38:00  INFO      🔴 SELL OPENED  |  Ticket=7826792314  |  Price=4508.45000  |  SL=4515.33000  |  TP=4487.81000  |  Lot=0.1
+2026-03-23 06:46:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4492.05 | SL: 4485.67 | TP: 4511.19
+2026-03-23 06:46:00  INFO      🟢 BUY OPENED  |  Ticket=7827824813  |  Price=4492.05000  |  SL=4485.67000  |  TP=4511.19000  |  Lot=0.1
+2026-03-23 06:47:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4482.11 | SL: 4485.36 | TP: 4472.36
+2026-03-23 06:47:00  INFO      🔴 SELL OPENED  |  Ticket=7827839762  |  Price=4482.11000  |  SL=4485.36000  |  TP=4472.36000  |  Lot=0.1
+2026-03-23 08:49:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4418.75 | SL: 4431.27 | TP: 4381.19
+2026-03-23 08:49:00  INFO      🔴 SELL OPENED  |  Ticket=7830249309  |  Price=4418.75000  |  SL=4431.27000  |  TP=4381.19000  |  Lot=0.1
+2026-03-23 10:52:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4358.58 | SL: 4349.32 | TP: 4386.36
+2026-03-23 10:52:00  INFO      🟢 BUY OPENED  |  Ticket=7832004348  |  Price=4358.58000  |  SL=4349.32000  |  TP=4386.36000  |  Lot=0.1
+2026-03-23 11:34:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4360.42 | SL: 4366.14 | TP: 4343.26
+2026-03-23 11:34:00  INFO      🔴 SELL OPENED  |  Ticket=7832486033  |  Price=4360.42000  |  SL=4366.14000  |  TP=4343.26000  |  Lot=0.1
+2026-03-23 11:36:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4367.58 | SL: 4366.29 | TP: 4371.45
+2026-03-23 11:36:00  INFO      🟢 BUY OPENED  |  Ticket=7832512799  |  Price=4367.58000  |  SL=4366.29000  |  TP=4371.45000  |  Lot=0.1
+2026-03-23 11:51:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4363.32 | SL: 4370.21 | TP: 4342.65
+2026-03-23 11:51:00  INFO      🔴 SELL OPENED  |  Ticket=7832705851  |  Price=4363.32000  |  SL=4370.21000  |  TP=4342.65000  |  Lot=0.1
+2026-03-23 12:02:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4375.07 | SL: 4365.72 | TP: 4403.12
+2026-03-23 12:02:00  INFO      🟢 BUY OPENED  |  Ticket=7832884333  |  Price=4375.07000  |  SL=4365.72000  |  TP=4403.12000  |  Lot=0.1
+2026-03-23 12:19:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4365.07 | SL: 4370.91 | TP: 4347.55
+2026-03-23 12:19:00  INFO      🔴 SELL OPENED  |  Ticket=7833097377  |  Price=4365.07000  |  SL=4370.91000  |  TP=4347.55000  |  Lot=0.1
+2026-03-23 15:31:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4239.91 | SL: 4225.33 | TP: 4283.65
+2026-03-23 15:31:00  INFO      🟢 BUY OPENED  |  Ticket=7838568844  |  Price=4239.91000  |  SL=4225.33000  |  TP=4283.65000  |  Lot=0.1
+2026-03-23 16:01:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4257.17 | SL: 4241.66 | TP: 4303.7
+2026-03-23 16:01:00  INFO      🟢 BUY OPENED  |  Ticket=7839405194  |  Price=4257.17000  |  SL=4241.66000  |  TP=4303.70000  |  Lot=0.1
+2026-03-23 16:38:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4258.22 | SL: 4282.31 | TP: 4185.95
+2026-03-23 16:38:01  INFO      🔴 SELL OPENED  |  Ticket=7840374653  |  Price=4258.22000  |  SL=4282.31000  |  TP=4185.95000  |  Lot=0.1
+2026-03-23 18:55:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4402.19 | SL: 4398.15 | TP: 4414.31
+2026-03-23 18:55:00  INFO      🟢 BUY OPENED  |  Ticket=7844632208  |  Price=4402.19000  |  SL=4398.15000  |  TP=4414.31000  |  Lot=0.1
+2026-03-23 19:18:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4389.94 | SL: 4370.23 | TP: 4449.07
+2026-03-23 19:18:00  INFO      🟢 BUY OPENED  |  Ticket=7845477458  |  Price=4389.94000  |  SL=4370.23000  |  TP=4449.07000  |  Lot=0.1
+2026-03-23 20:41:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4436.16 | SL: 4425.9 | TP: 4466.94
+2026-03-23 20:41:00  INFO      🟢 BUY OPENED  |  Ticket=7848271609  |  Price=4436.16000  |  SL=4425.90000  |  TP=4466.94000  |  Lot=0.1
+2026-03-23 21:41:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4474.64 | SL: 4486.58 | TP: 4438.82
+2026-03-23 21:41:00  INFO      🔴 SELL OPENED  |  Ticket=7850340544  |  Price=4474.64000  |  SL=4486.58000  |  TP=4438.82000  |  Lot=0.1
+2026-03-23 22:07:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4483.83 | SL: 4474.04 | TP: 4513.2
+2026-03-23 22:07:00  INFO      🟢 BUY OPENED  |  Ticket=7851132870  |  Price=4483.83000  |  SL=4474.04000  |  TP=4513.20000  |  Lot=0.1
+2026-03-23 22:15:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4465.5 | SL: 4474.39 | TP: 4438.83
+2026-03-23 22:15:00  INFO      🔴 SELL OPENED  |  Ticket=7851359456  |  Price=4465.50000  |  SL=4474.39000  |  TP=4438.83000  |  Lot=0.1
+2026-03-23 23:18:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4369.52 | SL: 4380.73 | TP: 4335.89
+2026-03-23 23:18:00  INFO      🔴 SELL OPENED  |  Ticket=7853557881  |  Price=4369.52000  |  SL=4380.73000  |  TP=4335.89000  |  Lot=0.1
+2026-03-24 00:00:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4379.18 | SL: 4380.5 | TP: 4375.22
+2026-03-24 00:00:00  INFO      🔴 SELL OPENED  |  Ticket=7854658788  |  Price=4379.18000  |  SL=4380.50000  |  TP=4375.22000  |  Lot=0.1
+2026-03-24 00:01:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4384.78 | SL: 4380.9 | TP: 4396.42
+2026-03-24 00:01:00  INFO      🟢 BUY OPENED  |  Ticket=7854689561  |  Price=4384.78000  |  SL=4380.90000  |  TP=4396.42000  |  Lot=0.1
+2026-03-24 00:03:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4374.82 | SL: 4380.62 | TP: 4357.42
+2026-03-24 00:03:00  INFO      🔴 SELL OPENED  |  Ticket=7854740690  |  Price=4374.82000  |  SL=4380.62000  |  TP=4357.42000  |  Lot=0.1
+2026-03-24 00:08:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4388.58 | SL: 4380.32 | TP: 4413.36
+2026-03-24 00:08:00  INFO      🟢 BUY OPENED  |  Ticket=7854853166  |  Price=4388.58000  |  SL=4380.32000  |  TP=4413.36000  |  Lot=0.1
+2026-03-24 00:50:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4407.24 | SL: 4417.19 | TP: 4377.39
+2026-03-24 00:50:00  INFO      🔴 SELL OPENED  |  Ticket=7855889499  |  Price=4407.24000  |  SL=4417.19000  |  TP=4377.39000  |  Lot=0.1
+2026-03-24 00:55:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4423.78 | SL: 4417.66 | TP: 4442.14
+2026-03-24 00:55:00  INFO      🟢 BUY OPENED  |  Ticket=7855991172  |  Price=4423.78000  |  SL=4417.66000  |  TP=4442.14000  |  Lot=0.1
+2026-03-24 01:08:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4409.31 | SL: 4420.41 | TP: 4376.01
+2026-03-24 01:08:00  INFO      🔴 SELL OPENED  |  Ticket=7856262055  |  Price=4409.31000  |  SL=4420.41000  |  TP=4376.01000  |  Lot=0.1
+2026-03-24 01:14:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4427.03 | SL: 4420.92 | TP: 4445.36
+2026-03-24 01:14:00  INFO      🟢 BUY OPENED  |  Ticket=7856379495  |  Price=4427.03000  |  SL=4420.92000  |  TP=4445.36000  |  Lot=0.1
+2026-03-24 01:17:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4410.07 | SL: 4420.12 | TP: 4379.92
+2026-03-24 01:17:00  INFO      🔴 SELL OPENED  |  Ticket=7856444195  |  Price=4410.07000  |  SL=4420.12000  |  TP=4379.92000  |  Lot=0.1
+2026-03-24 01:27:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4429.84 | SL: 4418.76 | TP: 4463.08
+2026-03-24 01:27:00  INFO      🟢 BUY OPENED  |  Ticket=7856623172  |  Price=4429.84000  |  SL=4418.76000  |  TP=4463.08000  |  Lot=0.1
+2026-03-24 02:46:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4421.51 | SL: 4411.22 | TP: 4452.38
+2026-03-24 02:46:00  INFO      🟢 BUY OPENED  |  Ticket=7858097976  |  Price=4421.51000  |  SL=4411.22000  |  TP=4452.38000  |  Lot=0.1
+2026-03-24 02:54:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4409.55 | SL: 4412.97 | TP: 4399.29
+2026-03-24 02:54:00  INFO      🔴 SELL OPENED  |  Ticket=7858226949  |  Price=4409.55000  |  SL=4412.97000  |  TP=4399.29000  |  Lot=0.1
+2026-03-24 03:32:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4403.12 | SL: 4405.33 | TP: 4396.49
+2026-03-24 03:32:00  INFO      🔴 SELL OPENED  |  Ticket=7858686294  |  Price=4403.12000  |  SL=4405.33000  |  TP=4396.49000  |  Lot=0.1
+2026-03-24 03:43:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4409.33 | SL: 4404.23 | TP: 4424.63
+2026-03-24 03:43:00  INFO      🟢 BUY OPENED  |  Ticket=7858769617  |  Price=4409.33000  |  SL=4404.23000  |  TP=4424.63000  |  Lot=0.1
+2026-03-24 04:26:00  INFO      Connected  |  Account: 104517852  |  Balance: 3705.82 USD  |  Broker: MetaQuotes Ltd.
+2026-03-24 05:05:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4380.31 | SL: 4407.01 | TP: 4300.21
+2026-03-24 05:05:00  INFO      🔴 SELL OPENED  |  Ticket=7859060425  |  Price=4380.31000  |  SL=4407.01000  |  TP=4300.21000  |  Lot=0.1
+2026-03-24 06:39:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4427.47 | SL: 4438.05 | TP: 4395.73
+2026-03-24 06:39:00  INFO      🔴 SELL OPENED  |  Ticket=7860479330  |  Price=4427.47000  |  SL=4438.05000  |  TP=4395.73000  |  Lot=0.1
+2026-03-24 06:51:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4441.38 | SL: 4434.77 | TP: 4461.21
+2026-03-24 06:51:00  INFO      🟢 BUY OPENED  |  Ticket=7860605671  |  Price=4441.38000  |  SL=4434.77000  |  TP=4461.21000  |  Lot=0.1
+2026-03-24 07:03:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4431.86 | SL: 4437.03 | TP: 4416.35
+2026-03-24 07:03:00  INFO      🔴 SELL OPENED  |  Ticket=7860719200  |  Price=4431.86000  |  SL=4437.03000  |  TP=4416.35000  |  Lot=0.1
+2026-03-24 08:01:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4363.51 | SL: 4370.13 | TP: 4343.65
+2026-03-24 08:01:00  INFO      🔴 SELL OPENED  |  Ticket=7861546001  |  Price=4363.51000  |  SL=4370.13000  |  TP=4343.65000  |  Lot=0.1
+2026-03-24 08:41:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4350.85 | SL: 4355.97 | TP: 4335.49
+2026-03-24 08:41:00  INFO      🔴 SELL OPENED  |  Ticket=7862077612  |  Price=4350.85000  |  SL=4355.97000  |  TP=4335.49000  |  Lot=0.1
+2026-03-24 09:23:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4347.59 | SL: 4322.73 | TP: 4422.17
+2026-03-24 09:23:00  INFO      🟢 BUY OPENED  |  Ticket=7862650879  |  Price=4347.59000  |  SL=4322.73000  |  TP=4422.17000  |  Lot=0.1
+2026-03-24 12:17:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4342.21 | SL: 4334.48 | TP: 4365.4
+2026-03-24 12:17:00  INFO      🟢 BUY OPENED  |  Ticket=7864651564  |  Price=4342.21000  |  SL=4334.48000  |  TP=4365.40000  |  Lot=0.1
+2026-03-24 12:31:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4325.91 | SL: 4337.24 | TP: 4291.92
+2026-03-24 12:31:00  INFO      🔴 SELL OPENED  |  Ticket=7864844604  |  Price=4325.91000  |  SL=4337.24000  |  TP=4291.92000  |  Lot=0.1
+2026-03-24 12:40:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4338.73 | SL: 4335.77 | TP: 4347.61
+2026-03-24 12:40:00  INFO      🟢 BUY OPENED  |  Ticket=7865001784  |  Price=4338.73000  |  SL=4335.77000  |  TP=4347.61000  |  Lot=0.1
+2026-03-24 12:59:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4346.24 | SL: 4352.95 | TP: 4326.11
+2026-03-24 12:59:00  INFO      🔴 SELL OPENED  |  Ticket=7865379342  |  Price=4346.24000  |  SL=4352.95000  |  TP=4326.11000  |  Lot=0.1
+2026-03-24 13:03:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4356.89 | SL: 4352.9 | TP: 4368.86
+2026-03-24 13:03:00  INFO      🟢 BUY OPENED  |  Ticket=7865451970  |  Price=4356.89000  |  SL=4352.90000  |  TP=4368.86000  |  Lot=0.1
+2026-03-24 13:46:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4375.77 | SL: 4383.51 | TP: 4352.55
+2026-03-24 13:46:00  INFO      🔴 SELL OPENED  |  Ticket=7866219970  |  Price=4375.77000  |  SL=4383.51000  |  TP=4352.55000  |  Lot=0.1
+2026-03-24 13:55:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4391.14 | SL: 4382.82 | TP: 4416.1
+2026-03-24 13:55:00  INFO      🟢 BUY OPENED  |  Ticket=7866358798  |  Price=4391.14000  |  SL=4382.82000  |  TP=4416.10000  |  Lot=0.1
+2026-03-24 14:49:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4422.75 | SL: 4408.85 | TP: 4464.45
+2026-03-24 14:49:00  INFO      🟢 BUY OPENED  |  Ticket=7867386193  |  Price=4422.75000  |  SL=4408.85000  |  TP=4464.45000  |  Lot=0.1
+2026-03-24 15:02:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4405.35 | SL: 4415.33 | TP: 4375.41
+2026-03-24 15:02:00  INFO      🔴 SELL OPENED  |  Ticket=7867668810  |  Price=4405.35000  |  SL=4415.33000  |  TP=4375.41000  |  Lot=0.1
+2026-03-24 15:13:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4417.6 | SL: 4414.02 | TP: 4428.34
+2026-03-24 15:13:00  INFO      🟢 BUY OPENED  |  Ticket=7867873017  |  Price=4417.60000  |  SL=4414.02000  |  TP=4428.34000  |  Lot=0.1
+2026-03-24 15:16:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4411.32 | SL: 4413.89 | TP: 4403.61
+2026-03-24 15:16:00  INFO      🔴 SELL OPENED  |  Ticket=7867930182  |  Price=4411.32000  |  SL=4413.89000  |  TP=4403.61000  |  Lot=0.1
+2026-03-24 15:42:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4405.34 | SL: 4401.71 | TP: 4416.23
+2026-03-24 15:42:00  INFO      🟢 BUY OPENED  |  Ticket=7868425207  |  Price=4405.34000  |  SL=4401.71000  |  TP=4416.23000  |  Lot=0.1
+2026-03-24 15:43:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4401.04 | SL: 4401.65 | TP: 4399.21
+2026-03-24 15:43:00  INFO      🔴 SELL OPENED  |  Ticket=7868443900  |  Price=4401.04000  |  SL=4401.65000  |  TP=4399.21000  |  Lot=0.1
+2026-03-24 15:47:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4404.25 | SL: 4401.66 | TP: 4412.02
+2026-03-24 15:47:00  INFO      🟢 BUY OPENED  |  Ticket=7868522429  |  Price=4404.25000  |  SL=4401.66000  |  TP=4412.02000  |  Lot=0.1
+2026-03-24 16:10:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4405.24 | SL: 4408.15 | TP: 4396.51
+2026-03-24 16:10:00  INFO      🔴 SELL OPENED  |  Ticket=7868996897  |  Price=4405.24000  |  SL=4408.15000  |  TP=4396.51000  |  Lot=0.1
+2026-03-24 16:20:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4413.29 | SL: 4406.12 | TP: 4434.8
+2026-03-24 16:20:00  INFO      🟢 BUY OPENED  |  Ticket=7869213564  |  Price=4413.29000  |  SL=4406.12000  |  TP=4434.80000  |  Lot=0.1
+2026-03-24 17:45:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4427.42 | SL: 4423.42 | TP: 4439.42
+2026-03-24 17:45:00  INFO      🟢 BUY OPENED  |  Ticket=7870723881  |  Price=4427.42000  |  SL=4423.42000  |  TP=4439.42000  |  Lot=0.1
+2026-03-24 17:50:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4420.16 | SL: 4423.5 | TP: 4410.14
+2026-03-24 17:50:00  INFO      🔴 SELL OPENED  |  Ticket=7870818775  |  Price=4420.16000  |  SL=4423.50000  |  TP=4410.14000  |  Lot=0.1
+2026-03-24 17:52:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4429.88 | SL: 4423.99 | TP: 4447.55
+2026-03-24 17:52:00  INFO      🟢 BUY OPENED  |  Ticket=7870860111  |  Price=4429.88000  |  SL=4423.99000  |  TP=4447.55000  |  Lot=0.1
+2026-03-24 18:02:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4394.25 | SL: 4427.38 | TP: 4294.86
+2026-03-24 18:02:00  INFO      🔴 SELL OPENED  |  Ticket=7871141331  |  Price=4394.25000  |  SL=4427.38000  |  TP=4294.86000  |  Lot=0.1
+2026-03-24 18:53:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4405.43 | SL: 4420.32 | TP: 4360.76
+2026-03-24 18:53:00  INFO      🔴 SELL OPENED  |  Ticket=7872202933  |  Price=4405.43000  |  SL=4420.32000  |  TP=4360.76000  |  Lot=0.1
+2026-03-24 19:24:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4405.69 | SL: 4415.24 | TP: 4377.04
+2026-03-24 19:24:00  INFO      🔴 SELL OPENED  |  Ticket=7872952660  |  Price=4405.69000  |  SL=4415.24000  |  TP=4377.04000  |  Lot=0.1
+2026-03-24 20:54:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4376.37 | SL: 4362.23 | TP: 4418.79
+2026-03-24 20:54:00  INFO      🟢 BUY OPENED  |  Ticket=7875527116  |  Price=4376.37000  |  SL=4362.23000  |  TP=4418.79000  |  Lot=0.1
+2026-03-24 22:26:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4420.45 | SL: 4410.81 | TP: 4449.37
+2026-03-24 22:26:00  INFO      🟢 BUY OPENED  |  Ticket=7878272520  |  Price=4420.45000  |  SL=4410.81000  |  TP=4449.37000  |  Lot=0.1
+2026-03-24 22:56:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4413.68 | SL: 4421.34 | TP: 4390.7
+2026-03-24 22:56:00  INFO      🔴 SELL OPENED  |  Ticket=7878950379  |  Price=4413.68000  |  SL=4421.34000  |  TP=4390.70000  |  Lot=0.1
+2026-03-24 23:36:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4413.93 | SL: 4418.43 | TP: 4400.43
+2026-03-24 23:36:00  INFO      🔴 SELL OPENED  |  Ticket=7879859577  |  Price=4413.93000  |  SL=4418.43000  |  TP=4400.43000  |  Lot=0.1
+2026-03-24 23:45:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4425.23 | SL: 4416.85 | TP: 4450.37
+2026-03-24 23:45:00  INFO      🟢 BUY OPENED  |  Ticket=7880072014  |  Price=4425.23000  |  SL=4416.85000  |  TP=4450.37000  |  Lot=0.1
+2026-03-25 00:04:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4414.81 | SL: 4420.57 | TP: 4397.53
+2026-03-25 00:04:00  INFO      🔴 SELL OPENED  |  Ticket=7880461701  |  Price=4414.81000  |  SL=4420.57000  |  TP=4397.53000  |  Lot=0.1
+2026-03-25 01:45:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4400.55 | SL: 4408.76 | TP: 4375.92
+2026-03-25 01:45:00  INFO      🔴 SELL OPENED  |  Ticket=7882807355  |  Price=4400.55000  |  SL=4408.76000  |  TP=4375.92000  |  Lot=0.1
+2026-03-25 02:35:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4403.02 | SL: 4404.98 | TP: 4397.14
+2026-03-25 02:35:00  INFO      🔴 SELL OPENED  |  Ticket=7883572377  |  Price=4403.02000  |  SL=4404.98000  |  TP=4397.14000  |  Lot=0.1
+2026-03-25 02:57:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4402.88 | SL: 4401.08 | TP: 4408.28
+2026-03-25 02:57:00  INFO      🟢 BUY OPENED  |  Ticket=7883826081  |  Price=4402.88000  |  SL=4401.08000  |  TP=4408.28000  |  Lot=0.1
+2026-03-25 02:59:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4398.37 | SL: 4400.99 | TP: 4390.51
+2026-03-25 02:59:00  INFO      🔴 SELL OPENED  |  Ticket=7883848037  |  Price=4398.37000  |  SL=4400.99000  |  TP=4390.51000  |  Lot=0.1
+2026-03-25 03:02:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4403.16 | SL: 4401.12 | TP: 4409.28
+2026-03-25 03:02:00  INFO      🟢 BUY OPENED  |  Ticket=7883879236  |  Price=4403.16000  |  SL=4401.12000  |  TP=4409.28000  |  Lot=0.1
+2026-03-25 03:05:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4398.62 | SL: 4401.05 | TP: 4391.33
+2026-03-25 03:05:00  INFO      🔴 SELL OPENED  |  Ticket=7883909441  |  Price=4398.62000  |  SL=4401.05000  |  TP=4391.33000  |  Lot=0.1
+2026-03-25 03:18:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4403.46 | SL: 4400.4 | TP: 4412.64
+2026-03-25 03:18:00  INFO      🟢 BUY OPENED  |  Ticket=7884020754  |  Price=4403.46000  |  SL=4400.40000  |  TP=4412.64000  |  Lot=0.1
+2026-03-25 05:47:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4477.64 | SL: 4469.81 | TP: 4501.13
+2026-03-25 05:47:00  INFO      🟢 BUY OPENED  |  Ticket=7885807474  |  Price=4477.64000  |  SL=4469.81000  |  TP=4501.13000  |  Lot=0.1
+2026-03-25 07:27:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4554.76 | SL: 4545.48 | TP: 4582.6
+2026-03-25 07:27:00  INFO      🟢 BUY OPENED  |  Ticket=7887059810  |  Price=4554.76000  |  SL=4545.48000  |  TP=4582.60000  |  Lot=0.1
+2026-03-25 09:26:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4590.78 | SL: 4588.25 | TP: 4598.37
+2026-03-25 09:26:00  INFO      🟢 BUY OPENED  |  Ticket=7888380222  |  Price=4590.78000  |  SL=4588.25000  |  TP=4598.37000  |  Lot=0.1
+2026-03-25 09:37:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4593.26 | SL: 4587.8 | TP: 4609.64
+2026-03-25 09:37:00  INFO      🟢 BUY OPENED  |  Ticket=7888482119  |  Price=4593.26000  |  SL=4587.80000  |  TP=4609.64000  |  Lot=0.1
+2026-03-25 09:54:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4587.14 | SL: 4592.04 | TP: 4572.44
+2026-03-25 09:54:00  INFO      🔴 SELL OPENED  |  Ticket=7888652953  |  Price=4587.14000  |  SL=4592.04000  |  TP=4572.44000  |  Lot=0.1
+2026-03-25 11:14:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4573.44 | SL: 4571.55 | TP: 4579.11
+2026-03-25 11:14:00  INFO      🟢 BUY OPENED  |  Ticket=7889441419  |  Price=4573.44000  |  SL=4571.55000  |  TP=4579.11000  |  Lot=0.1
+2026-03-25 11:36:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4568.19 | SL: 4572.75 | TP: 4554.51
+2026-03-25 11:36:00  INFO      🔴 SELL OPENED  |  Ticket=7889616471  |  Price=4568.19000  |  SL=4572.75000  |  TP=4554.51000  |  Lot=0.1
+2026-03-25 11:58:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4572.32 | SL: 4571.19 | TP: 4575.71
+2026-03-25 11:58:00  INFO      🟢 BUY OPENED  |  Ticket=7889810803  |  Price=4572.32000  |  SL=4571.19000  |  TP=4575.71000  |  Lot=0.1
+2026-03-25 12:03:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4570.0 | SL: 4571.25 | TP: 4566.25
+2026-03-25 12:03:00  INFO      🔴 SELL OPENED  |  Ticket=7889856145  |  Price=4570.00000  |  SL=4571.25000  |  TP=4566.25000  |  Lot=0.1
+2026-03-25 12:44:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4565.46 | SL: 4559.93 | TP: 4582.05
+2026-03-25 12:44:00  INFO      🟢 BUY OPENED  |  Ticket=7890391302  |  Price=4565.46000  |  SL=4559.93000  |  TP=4582.05000  |  Lot=0.1
+2026-03-25 12:55:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4559.08 | SL: 4561.1 | TP: 4553.02
+2026-03-25 12:55:00  INFO      🔴 SELL OPENED  |  Ticket=7890546615  |  Price=4559.08000  |  SL=4561.10000  |  TP=4553.02000  |  Lot=0.1
+2026-03-25 13:40:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4546.87 | SL: 4550.47 | TP: 4536.07
+2026-03-25 13:40:00  INFO      🔴 SELL OPENED  |  Ticket=7891266044  |  Price=4546.87000  |  SL=4550.47000  |  TP=4536.07000  |  Lot=0.1
+2026-03-25 15:07:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4549.2 | SL: 4545.12 | TP: 4561.44
+2026-03-25 15:07:00  INFO      🟢 BUY OPENED  |  Ticket=7892671100  |  Price=4549.20000  |  SL=4545.12000  |  TP=4561.44000  |  Lot=0.1
+2026-03-25 15:55:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4559.31 | SL: 4563.25 | TP: 4547.49
+2026-03-25 15:55:00  INFO      🔴 SELL OPENED  |  Ticket=7893559669  |  Price=4559.32000  |  SL=4563.25000  |  TP=4547.49000  |  Lot=0.1
+2026-03-25 16:14:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4560.1 | SL: 4562.1 | TP: 4554.1
+2026-03-25 16:14:00  INFO      🔴 SELL OPENED  |  Ticket=7893822368  |  Price=4560.10000  |  SL=4562.10000  |  TP=4554.10000  |  Lot=0.1
+2026-03-25 16:16:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4564.46 | SL: 4562.33 | TP: 4570.85
+2026-03-25 16:16:00  INFO      🟢 BUY OPENED  |  Ticket=7893850203  |  Price=4564.46000  |  SL=4562.33000  |  TP=4570.85000  |  Lot=0.1
+2026-03-25 16:24:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4557.86 | SL: 4562.41 | TP: 4544.21
+2026-03-25 16:24:00  INFO      🔴 SELL OPENED  |  Ticket=7893974658  |  Price=4557.86000  |  SL=4562.41000  |  TP=4544.21000  |  Lot=0.1
+2026-03-25 17:01:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4557.08 | SL: 4549.59 | TP: 4579.55
+2026-03-25 17:01:00  INFO      🟢 BUY OPENED  |  Ticket=7894745170  |  Price=4557.08000  |  SL=4549.59000  |  TP=4579.55000  |  Lot=0.1
+2026-03-25 19:02:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4582.18 | SL: 4578.53 | TP: 4593.13
+2026-03-25 19:02:00  INFO      🟢 BUY OPENED  |  Ticket=7896960736  |  Price=4582.18000  |  SL=4578.53000  |  TP=4593.13000  |  Lot=0.1
+2026-03-25 19:06:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4573.64 | SL: 4578.39 | TP: 4559.39
+2026-03-25 19:06:00  INFO      🔴 SELL OPENED  |  Ticket=7897037168  |  Price=4573.64000  |  SL=4578.39000  |  TP=4559.39000  |  Lot=0.1
+2026-03-25 19:07:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4580.74 | SL: 4578.58 | TP: 4587.22
+2026-03-25 19:07:00  INFO      🟢 BUY OPENED  |  Ticket=7897060383  |  Price=4580.74000  |  SL=4578.58000  |  TP=4587.22000  |  Lot=0.1
+2026-03-25 19:16:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4574.81 | SL: 4578.96 | TP: 4562.36
+2026-03-25 19:16:00  INFO      🔴 SELL OPENED  |  Ticket=7897211673  |  Price=4574.81000  |  SL=4578.96000  |  TP=4562.36000  |  Lot=0.1
+2026-03-25 19:50:06  INFO      127.0.0.1 - - [25/Mar/2026 19:50:06] "GET / HTTP/1.1" 200 -
+2026-03-25 19:50:06  INFO      127.0.0.1 - - [25/Mar/2026 19:50:06] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-03-25 19:50:06  INFO      127.0.0.1 - - [25/Mar/2026 19:50:06] "GET /api/status HTTP/1.1" 200 -
+2026-03-25 19:50:07  INFO      127.0.0.1 - - [25/Mar/2026 19:50:07] "GET /api/account HTTP/1.1" 200 -
+2026-03-25 19:50:07  INFO      127.0.0.1 - - [25/Mar/2026 19:50:07] "GET /api/positions HTTP/1.1" 200 -
+2026-03-25 19:50:07  INFO      127.0.0.1 - - [25/Mar/2026 19:50:07] "GET /api/strategies HTTP/1.1" 200 -
+2026-03-25 19:50:09  INFO      127.0.0.1 - - [25/Mar/2026 19:50:09] "GET /api/status HTTP/1.1" 200 -
+2026-03-25 19:50:09  INFO      127.0.0.1 - - [25/Mar/2026 19:50:09] "GET /api/account HTTP/1.1" 200 -
+2026-03-25 19:50:10  INFO      127.0.0.1 - - [25/Mar/2026 19:50:10] "GET /api/positions HTTP/1.1" 200 -
+2026-03-25 19:50:12  INFO      127.0.0.1 - - [25/Mar/2026 19:50:12] "GET /backtest HTTP/1.1" 200 -
+2026-03-25 19:50:23  INFO      MT5 disconnected.
+2026-03-25 19:50:24  INFO      127.0.0.1 - - [25/Mar/2026 19:50:24] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-25 19:51:00  INFO      Connected  |  Account: 104517852  |  Balance: 3554.06 USD  |  Broker: MetaQuotes Ltd.
+2026-03-25 20:23:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4552.53 | SL: 4557.37 | TP: 4538.01
+2026-03-25 20:23:00  INFO      🔴 SELL OPENED  |  Ticket=7899159540  |  Price=4552.53000  |  SL=4557.37000  |  TP=4538.01000  |  Lot=0.1
+2026-03-25 20:26:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4559.55 | SL: 4557.54 | TP: 4565.58
+2026-03-25 20:26:00  INFO      🟢 BUY OPENED  |  Ticket=7899223063  |  Price=4559.90000  |  SL=4557.54000  |  TP=4565.58000  |  Lot=0.1
+2026-03-25 20:46:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4556.49 | SL: 4562.15 | TP: 4539.51
+2026-03-25 20:46:00  INFO      🔴 SELL OPENED  |  Ticket=7899817295  |  Price=4556.49000  |  SL=4562.15000  |  TP=4539.51000  |  Lot=0.1
+2026-03-25 21:13:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4553.78 | SL: 4549.21 | TP: 4567.49
+2026-03-25 21:13:00  INFO      🟢 BUY OPENED  |  Ticket=7900650067  |  Price=4553.78000  |  SL=4549.21000  |  TP=4567.49000  |  Lot=0.1
+2026-03-25 22:45:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4556.82 | SL: 4558.42 | TP: 4552.02
+2026-03-25 22:45:00  INFO      🔴 SELL OPENED  |  Ticket=7903015665  |  Price=4556.82000  |  SL=4558.42000  |  TP=4552.02000  |  Lot=0.1
+2026-03-25 22:52:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4561.18 | SL: 4557.99 | TP: 4570.75
+2026-03-25 22:52:00  INFO      🟢 BUY OPENED  |  Ticket=7903144097  |  Price=4561.18000  |  SL=4557.99000  |  TP=4570.75000  |  Lot=0.1
+2026-03-25 23:06:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4557.18 | SL: 4559.52 | TP: 4550.16
+2026-03-25 23:06:00  INFO      🔴 SELL OPENED  |  Ticket=7903424817  |  Price=4557.18000  |  SL=4559.52000  |  TP=4550.16000  |  Lot=0.1
+2026-03-25 23:27:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4559.41 | SL: 4554.3 | TP: 4574.74
+2026-03-25 23:27:01  INFO      🟢 BUY OPENED  |  Ticket=7903874273  |  Price=4559.41000  |  SL=4554.30000  |  TP=4574.74000  |  Lot=0.1
+2026-03-25 23:35:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4552.74 | SL: 4554.7 | TP: 4546.86
+2026-03-25 23:35:00  INFO      🔴 SELL OPENED  |  Ticket=7904023019  |  Price=4552.74000  |  SL=4554.70000  |  TP=4546.86000  |  Lot=0.1
+2026-03-25 23:48:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4552.36 | SL: 4555.63 | TP: 4542.55
+2026-03-25 23:48:00  INFO      🔴 SELL OPENED  |  Ticket=7904257094  |  Price=4552.36000  |  SL=4555.63000  |  TP=4542.55000  |  Lot=0.1
+2026-03-25 23:55:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4558.53 | SL: 4555.04 | TP: 4569.0
+2026-03-25 23:55:01  INFO      🟢 BUY OPENED  |  Ticket=7904387549  |  Price=4558.53000  |  SL=4555.04000  |  TP=4569.00000  |  Lot=0.1
+2026-03-26 00:04:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4553.64 | SL: 4555.46 | TP: 4548.18
+2026-03-26 00:04:00  INFO      🔴 SELL OPENED  |  Ticket=7904542976  |  Price=4553.64000  |  SL=4555.46000  |  TP=4548.18000  |  Lot=0.1
+2026-03-26 00:24:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4553.64 | SL: 4550.83 | TP: 4562.07
+2026-03-26 00:24:00  INFO      🟢 BUY OPENED  |  Ticket=7904948441  |  Price=4553.64000  |  SL=4550.83000  |  TP=4562.07000  |  Lot=0.1
+2026-03-26 00:53:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4553.73 | SL: 4558.09 | TP: 4540.65
+2026-03-26 00:53:00  INFO      🔴 SELL OPENED  |  Ticket=7905450537  |  Price=4553.73000  |  SL=4558.09000  |  TP=4540.65000  |  Lot=0.1
+2026-03-26 00:58:03  INFO      127.0.0.1 - - [26/Mar/2026 00:58:03] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-26 00:58:13  INFO      MT5 disconnected.
+2026-03-26 00:58:14  INFO      127.0.0.1 - - [26/Mar/2026 00:58:14] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-26 00:58:27  INFO      Connected  |  Account: 104517852  |  Balance: 3405.16 USD  |  Broker: MetaQuotes Ltd.
+2026-03-26 00:58:27  INFO      MT5 disconnected.
+2026-03-26 00:58:28  INFO      127.0.0.1 - - [26/Mar/2026 00:58:28] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-26 00:59:00  INFO      Connected  |  Account: 104517852  |  Balance: 3405.16 USD  |  Broker: MetaQuotes Ltd.
+2026-03-26 01:08:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4557.41 | SL: 4554.69 | TP: 4565.57
+2026-03-26 01:08:00  INFO      🟢 BUY OPENED  |  Ticket=7905806116  |  Price=4557.41000  |  SL=4554.69000  |  TP=4565.57000  |  Lot=0.1
+2026-03-26 01:10:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4550.98 | SL: 4554.46 | TP: 4540.54
+2026-03-26 01:10:00  INFO      🔴 SELL OPENED  |  Ticket=7905846761  |  Price=4550.98000  |  SL=4554.46000  |  TP=4540.54000  |  Lot=0.1
+2026-03-26 01:24:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4554.53 | SL: 4552.22 | TP: 4561.46
+2026-03-26 01:24:00  INFO      🟢 BUY OPENED  |  Ticket=7906082382  |  Price=4554.53000  |  SL=4552.22000  |  TP=4561.46000  |  Lot=0.1
+2026-03-26 01:40:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4550.29 | SL: 4553.44 | TP: 4540.84
+2026-03-26 01:40:00  INFO      🔴 SELL OPENED  |  Ticket=7906315444  |  Price=4550.29000  |  SL=4553.44000  |  TP=4540.84000  |  Lot=0.1
+2026-03-26 02:42:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4522.48 | SL: 4514.28 | TP: 4547.08
+2026-03-26 02:42:00  INFO      🟢 BUY OPENED  |  Ticket=7907608462  |  Price=4522.48000  |  SL=4514.28000  |  TP=4547.08000  |  Lot=0.1
+2026-03-26 03:24:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4523.33 | SL: 4528.99 | TP: 4506.35
+2026-03-26 03:24:00  INFO      🔴 SELL OPENED  |  Ticket=7908143513  |  Price=4523.33000  |  SL=4528.99000  |  TP=4506.35000  |  Lot=0.1
+2026-03-26 05:02:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4514.46 | SL: 4508.69 | TP: 4531.77
+2026-03-26 05:02:00  INFO      🟢 BUY OPENED  |  Ticket=7908608144  |  Price=4514.46000  |  SL=4508.69000  |  TP=4531.77000  |  Lot=0.1
+2026-03-26 05:16:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4508.63 | SL: 4513.03 | TP: 4495.43
+2026-03-26 05:16:00  INFO      🔴 SELL OPENED  |  Ticket=7908871322  |  Price=4508.63000  |  SL=4513.03000  |  TP=4495.43000  |  Lot=0.1
+2026-03-26 05:25:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4516.21 | SL: 4512.02 | TP: 4528.78
+2026-03-26 05:25:00  INFO      🟢 BUY OPENED  |  Ticket=7909002271  |  Price=4516.21000  |  SL=4512.02000  |  TP=4528.78000  |  Lot=0.1
+2026-03-26 05:55:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4516.54 | SL: 4521.6 | TP: 4501.36
+2026-03-26 05:55:00  INFO      🔴 SELL OPENED  |  Ticket=7909654183  |  Price=4516.54000  |  SL=4521.60000  |  TP=4501.36000  |  Lot=0.1
+2026-03-26 07:01:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4508.47 | SL: 4498.05 | TP: 4539.73
+2026-03-26 07:01:00  INFO      🟢 BUY OPENED  |  Ticket=7910352039  |  Price=4508.47000  |  SL=4498.05000  |  TP=4539.73000  |  Lot=0.1
+2026-03-26 08:17:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4528.55 | SL: 4534.99 | TP: 4509.23
+2026-03-26 08:17:00  INFO      🔴 SELL OPENED  |  Ticket=7911142939  |  Price=4528.55000  |  SL=4534.99000  |  TP=4509.23000  |  Lot=0.1
+2026-03-26 08:31:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4535.84 | SL: 4533.81 | TP: 4541.93
+2026-03-26 08:31:00  INFO      🟢 BUY OPENED  |  Ticket=7911269993  |  Price=4535.84000  |  SL=4533.81000  |  TP=4541.93000  |  Lot=0.1
+2026-03-26 08:57:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4535.77 | SL: 4530.94 | TP: 4550.26
+2026-03-26 08:57:00  INFO      🟢 BUY OPENED  |  Ticket=7911511510  |  Price=4535.77000  |  SL=4530.94000  |  TP=4550.26000  |  Lot=0.1
+2026-03-26 09:08:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4530.08 | SL: 4531.67 | TP: 4525.31
+2026-03-26 09:08:00  INFO      🔴 SELL OPENED  |  Ticket=7911608476  |  Price=4530.08000  |  SL=4531.67000  |  TP=4525.31000  |  Lot=0.1
+2026-03-26 09:16:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4532.81 | SL: 4531.53 | TP: 4536.65
+2026-03-26 09:16:00  INFO      🟢 BUY OPENED  |  Ticket=7911665925  |  Price=4532.81000  |  SL=4531.53000  |  TP=4536.65000  |  Lot=0.1
+2026-03-26 09:17:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4526.43 | SL: 4531.07 | TP: 4512.51
+2026-03-26 09:17:00  INFO      🔴 SELL OPENED  |  Ticket=7911678708  |  Price=4526.43000  |  SL=4531.07000  |  TP=4512.51000  |  Lot=0.1
+2026-03-26 10:31:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4512.4 | SL: 4507.97 | TP: 4525.69
+2026-03-26 10:31:00  INFO      🟢 BUY OPENED  |  Ticket=7912413523  |  Price=4512.40000  |  SL=4507.97000  |  TP=4525.69000  |  Lot=0.1
+2026-03-26 14:09:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4446.54 | SL: 4451.14 | TP: 4432.74
+2026-03-26 14:09:00  INFO      🔴 SELL OPENED  |  Ticket=7915718201  |  Price=4446.54000  |  SL=4451.14000  |  TP=4432.74000  |  Lot=0.1
+2026-03-26 14:31:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4457.5 | SL: 4448.17 | TP: 4485.49
+2026-03-26 14:31:00  INFO      🟢 BUY OPENED  |  Ticket=7916088392  |  Price=4457.50000  |  SL=4448.17000  |  TP=4485.49000  |  Lot=0.1
+2026-03-26 15:56:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4439.58 | SL: 4430.94 | TP: 4465.5
+2026-03-26 15:56:00  INFO      🟢 BUY OPENED  |  Ticket=7917854569  |  Price=4439.58000  |  SL=4430.94000  |  TP=4465.50000  |  Lot=0.1
+2026-03-26 16:01:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4429.57 | SL: 4430.91 | TP: 4425.55
+2026-03-26 16:01:00  INFO      🔴 SELL OPENED  |  Ticket=7917970854  |  Price=4429.57000  |  SL=4430.91000  |  TP=4425.55000  |  Lot=0.1
+2026-03-26 16:04:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4423.43 | SL: 4430.36 | TP: 4402.64
+2026-03-26 16:04:00  INFO      🔴 SELL OPENED  |  Ticket=7918032397  |  Price=4423.43000  |  SL=4430.36000  |  TP=4402.64000  |  Lot=0.1
+2026-03-26 16:22:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4432.4 | SL: 4429.47 | TP: 4441.19
+2026-03-26 16:22:00  INFO      🟢 BUY OPENED  |  Ticket=7918366249  |  Price=4432.40000  |  SL=4429.47000  |  TP=4441.19000  |  Lot=0.1
+2026-03-26 16:31:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4420.68 | SL: 4429.5 | TP: 4394.22
+2026-03-26 16:31:00  INFO      🔴 SELL OPENED  |  Ticket=7918531340  |  Price=4420.68000  |  SL=4429.50000  |  TP=4394.22000  |  Lot=0.1
+2026-03-26 16:45:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4424.44 | SL: 4426.15 | TP: 4419.31
+2026-03-26 16:45:00  INFO      🔴 SELL OPENED  |  Ticket=7918815666  |  Price=4424.44000  |  SL=4426.15000  |  TP=4419.31000  |  Lot=0.1
+2026-03-26 17:51:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4445.5 | SL: 4436.23 | TP: 4473.31
+2026-03-26 17:51:00  INFO      🟢 BUY OPENED  |  Ticket=7920176695  |  Price=4445.50000  |  SL=4436.23000  |  TP=4473.31000  |  Lot=0.1
+2026-03-26 19:10:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4438.67 | SL: 4429.93 | TP: 4464.89
+2026-03-26 19:10:00  INFO      🟢 BUY OPENED  |  Ticket=7921871110  |  Price=4438.67000  |  SL=4429.93000  |  TP=4464.89000  |  Lot=0.1
+2026-03-26 20:07:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4437.67 | SL: 4434.52 | TP: 4447.12
+2026-03-26 20:07:00  INFO      🟢 BUY OPENED  |  Ticket=7923215818  |  Price=4437.67000  |  SL=4434.52000  |  TP=4447.12000  |  Lot=0.1
+2026-03-26 20:36:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4437.43 | SL: 4442.87 | TP: 4421.11
+2026-03-26 20:36:00  INFO      🔴 SELL OPENED  |  Ticket=7923965185  |  Price=4437.43000  |  SL=4442.87000  |  TP=4421.11000  |  Lot=0.1
+2026-03-26 20:45:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4452.96 | SL: 4441.74 | TP: 4486.62
+2026-03-26 20:45:00  INFO      🟢 BUY OPENED  |  Ticket=7924283991  |  Price=4452.96000  |  SL=4441.74000  |  TP=4486.62000  |  Lot=0.1
+2026-03-26 21:06:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4444.82 | SL: 4450.14 | TP: 4428.86
+2026-03-26 21:06:00  INFO      🔴 SELL OPENED  |  Ticket=7924939309  |  Price=4444.82000  |  SL=4450.14000  |  TP=4428.86000  |  Lot=0.1
+2026-03-26 21:17:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4458.59 | SL: 4448.79 | TP: 4487.99
+2026-03-26 21:17:00  INFO      🟢 BUY OPENED  |  Ticket=7925252811  |  Price=4458.59000  |  SL=4448.79000  |  TP=4487.99000  |  Lot=0.1
+2026-03-26 22:00:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4466.24 | SL: 4462.43 | TP: 4477.67
+2026-03-26 22:00:00  INFO      🟢 BUY OPENED  |  Ticket=7926621437  |  Price=4466.24000  |  SL=4462.43000  |  TP=4477.67000  |  Lot=0.1
+2026-03-26 22:03:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4459.3 | SL: 4462.31 | TP: 4450.27
+2026-03-26 22:03:00  INFO      🔴 SELL OPENED  |  Ticket=7926701239  |  Price=4459.30000  |  SL=4462.31000  |  TP=4450.27000  |  Lot=0.1
+2026-03-27 00:19:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4389.62 | SL: 4393.5 | TP: 4377.98
+2026-03-27 00:19:00  INFO      🔴 SELL OPENED  |  Ticket=7930214502  |  Price=4389.62000  |  SL=4393.50000  |  TP=4377.98000  |  Lot=0.1
+2026-03-27 00:23:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4385.46 | SL: 4393.03 | TP: 4362.75
+2026-03-27 00:23:00  INFO      🔴 SELL OPENED  |  Ticket=7930291533  |  Price=4385.46000  |  SL=4393.03000  |  TP=4362.75000  |  Lot=0.1
+2026-03-27 00:51:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4383.26 | SL: 4386.24 | TP: 4374.32
+2026-03-27 00:51:00  INFO      🔴 SELL OPENED  |  Ticket=7930850272  |  Price=4383.26000  |  SL=4386.24000  |  TP=4374.32000  |  Lot=0.1
+2026-03-27 01:08:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4388.09 | SL: 4384.86 | TP: 4397.78
+2026-03-27 01:08:00  INFO      🟢 BUY OPENED  |  Ticket=7931140164  |  Price=4388.09000  |  SL=4384.86000  |  TP=4397.78000  |  Lot=0.1
+2026-03-27 01:12:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4381.82 | SL: 4384.73 | TP: 4373.09
+2026-03-27 01:12:00  INFO      🔴 SELL OPENED  |  Ticket=7931211139  |  Price=4381.82000  |  SL=4384.73000  |  TP=4373.09000  |  Lot=0.1
+2026-03-27 01:13:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4388.95 | SL: 4384.99 | TP: 4400.83
+2026-03-27 01:13:01  INFO      🟢 BUY OPENED  |  Ticket=7931230309  |  Price=4388.95000  |  SL=4384.99000  |  TP=4400.83000  |  Lot=0.1
+2026-03-27 01:18:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4381.55 | SL: 4385.04 | TP: 4371.08
+2026-03-27 01:18:10  INFO      🔴 SELL OPENED  |  Ticket=7931321192  |  Price=4381.55000  |  SL=4385.04000  |  TP=4371.08000  |  Lot=0.1
+2026-03-27 01:36:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4386.45 | SL: 4379.26 | TP: 4408.02
+2026-03-27 01:36:00  INFO      🟢 BUY OPENED  |  Ticket=7931668524  |  Price=4386.45000  |  SL=4379.26000  |  TP=4408.02000  |  Lot=0.1
+2026-03-27 03:13:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4386.14 | SL: 4366.24 | TP: 4445.84
+2026-03-27 03:13:00  INFO      🟢 BUY OPENED  |  Ticket=7933304649  |  Price=4386.14000  |  SL=4366.24000  |  TP=4445.84000  |  Lot=0.1
+2026-03-27 19:08:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4416.37 | SL: 4419.91 | TP: 4405.75
+2026-03-27 19:08:00  INFO      🔴 SELL OPENED  |  Ticket=7945423860  |  Price=4416.37000  |  SL=4419.91000  |  TP=4405.75000  |  Lot=0.1
+2026-03-27 19:13:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4424.13 | SL: 4420.05 | TP: 4436.37
+2026-03-27 19:13:00  INFO      🟢 BUY OPENED  |  Ticket=7945530307  |  Price=4424.13000  |  SL=4420.05000  |  TP=4436.37000  |  Lot=0.1
+2026-03-27 19:24:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4418.92 | SL: 4422.45 | TP: 4408.33
+2026-03-27 19:24:00  INFO      🔴 SELL OPENED  |  Ticket=7945797089  |  Price=4418.92000  |  SL=4422.45000  |  TP=4408.33000  |  Lot=0.1
+2026-03-27 19:26:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4426.76 | SL: 4422.8 | TP: 4438.64
+2026-03-27 19:26:00  INFO      🟢 BUY OPENED  |  Ticket=7945846012  |  Price=4426.76000  |  SL=4422.80000  |  TP=4438.64000  |  Lot=0.1
+2026-03-27 20:20:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4439.0 | SL: 4434.21 | TP: 4453.37
+2026-03-27 20:20:00  INFO      🟢 BUY OPENED  |  Ticket=7947025947  |  Price=4439.00000  |  SL=4434.21000  |  TP=4453.37000  |  Lot=0.1
+2026-03-27 20:25:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4428.38 | SL: 4433.76 | TP: 4412.24
+2026-03-27 20:25:00  INFO      🔴 SELL OPENED  |  Ticket=7947147665  |  Price=4428.38000  |  SL=4433.76000  |  TP=4412.24000  |  Lot=0.1
+2026-03-27 20:56:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4422.43 | SL: 4428.58 | TP: 4403.98
+2026-03-27 20:56:00  INFO      🔴 SELL OPENED  |  Ticket=7948035744  |  Price=4422.43000  |  SL=4428.58000  |  TP=4403.98000  |  Lot=0.1
+2026-03-27 21:01:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4436.91 | SL: 4428.74 | TP: 4461.42
+2026-03-27 21:01:00  INFO      🟢 BUY OPENED  |  Ticket=7948154973  |  Price=4436.91000  |  SL=4428.74000  |  TP=4461.42000  |  Lot=0.1
+2026-03-28 00:48:08  INFO      Connected  |  Account: 104517852  |  Balance: 3264.10 USD  |  Broker: MetaQuotes Ltd.
+2026-03-28 00:48:08  INFO      Bot Engine STARTED
+2026-03-28 00:48:08  INFO      [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2026-03-28 00:48:08  INFO      [33mPress CTRL+C to quit[0m
+2026-03-28 00:56:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4489.37 | SL: 4494.07 | TP: 4475.27
+2026-03-28 00:56:00  INFO      🔴 SELL OPENED  |  Ticket=7954312367  |  Price=4489.37000  |  SL=4494.07000  |  TP=4475.27000  |  Lot=0.1
+2026-03-28 01:07:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4490.86 | SL: 4492.5 | TP: 4485.94
+2026-03-28 01:07:00  INFO      🔴 SELL OPENED  |  Ticket=7954499335  |  Price=4490.86000  |  SL=4492.50000  |  TP=4485.94000  |  Lot=0.1
+2026-03-28 02:19:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4517.64 | SL: 4513.23 | TP: 4530.87
+2026-03-28 02:19:00  INFO      🟢 BUY OPENED  |  Ticket=7955644511  |  Price=4517.64000  |  SL=4513.23000  |  TP=4530.87000  |  Lot=0.1
+2026-03-28 02:39:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4514.14 | SL: 4519.28 | TP: 4498.72
+2026-03-28 02:39:00  INFO      🔴 SELL OPENED  |  Ticket=7955891240  |  Price=4514.14000  |  SL=4519.28000  |  TP=4498.72000  |  Lot=0.1
+2026-03-28 02:56:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4521.35 | SL: 4512.51 | TP: 4547.87
+2026-03-28 02:56:00  INFO      🟢 BUY OPENED  |  Ticket=7956139858  |  Price=4521.35000  |  SL=4512.51000  |  TP=4547.87000  |  Lot=0.1
+2026-03-28 03:06:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4510.02 | SL: 4513.12 | TP: 4500.72
+2026-03-28 03:06:00  INFO      🔴 SELL OPENED  |  Ticket=7956260895  |  Price=4510.02000  |  SL=4513.12000  |  TP=4500.72000  |  Lot=0.1
+2026-03-28 03:46:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4503.3 | SL: 4507.27 | TP: 4491.39
+2026-03-28 03:46:00  INFO      🔴 SELL OPENED  |  Ticket=7956613492  |  Price=4503.30000  |  SL=4507.27000  |  TP=4491.39000  |  Lot=0.1
+2026-03-29 19:02:16  INFO      Bot Engine STARTED
+2026-03-29 19:02:16  INFO      Connected  |  Account: 104517852  |  Balance: 2985.10 USD  |  Broker: MetaQuotes Ltd.
+2026-03-29 19:02:16  INFO      [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2026-03-29 19:02:16  INFO      [33mPress CTRL+C to quit[0m
+2026-03-29 19:04:55  INFO      127.0.0.1 - - [29/Mar/2026 19:04:55] "GET / HTTP/1.1" 200 -
+2026-03-29 19:04:55  INFO      127.0.0.1 - - [29/Mar/2026 19:04:55] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-03-29 19:04:55  INFO      127.0.0.1 - - [29/Mar/2026 19:04:55] "GET /api/status HTTP/1.1" 200 -
+2026-03-29 19:04:55  INFO      127.0.0.1 - - [29/Mar/2026 19:04:55] "GET /api/account HTTP/1.1" 200 -
+2026-03-29 19:04:55  INFO      127.0.0.1 - - [29/Mar/2026 19:04:55] "GET /api/positions HTTP/1.1" 200 -
+2026-03-29 19:04:56  INFO      127.0.0.1 - - [29/Mar/2026 19:04:56] "GET /api/strategies HTTP/1.1" 200 -
+2026-03-29 19:04:58  INFO      127.0.0.1 - - [29/Mar/2026 19:04:58] "GET /api/status HTTP/1.1" 200 -
+2026-03-29 19:04:58  INFO      127.0.0.1 - - [29/Mar/2026 19:04:58] "GET /backtest HTTP/1.1" 200 -
+2026-03-29 19:04:58  INFO      127.0.0.1 - - [29/Mar/2026 19:04:58] "GET /api/account HTTP/1.1" 200 -
+2026-03-29 19:05:24  INFO      MT5 disconnected.
+2026-03-29 19:05:24  INFO      127.0.0.1 - - [29/Mar/2026 19:05:24] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-29 19:06:00  INFO      Connected  |  Account: 104517852  |  Balance: 2985.10 USD  |  Broker: MetaQuotes Ltd.
+2026-03-29 19:07:42  INFO      Connected  |  Account: 104517852  |  Balance: 2985.10 USD  |  Broker: MetaQuotes Ltd.
+2026-03-29 19:08:39  INFO      127.0.0.1 - - [29/Mar/2026 19:08:39] "GET /backtest HTTP/1.1" 200 -
+2026-03-29 19:08:41  INFO      MT5 disconnected.
+2026-03-29 19:08:41  INFO      127.0.0.1 - - [29/Mar/2026 19:08:41] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-29 19:08:56  INFO      127.0.0.1 - - [29/Mar/2026 19:08:56] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-29 19:09:00  INFO      Connected  |  Account: 104517852  |  Balance: 2985.10 USD  |  Broker: MetaQuotes Ltd.
+2026-03-29 19:15:10  INFO      Connected  |  Account: 104517852  |  Balance: 2985.10 USD  |  Broker: MetaQuotes Ltd.
+2026-03-29 19:15:10  INFO      Bot Engine STARTED
+2026-03-29 19:15:10  INFO      [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2026-03-29 19:15:10  INFO      [33mPress CTRL+C to quit[0m
+2026-03-29 19:15:57  INFO      Connected  |  Account: 104517852  |  Balance: 2985.10 USD  |  Broker: MetaQuotes Ltd.
+2026-03-29 19:15:57  INFO      Bot Engine STARTED
+2026-03-29 19:15:57  INFO      [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2026-03-29 19:15:57  INFO      [33mPress CTRL+C to quit[0m

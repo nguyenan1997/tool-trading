@@ -7,11 +7,14 @@ import core.mt5_handler as mt5h
 import config
 from datetime import datetime
 import pandas as pd
+import logging
 from core.bot_engine import bot_engine
 from strategies.manager import strategy_manager
 from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data
 from strategies.triple_ema import TripleEmaStrategy
+
+logger = logging.getLogger(__name__)
 
 def register_routes(app):
     @app.route('/')
@@ -39,6 +42,19 @@ def register_routes(app):
         lot_val = data.get("lot")
         lot = float(lot_val) if lot_val else 0.01
         
+        # --- Lấy SPREAD THẬT từ broker qua MT5 API ---
+        # symbol_info.spread = spread tính bằng Points
+        # symbol_info.point  = kích thước 1 point (như 0.01 cho XAUUSD)
+        # ⇒ spread_price = spread_points × point
+        spread = 0.30  # fallback mặc định nếu MT5 không kết nối
+        try:
+            info = mt5h.get_symbol_info(symbol)
+            if info is not None:
+                spread = round(info.spread * info.point, info.digits)
+                logger.info(f"[Backtest] Spread thật từ broker cho {symbol}: {spread} (={info.spread} points × {info.point})")
+        except Exception as e:
+            logger.warning(f"[Backtest] Không lấy được spread từ MT5, dùng fallback {spread}: {e}")
+        
         # Lấy dữ liệu
         df = get_historical_data(symbol, tf, count=count, start_date=start_date)
         if df is None or df.empty:
@@ -53,9 +69,9 @@ def register_routes(app):
         if "ema_slow" in data: strategy.slow = int(data["ema_slow"])
         if "rr" in data: strategy.rr = float(data["rr"])
         
-        # Chạy backtest
+        # Chạy backtest với spread thật từ broker
         # XAUUSD thường dùng 2 digits cho giá
-        tester = Backtester(strategy, initial_balance=balance, lot_size=lot, digits=2)
+        tester = Backtester(strategy, initial_balance=balance, lot_size=lot, digits=2, spread=spread)
         trades = tester.run(df)
         
         # Chuyển đổi datetime sang string để tránh lỗi jsonify

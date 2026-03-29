@@ -10,12 +10,13 @@ from strategies.base import BaseStrategy
 logger = logging.getLogger(__name__)
 
 class Backtester:
-    def __init__(self, strategy: BaseStrategy, initial_balance=1000, lot_size=0.1, digits=5):
+    def __init__(self, strategy: BaseStrategy, initial_balance=1000, lot_size=0.1, digits=5, spread=0.30):
         self.strategy = strategy
         self.initial_balance = initial_balance
         self.balance = initial_balance
         self.lot_size = lot_size
         self.digits = digits
+        self.spread = spread  # Spread thật từ broker (đơn vị: price, ví dụ 0.30 cho XAUUSD)
         self.trades = []
         self.current_position = None  # None | {"type": "BUY/SELL", "entry": float, "sl": float, "tp": float, "time": datetime}
 
@@ -48,7 +49,11 @@ class Backtester:
                 
                 if signal:
                     # Vào lệnh tại giá OPEN của nến TIẾP THEO (nến i+1)
-                    entry_price = next_candle["open"]
+                    # Mô phỏng spread thật của broker:
+                    #   BUY  → khớp tại ASK = open + spread
+                    #   SELL → khớp tại BID = open (dữ liệu nến MT5 luôn là Bid)
+                    open_price = next_candle["open"]
+                    entry_price = round(open_price + self.spread, self.digits) if signal == "BUY" else open_price
                     sl, tp = self.strategy.get_sl_tp(sub_df, entry_price, self.digits, signal)
                     
                     if sl and tp:
@@ -65,9 +70,9 @@ class Backtester:
 
     def _check_exit(self, candle):
         pos = self.current_position
-        low = candle["low"]
-        high = candle["high"]
-        close = candle["close"]
+        # Dữ liệu nến là giá BID. Khi SELL chạm SL (giá tăng), thực tế sẽ chạm tại Ask = high + spread
+        low  = candle["low"]
+        high = candle["high"] + self.spread
         exit_time = candle.name if hasattr(candle, 'name') else "N/A"
 
         result = None
