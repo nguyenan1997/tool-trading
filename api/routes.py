@@ -42,18 +42,17 @@ def register_routes(app):
         lot_val = data.get("lot")
         lot = float(lot_val) if lot_val else 0.01
         
-        # --- Lấy SPREAD THẬT từ broker qua MT5 API ---
-        # symbol_info.spread = spread tính bằng Points
-        # symbol_info.point  = kích thước 1 point (như 0.01 cho XAUUSD)
-        # ⇒ spread_price = spread_points × point
-        spread = 0.30  # fallback mặc định nếu MT5 không kết nối
+        # --- Lấy SPREAD THẬT + DIGITS từ broker qua MT5 API ---
+        spread = 0.30   # fallback
+        digits = 2      # fallback cho XAUUSD
         try:
             info = mt5h.get_symbol_info(symbol)
             if info is not None:
-                spread = round(info.spread * info.point, info.digits)
-                logger.info(f"[Backtest] Spread thật từ broker cho {symbol}: {spread} (={info.spread} points × {info.point})")
+                digits = info.digits
+                spread = round(info.spread * info.point, digits)
+                logger.info(f"[Backtest] {symbol}: spread={spread} ({info.spread} pts × {info.point}), digits={digits}")
         except Exception as e:
-            logger.warning(f"[Backtest] Không lấy được spread từ MT5, dùng fallback {spread}: {e}")
+            logger.warning(f"[Backtest] Không lấy được info từ MT5, dùng fallback: {e}")
         
         # Lấy dữ liệu
         df = get_historical_data(symbol, tf, count=count, start_date=start_date)
@@ -69,9 +68,8 @@ def register_routes(app):
         if "ema_slow" in data: strategy.slow = int(data["ema_slow"])
         if "rr" in data: strategy.rr = float(data["rr"])
         
-        # Chạy backtest với spread thật từ broker
-        # XAUUSD thường dùng 2 digits cho giá
-        tester = Backtester(strategy, initial_balance=balance, lot_size=lot, digits=2, spread=spread)
+        # Chạy backtest với spread + digits thật từ broker
+        tester = Backtester(strategy, initial_balance=balance, lot_size=lot, digits=digits, spread=spread)
         trades = tester.run(df)
         
         # Chuyển đổi datetime sang string để tránh lỗi jsonify
@@ -94,9 +92,11 @@ def register_routes(app):
                 "total_trades": total,
                 "win_rate": round(win_rate, 2),
                 "final_balance": round(tester.balance, 2),
-                "profit": round(tester.balance - balance, 2)
+                "profit": round(tester.balance - balance, 2),
+                "spread_used": spread,   # Hiển thị spread đang dùng để verify
+                "digits": digits
             },
-            "trades": formatted_trades # Gửi toàn bộ lịch sử
+            "trades": formatted_trades
         })
 
     @app.route('/api/status', methods=['GET'])

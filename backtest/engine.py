@@ -65,8 +65,13 @@ class Backtester:
                     # Mô phỏng spread thật của broker:
                     #   BUY  → khớp tại ASK = open + spread
                     #   SELL → khớp tại BID = open (dữ liệu nến MT5 luôn là Bid)
+                    # Round cả 2 loại để tránh float64 precision artifact (4388.3900000001)
                     open_price = next_candle["open"]
-                    entry_price = round(open_price + self.spread, self.digits) if signal == "BUY" else open_price
+                    if signal == "BUY":
+                        entry_price = round(open_price + self.spread, self.digits)
+                    else:
+                        entry_price = round(open_price, self.digits)
+
                     sl, tp = self.strategy.get_sl_tp(sub_df, entry_price, self.digits, signal)
                     
                     if sl and tp:
