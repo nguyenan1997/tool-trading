@@ -36,27 +36,31 @@ class Backtester:
         for i in range(start_idx, len(df) - 1):
             current_candle = df.iloc[i]
             next_candle = df.iloc[i+1]
-            
-            # 1. Kiểm tra xem có lệnh nào đang mở bị chạm SL/TP không
-            #    Kiểm tra trên NEXT_CANDLE (nến mà lệnh đang chạy),
-            #    không phải current_candle (nến phát sinh signal)
+
+            just_closed_this_iter = False  # Lệnh có vừa đóng ở iteration này không?
+
+            # 1. Kiểm tra SL/TP trên NEXT_CANDLE
             if self.current_position:
                 self._check_exit(next_candle)
+                if not self.current_position:
+                    just_closed_this_iter = True  # Lệnh vừa đóng ngay trong iteration này
 
-            # 2. Nếu không có lệnh, kiểm tra tín hiệu mới
-            if not self.current_position:
-                # ─────────────────────────────────────────────────────────────
-                # FIX QUAN TRỌNG: sub_df phải bao gồm đến candle i+1 (không phải i)
-                #
-                # Bot thật khi chạy sau khi candle i đóng, gọi mt5h.get_candles()
-                # MT5 luôn trả về candle đang OPEN (candle i+1) ở vị trí [-1]
-                # → check_signal dùng df.iloc[-2] = candle i (nến vừa đóng) ✅
-                #
-                # Nếu sub_df = df[:i+1]:
-                #   sub_df[-1] = candle i   → check_signal dùng candle i-1 ❌ (lệch 1 nến!)
-                # Nếu sub_df = df[:i+2]:
-                #   sub_df[-1] = candle i+1 → check_signal dùng candle i   ✅ (đúng!)
-                # ─────────────────────────────────────────────────────────────
+            # 2. Kiểm tra tín hiệu mới - NHƯNG PHẢI BỎ QUA nếu lệnh vừa đóng iteration này
+            # ─────────────────────────────────────────────────────────────────────────────
+            # Real bot khi lệnh đóng giữa nến K (do TP/SL tick):
+            #   → Bot chờ đến cuối nến K mới check signal (sig_candle = K)
+            #   → Vào lệnh mới tại open nến K+1
+            #
+            # Backtest không dùng just_closed_this_iter:
+            #   → Sẽ check signal NGAY trong cùng iteration với candle K = next_candle
+            #   → sig_candle = K-1 (SAI), entry tại K open (SAI = quá khứ!)
+            #
+            # Với just_closed_this_iter = True:
+            #   → Bỏ qua signal check ở iteration này
+            #   → Iteration tiếp theo: current=K, next=K+1
+            #     sub_df[-2] = K ✅  entry = K+1 open ✅ (khớp real bot)
+            # ─────────────────────────────────────────────────────────────────────────────
+            if not self.current_position and not just_closed_this_iter:
                 sub_df = df.iloc[:i+2]
                 signal = self.strategy.check_signal(sub_df)
 
