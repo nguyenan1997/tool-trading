@@ -38,15 +38,28 @@ class Backtester:
             next_candle = df.iloc[i+1]
             
             # 1. Kiểm tra xem có lệnh nào đang mở bị chạm SL/TP không
+            #    Kiểm tra trên NEXT_CANDLE (nến mà lệnh đang chạy),
+            #    không phải current_candle (nến phát sinh signal)
             if self.current_position:
-                self._check_exit(current_candle)
+                self._check_exit(next_candle)
 
             # 2. Nếu không có lệnh, kiểm tra tín hiệu mới
             if not self.current_position:
-                # Tính tín hiệu dựa trên nến đã đóng (nến i)
-                sub_df = df.iloc[:i+1]
+                # ─────────────────────────────────────────────────────────────
+                # FIX QUAN TRỌNG: sub_df phải bao gồm đến candle i+1 (không phải i)
+                #
+                # Bot thật khi chạy sau khi candle i đóng, gọi mt5h.get_candles()
+                # MT5 luôn trả về candle đang OPEN (candle i+1) ở vị trí [-1]
+                # → check_signal dùng df.iloc[-2] = candle i (nến vừa đóng) ✅
+                #
+                # Nếu sub_df = df[:i+1]:
+                #   sub_df[-1] = candle i   → check_signal dùng candle i-1 ❌ (lệch 1 nến!)
+                # Nếu sub_df = df[:i+2]:
+                #   sub_df[-1] = candle i+1 → check_signal dùng candle i   ✅ (đúng!)
+                # ─────────────────────────────────────────────────────────────
+                sub_df = df.iloc[:i+2]
                 signal = self.strategy.check_signal(sub_df)
-                
+
                 if signal:
                     # Vào lệnh tại giá OPEN của nến TIẾP THEO (nến i+1)
                     # Mô phỏng spread thật của broker:

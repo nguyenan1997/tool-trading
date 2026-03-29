@@ -486,3 +486,75 @@
  * Running on http://127.0.0.1:5000
  * Running on http://192.168.0.103:5000
 2026-03-29 19:15:57  INFO      [33mPress CTRL+C to quit[0m
+2026-03-29 19:16:11  INFO      127.0.0.1 - - [29/Mar/2026 19:16:11] "GET /backtest HTTP/1.1" 200 -
+2026-03-29 19:16:15  INFO      [Backtest] Spread thật từ broker cho XAUUSD: 0.43 (=43 points × 0.01)
+2026-03-29 19:16:16  INFO      127.0.0.1 - - [29/Mar/2026 19:16:16] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-29 19:18:24  INFO      [Backtest] Spread thật từ broker cho XAUUSD: 0.43 (=43 points × 0.01)
+2026-03-29 19:18:24  INFO      MT5 disconnected.
+2026-03-29 19:18:25  INFO      127.0.0.1 - - [29/Mar/2026 19:18:25] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-29 19:23:57  INFO      Connected  |  Account: 104517852  |  Balance: 2985.10 USD  |  Broker: MetaQuotes Ltd.
+2026-03-29 19:23:57  INFO      Bot Engine STARTED
+2026-03-29 19:23:57  INFO      [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2026-03-29 19:23:57  INFO      [33mPress CTRL+C to quit[0m
+2026-03-29 19:24:01  INFO      127.0.0.1 - - [29/Mar/2026 19:24:01] "GET / HTTP/1.1" 200 -
+2026-03-29 19:24:01  INFO      127.0.0.1 - - [29/Mar/2026 19:24:01] "GET /api/status HTTP/1.1" 200 -
+2026-03-29 19:24:01  INFO      Connected  |  Account: 104517852  |  Balance: 2985.10 USD  |  Broker: MetaQuotes Ltd.
+2026-03-29 19:24:01  INFO      127.0.0.1 - - [29/Mar/2026 19:24:01] "GET /api/account HTTP/1.1" 200 -
+2026-03-29 19:24:01  INFO      127.0.0.1 - - [29/Mar/2026 19:24:01] "GET /api/positions HTTP/1.1" 200 -
+2026-03-29 19:24:02  INFO      127.0.0.1 - - [29/Mar/2026 19:24:02] "GET /api/strategies HTTP/1.1" 200 -
+2026-03-29 19:24:04  INFO      127.0.0.1 - - [29/Mar/2026 19:24:04] "GET /api/status HTTP/1.1" 200 -
+2026-03-29 19:24:04  INFO      127.0.0.1 - - [29/Mar/2026 19:24:04] "GET /api/account HTTP/1.1" 200 -
+2026-03-29 19:24:04  INFO      127.0.0.1 - - [29/Mar/2026 19:24:04] "GET /api/positions HTTP/1.1" 200 -
+2026-03-29 19:24:06  INFO      127.0.0.1 - - [29/Mar/2026 19:24:06] "GET /backtest HTTP/1.1" 200 -
+2026-03-29 19:24:11  INFO      [Backtest] Spread thật từ broker cho XAUUSD: 0.43 (=43 points × 0.01)
+2026-03-29 19:24:11  INFO      127.0.0.1 - - [29/Mar/2026 19:24:11] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-29 19:29:45  INFO      Bot Engine STARTED
+2026-03-29 19:29:45  INFO      Connected  |  Account: 104517852  |  Balance: 2985.10 USD  |  Broker: MetaQuotes Ltd.
+2026-03-29 19:29:45  INFO      [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2026-03-29 19:29:45  INFO      [33mPress CTRL+C to quit[0m
+2026-03-29 19:29:47  INFO      127.0.0.1 - - [29/Mar/2026 19:29:47] "GET /backtest HTTP/1.1" 200 -
+2026-03-29 19:29:52  INFO      [Backtest] Spread thật từ broker cho XAUUSD: 0.43 (=43 points × 0.01)
+2026-03-29 19:29:52  INFO      MT5 disconnected.
+2026-03-29 19:29:52  INFO      127.0.0.1 - - [29/Mar/2026 19:29:52] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-29 19:35:49  INFO      Connected  |  Account: 104517852  |  Balance: 2985.10 USD  |  Broker: MetaQuotes Ltd.
+2026-03-29 19:35:49  INFO      Bot Engine STARTED
+2026-03-29 19:35:49  INFO      [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2026-03-29 19:35:49  INFO      [33mPress CTRL+C to quit[0m
+2026-03-29 19:36:38  INFO      Connected  |  Account: 104517852  |  Balance: 2985.10 USD  |  Broker: MetaQuotes Ltd.
+2026-03-29 19:36:38  INFO      Bot Engine STARTED
+2026-03-29 19:36:38  INFO      [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.103:5000
+2026-03-29 19:36:38  INFO      [33mPress CTRL+C to quit[0m
+2026-03-29 19:36:55  INFO      127.0.0.1 - - [29/Mar/2026 19:36:55] "GET / HTTP/1.1" 200 -
+2026-03-29 19:36:55  INFO      127.0.0.1 - - [29/Mar/2026 19:36:55] "GET /api/status HTTP/1.1" 200 -
+2026-03-29 19:36:55  INFO      127.0.0.1 - - [29/Mar/2026 19:36:55] "GET /api/account HTTP/1.1" 200 -
+2026-03-29 19:36:55  INFO      127.0.0.1 - - [29/Mar/2026 19:36:55] "GET /api/positions HTTP/1.1" 200 -
+2026-03-29 19:36:56  INFO      127.0.0.1 - - [29/Mar/2026 19:36:56] "GET /api/strategies HTTP/1.1" 200 -
+2026-03-29 19:36:58  INFO      127.0.0.1 - - [29/Mar/2026 19:36:58] "GET /api/status HTTP/1.1" 200 -
+2026-03-29 19:36:58  INFO      127.0.0.1 - - [29/Mar/2026 19:36:58] "GET /api/account HTTP/1.1" 200 -
+2026-03-29 19:36:58  INFO      127.0.0.1 - - [29/Mar/2026 19:36:58] "GET /api/positions HTTP/1.1" 200 -
+2026-03-29 19:36:59  INFO      127.0.0.1 - - [29/Mar/2026 19:36:59] "GET / HTTP/1.1" 200 -
+2026-03-29 19:36:59  INFO      127.0.0.1 - - [29/Mar/2026 19:36:59] "GET /api/status HTTP/1.1" 200 -
+2026-03-29 19:37:00  INFO      127.0.0.1 - - [29/Mar/2026 19:37:00] "GET /api/account HTTP/1.1" 200 -
+2026-03-29 19:37:00  INFO      127.0.0.1 - - [29/Mar/2026 19:37:00] "GET /api/positions HTTP/1.1" 200 -
+2026-03-29 19:37:00  INFO      127.0.0.1 - - [29/Mar/2026 19:37:00] "GET /api/strategies HTTP/1.1" 200 -
+2026-03-29 19:37:01  INFO      127.0.0.1 - - [29/Mar/2026 19:37:01] "GET /backtest HTTP/1.1" 200 -
+2026-03-29 19:37:12  INFO      [Backtest] Spread thật từ broker cho XAUUSD: 0.43 (=43 points × 0.01)
+2026-03-29 19:37:12  INFO      MT5 disconnected.
+2026-03-29 19:37:14  INFO      127.0.0.1 - - [29/Mar/2026 19:37:14] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-29 19:37:21  INFO      Connected  |  Account: 104517852  |  Balance: 2985.10 USD  |  Broker: MetaQuotes Ltd.
+2026-03-29 19:37:21  INFO      [Backtest] Spread thật từ broker cho XAUUSD: 0.43 (=43 points × 0.01)
+2026-03-29 19:37:21  INFO      MT5 disconnected.
+2026-03-29 19:37:21  INFO      127.0.0.1 - - [29/Mar/2026 19:37:21] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-03-29 19:38:00  INFO      Connected  |  Account: 104517852  |  Balance: 2985.10 USD  |  Broker: MetaQuotes Ltd.
