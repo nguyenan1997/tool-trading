@@ -4,13 +4,15 @@ Quản lý việc lựa chọn và truy xuất chiến lược.
 """
 
 from .triple_ema import TripleEmaStrategy
+from .trend_momentum import TrendMomentumStrategy
 
 class StrategyManager:
     def __init__(self):
         self._strategies = {
-            "3ema": TripleEmaStrategy()
+            "3ema": TripleEmaStrategy(),
+            "trend_momentum": TrendMomentumStrategy(),
         }
-        self._current_key = "3ema" # Mặc định dùng chiến lược mới
+        self._current_key = "3ema" # Mặc định: giữ nguyên chiến lược cũ
 
     def set_strategy(self, key: str):
         if key in self._strategies:

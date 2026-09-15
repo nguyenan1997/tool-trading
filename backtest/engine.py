@@ -97,6 +97,13 @@ class Backtester:
         high = candle["high"] + self.spread
         exit_time = candle.name if hasattr(candle, 'name') else "N/A"
 
+        # ── BE-move (chỉ khi chiến lược yêu cầu) ──
+        be_r = getattr(self.strategy, "be_move_at_r", 0)
+        if be_r and pos["type"] == "BUY" and candle["high"] >= pos["entry"] + (pos["entry"] - pos["sl"]):
+            pos["sl"] = round(pos["entry"], self.digits)
+        elif be_r and pos["type"] == "SELL" and candle["low"] <= pos["entry"] - (pos["sl"] - pos["entry"]):
+            pos["sl"] = round(pos["entry"], self.digits)
+
         result = None
         exit_price = 0
 

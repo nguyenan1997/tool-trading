@@ -4,6 +4,7 @@ Nạp dữ liệu lịch sử từ MT5 hoặc file CSV.
 """
 import pandas as pd
 import os
+from pathlib import Path
 from core import mt5_handler as mt5h
 import logging
 from datetime import datetime
@@ -21,7 +22,7 @@ def get_historical_data(symbol: str, timeframe: str, count: int = 1000, start_da
     if not os.path.exists(DATA_DIR):
         os.makedirs(DATA_DIR)
         
-    # Tạo tên file cache riêng biệt
+    # Tên file cache chính xác
     if start_date:
         cache_name = f"{symbol}_{timeframe}_from_{start_date}.csv"
     else:
@@ -34,13 +35,29 @@ def get_historical_data(symbol: str, timeframe: str, count: int = 1000, start_da
         df = pd.read_csv(file_path, index_col="time", parse_dates=True)
         return df
 
+    # Nếu file cache chính xác chưa có -> tìm file cache lớn hơn đủ rows
+    csvs = sorted(Path(DATA_DIR).glob(f"{symbol}_{timeframe}_*.csv"),
+                  key=lambda p: p.stat().st_size, reverse=True)
+    for p in csvs:
+        if str(p) == file_path or not p.is_file():
+            continue
+        try:
+            df = pd.read_csv(p, index_col="time", parse_dates=True)
+            if len(df) >= count:
+                df = df.iloc[-count:].copy()
+                print(f"Dùng cache lớn hơn ({p.name}, {len(df)} nến) thay cho {count}")
+                df.to_csv(file_path, index=False)
+                return df
+        except Exception:
+            continue
+
+    # Tải mới từ MT5
     print(f"Đang tải dữ liệu MỚI từ MT5 cho {symbol} ({timeframe})...")
     if not mt5h.connect():
         return None
         
     try:
         if start_date:
-            # Chuyển string thành datetime object
             date_from = datetime.strptime(start_date, "%Y-%m-%d")
             date_to = datetime.now()
             df = mt5h.get_candles_range(symbol, timeframe, date_from, date_to)
@@ -48,9 +65,7 @@ def get_historical_data(symbol: str, timeframe: str, count: int = 1000, start_da
             df = mt5h.get_candles(symbol, timeframe, count)
 
         if df is not None:
-            # Lưu cache
             df.to_csv(file_path, index=False)
-            # Chuyển index về time
             df.set_index("time", inplace=True)
             print(f"Đã lưu dữ liệu vào: {file_path}")
             return df

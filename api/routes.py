@@ -13,8 +13,38 @@ from strategies.manager import strategy_manager
 from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data
 from strategies.triple_ema import TripleEmaStrategy
+from strategies.trend_momentum import TrendMomentumStrategy
 
 logger = logging.getLogger(__name__)
+
+
+def _build_strategy(data):
+    """Xây dựng chiến lược theo tham số `strategy` (tách rõ từng loại)."""
+    sid = (data.get("strategy") or "3ema").strip().lower()
+
+    if sid == "trend_momentum":
+        def _num(key, default, cast=float):
+            val = data.get(key)
+            return cast(val) if val not in (None, "") else default
+        return TrendMomentumStrategy(
+            lookback=_num("tm_lookback", config.TM_LOOKBACK, int),
+            rsi_period=_num("tm_rsi_period", config.TM_RSI_PERIOD, int),
+            rsi_buy=_num("tm_rsi_buy", config.TM_RSI_BUY),
+            rsi_sell=_num("tm_rsi_sell", config.TM_RSI_SELL),
+            sl_atr=_num("tm_sl_atr", config.TM_SL_ATR),
+            tp_r=_num("tm_tp_r", config.TM_TP_R),
+            adx_thresh=_num("tm_adx_thresh", config.TM_ADX_THRESH),
+            session=config.TM_SESSION,
+            history_bars=config.TM_HISTORY_BARS,
+            be_move_at_r=config.TM_BE_AT_R,
+        ), sid
+
+    strategy = TripleEmaStrategy()
+    if "ema_fast" in data: strategy.fast = int(data["ema_fast"])
+    if "ema_medium" in data: strategy.medium = int(data["ema_medium"])
+    if "ema_slow" in data: strategy.slow = int(data["ema_slow"])
+    if "rr" in data: strategy.rr = float(data["rr"])
+    return strategy, "3ema"
 
 def register_routes(app):
     @app.route('/')
@@ -59,14 +89,8 @@ def register_routes(app):
         if df is None or df.empty:
             return jsonify({"error": "Failed to get data for the specified range"}), 400
             
-        # Khởi tạo chiến lược (Hiện tại mặc định TripleEMA)
-        strategy = TripleEmaStrategy()
-        
-        # Cấu hình lại các thông số EMA nếu có gửi từ client
-        if "ema_fast" in data: strategy.fast = int(data["ema_fast"])
-        if "ema_medium" in data: strategy.medium = int(data["ema_medium"])
-        if "ema_slow" in data: strategy.slow = int(data["ema_slow"])
-        if "rr" in data: strategy.rr = float(data["rr"])
+        # Khởi tạo chiến lược theo selector (3ema / trend_momentum)
+        strategy, sid = _build_strategy(data)
         
         # Chạy backtest với spread + digits thật từ broker
         tester = Backtester(strategy, initial_balance=balance, lot_size=lot, digits=digits, spread=spread)
@@ -94,7 +118,8 @@ def register_routes(app):
                 "final_balance": round(tester.balance, 2),
                 "profit": round(tester.balance - balance, 2),
                 "spread_used": spread,   # Hiển thị spread đang dùng để verify
-                "digits": digits
+                "digits": digits,
+                "strategy": sid,         # Chiến lược thực tế đã chạy
             },
             "trades": formatted_trades
         })

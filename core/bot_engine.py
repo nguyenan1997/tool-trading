@@ -60,13 +60,40 @@ class BotEngine:
 
     def _on_candle_tick(self):
         strategy = strategy_manager.get_current_strategy()
-        df = mt5h.get_candles(config.SYMBOL, config.TIMEFRAME, count=200)
-        if df is None or len(df) < 50: return
+        count = getattr(strategy, "history_bars", 200)
+        df = mt5h.get_candles(config.SYMBOL, config.TIMEFRAME, count=count)
+        if df is None or len(df) < 50:
+            return
 
         df = strategy.calculate_indicators(df)
         signal = strategy.check_signal(df)
         position = mt5h.get_open_position(config.SYMBOL, config.MAGIC_NUMBER)
-        
+
+        # ── BE-move: dời SL về giá mở lệnh khi đã lãi >= R lần ──
+        be_r = getattr(strategy, "be_move_at_r", 0)
+        if position is not None and be_r > 0 and position.sl:
+            info = mt5h.get_symbol_info(config.SYMBOL)
+            tick = mt5h.get_tick(config.SYMBOL)
+            if info and tick:
+                entry = position.price_open
+                stop = position.sl
+                dist = abs(entry - stop)
+                if dist > 0:
+                    buy_reach = (position.type == 0 and tick.bid >= entry + dist)
+                    sell_reach = (position.type == 1 and tick.ask <= entry - dist)
+                    digits = info.digits
+                    # Chưa BE: SL vẫn khác giá mở lệnh
+                    not_yet_be = round(stop, digits) != round(entry, digits)
+                    if (buy_reach or sell_reach) and not_yet_be:
+                        logger.info(
+                            f"⚡ BE-MOVE  |  ticket={position.ticket}  |  "
+                            f"SL {stop:.{digits}f} → {entry:.{digits}f}"
+                        )
+                        mt5h.modify_position(
+                            config.SYMBOL, position.ticket,
+                            sl=round(entry, digits), tp=position.tp,
+                        )
+
         if position is None and signal:
             info = mt5h.get_symbol_info(config.SYMBOL)
             tick = mt5h.get_tick(config.SYMBOL)

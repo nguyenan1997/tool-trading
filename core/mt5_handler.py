@@ -269,3 +269,30 @@ def close_position(position, magic: int, comment: str = "close") -> bool:
 
     logger.info(f"✅ CLOSED  |  Ticket={position.ticket}  |  Profit={position.profit:.2f}")
     return True
+
+
+# ────────────────────────────────────────────────
+#  Modify Order (dời SL/TP — dùng cho BE-move)
+# ────────────────────────────────────────────────
+def modify_position(symbol: str, ticket: int, sl=None, tp=None, magic: int = None) -> bool:
+    request = {
+        "action":   mt5.TRADE_ACTION_SLTP,
+        "symbol":   symbol,
+        "position": ticket,
+    }
+    if sl is not None:
+        request["sl"] = sl
+    if tp is not None:
+        request["tp"] = tp
+    if magic is not None:
+        request["magic"] = magic
+
+    result = mt5.order_send(request)
+    if result.retcode != mt5.TRADE_RETCODE_DONE:
+        logger.error(
+            f"modify_position FAILED  |  ticket={ticket}  |  "
+            f"retcode={result.retcode}  |  {result.comment}"
+        )
+        return False
+    logger.info(f"✅ MODIFIED  |  ticket={ticket}  |  SL={sl}  |  TP={tp}")
+    return True
