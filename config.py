@@ -48,6 +48,9 @@ ORDER_COMMENT   = "TrendMomentum_Bot"
 # Example: TRADE_HOURS = [(0, 22)]  means trade from 00:00 to 22:00 UTC
 TRADE_HOURS     = []        # [] = no restriction
 
+# --- Backtest ---
+BACKTEST_CACHE_HOURS = 2    # Cache nến cũ hơn bao nhiêu giờ thì tự tải lại
+
 # --- Hiển thị giờ trên UI ---
 VN_UTC_OFFSET     = 7       # Múi giờ Việt Nam (UTC+7) để hiển thị
 BROKER_UTC_OFFSET = 0       # Dự phòng khi chưa đọc được giờ broker từ MT5 (0 = coi là UTC)
