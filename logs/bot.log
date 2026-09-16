@@ -878,3 +878,27 @@ ValueError: list.index(x): x not in list
 2026-09-16 14:53:55  INFO      Bot Engine STARTED
 2026-09-16 14:54:31  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
 2026-09-16 14:54:48  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:55:35  INFO      MT5 disconnected.
+2026-09-16 14:55:35  INFO      Bot Engine STOPPED
+2026-09-16 14:55:35  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 14:55:35  INFO      Bot Engine STARTED
+2026-09-16 14:55:40  INFO      MT5 disconnected.
+2026-09-16 14:55:40  INFO      Bot Engine STOPPED
+2026-09-16 14:55:40  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 14:55:45  INFO      Bot Engine STARTED
+2026-09-16 14:56:00  INFO      ⏳ PHIÊN  |  Còn 1h04m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 10:55
+2026-09-16 14:56:08  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:56:08  INFO      MT5 disconnected.
+2026-09-16 14:56:26  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 14:56:26  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:56:36  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:56:55  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:57:06  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:57:17  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 15:00:14  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 15:00:14  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 15:00:17  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 15:00:17  INFO      Bot Engine STARTED
+2026-09-16 15:00:33  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 15:00:56  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 15:01:00  INFO      ⏳ PHIÊN  |  Còn 0h59m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 11:00

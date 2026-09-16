@@ -22,7 +22,7 @@ def main():
     symbol = config.SYMBOL
     timeframe = config.TIMEFRAME
     count = 32000  # Khoảng 1 tháng giao dịch
-    initial_balance = 100
+    initial_balance = 200
     
     # 2. Lấy dữ liệu (Sử dụng Cache đã tải lúc nãy sẽ rất nhanh)
     df = get_historical_data(symbol, timeframe, count=count, use_cache=True)
@@ -43,7 +43,7 @@ def main():
     tester = Backtester(
         strategy=strategy, 
         initial_balance=initial_balance, 
-        lot_size=0.01, 
+        lot_size=0.02, 
         digits=2 # Vàng XAUUSD thường có 2-3 chữ số thập phân
     )
     

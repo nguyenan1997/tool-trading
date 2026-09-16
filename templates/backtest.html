@@ -264,14 +264,14 @@
                     <div class="col2">
                         <div class="input-group">
                             <label>Vốn khởi đầu ($)</label>
-                            <input type="number" id="balance" value="100" min="1">
+                            <input type="number" id="balance" value="200" min="1">
                         </div>
                         <div class="input-group">
                             <label>Khối lượng (Lot)</label>
-                            <input type="number" id="lot" step="0.01" value="0.01" min="0.01" max="1">
+                            <input type="number" id="lot" step="0.01" value="0.02" min="0.01" max="1">
                         </div>
                     </div>
-                    <div class="hint" style="margin-top:0.2rem;">Kết quả phụ thuộc trực tiếp vào lot. Với vốn nhỏ, nên dùng 0.01.</div>
+                    <div class="hint" style="margin-top:0.2rem;">Vốn $200 + lot 0.02 để chốt lời từng phần hoạt động (cần lot &ge; 0.02).</div>
                 </div>
 
                 <div class="section">
@@ -424,7 +424,7 @@
         document.getElementById('timeframe').addEventListener('change', updateCountHint);
         updateCountHint();
 
-        let lastInitialBalance = 100;
+        let lastInitialBalance = 200;
 
         /* ── Chạy mô phỏng ── */
         async function runBacktest() {

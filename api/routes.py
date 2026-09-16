@@ -73,10 +73,10 @@ def register_routes(app):
         start_date = data.get("start_date") # YYYY-MM-DD
         
         balance_val = data.get("balance")
-        balance = float(balance_val) if balance_val else 100.0
+        balance = float(balance_val) if balance_val else 200.0
         
         lot_val = data.get("lot")
-        lot = float(lot_val) if lot_val else 0.01
+        lot = float(lot_val) if lot_val else 0.02
         
         # --- Lấy SPREAD THẬT + DIGITS từ broker qua MT5 API ---
         spread = 0.30   # fallback
