@@ -273,11 +273,13 @@
                                 <th>Strategy</th>
                                 <th>Volume</th>
                                 <th>Open Price</th>
+                                <th>SL</th>
+                                <th>TP</th>
                                 <th>Profit</th>
                             </tr>
                         </thead>
                         <tbody id="positions-body">
-                            <tr><td colspan="6" style="text-align: center; color: var(--text-dim);">No active trades</td></tr>
+                            <tr><td colspan="8" style="text-align: center; color: var(--text-dim);">No active trades</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -440,7 +442,7 @@
                 const posBody = document.getElementById('positions-body');
                 
                 if (positions.length === 0) {
-                    posBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-dim);">No active trades</td></tr>';
+                    posBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-dim);">No active trades</td></tr>';
                 } else {
                     posBody.innerHTML = positions.map(p => `
                         <tr>
@@ -449,6 +451,8 @@
                             <td>${p.strategy || '-'}</td>
                             <td>${p.volume}</td>
                             <td>${p.price_open}</td>
+                            <td>${p.sl ? p.sl : '—'}</td>
+                            <td>${p.tp ? p.tp : '—'}</td>
                             <td class="${p.profit >= 0 ? 'profit-pos' : 'profit-neg'}">${p.profit.toFixed(2)} USD</td>
                         </tr>
                     `).join('');
