@@ -6,8 +6,9 @@ from abc import ABC, abstractmethod
 import pandas as pd
 
 class BaseStrategy(ABC):
-    def __init__(self, name="Base"):
+    def __init__(self, name="Base", magic=0):
         self.name = name
+        self.magic = magic
 
     @abstractmethod
     def calculate_indicators(self, df: pd.DataFrame) -> pd.DataFrame:

@@ -145,18 +145,21 @@ def register_routes(app):
     def get_positions():
         if not mt5h.connect():
             return jsonify({"error": "Cannot connect to MT5"}), 500
-        pos = mt5h.get_open_position(config.SYMBOL, config.MAGIC_NUMBER)
-        if pos:
-            return jsonify([{
+        positions = mt5h.get_open_positions(config.SYMBOL, strategy_manager.get_magics())
+        return jsonify([
+            {
                 "ticket": pos.ticket,
+                "magic": pos.magic,
+                "strategy": strategy_manager.get_name_by_magic(pos.magic),
                 "type": "BUY" if pos.type == 0 else "SELL",
                 "volume": pos.volume,
                 "price_open": pos.price_open,
                 "sl": pos.sl,
                 "tp": pos.tp,
                 "profit": pos.profit
-            }])
-        return jsonify([])
+            }
+            for pos in positions
+        ])
 
     @app.route('/api/strategies', methods=['GET'])
     def get_strategies():

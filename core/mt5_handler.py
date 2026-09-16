@@ -133,7 +133,7 @@ def get_tick(symbol: str):
 #  Position Management
 # ────────────────────────────────────────────────
 def get_open_position(symbol: str, magic: int):
-    """Trả về Position đầu tiên của bot, hoặc None."""
+    """Trả về Position đầu tiên của bot (theo magic), hoặc None."""
     positions = mt5.positions_get(symbol=symbol)
     if not positions:
         return None
@@ -141,6 +141,15 @@ def get_open_position(symbol: str, magic: int):
         if p.magic == magic:
             return p
     return None
+
+
+def get_open_positions(symbol: str, magics) -> list:
+    """Trả về tất cả Position của bot có magic nằm trong danh sách `magics`."""
+    positions = mt5.positions_get(symbol=symbol)
+    if not positions:
+        return []
+    magics = set(magics)
+    return [p for p in positions if p.magic in magics]
 
 
 # ────────────────────────────────────────────────

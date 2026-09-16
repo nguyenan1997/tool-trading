@@ -9,7 +9,7 @@ from .base import BaseStrategy
 
 class TripleEmaStrategy(BaseStrategy):
     def __init__(self):
-        super().__init__("3 EMA Crossover")
+        super().__init__("3 EMA Crossover", magic=config.MAGIC_NUMBER)
         self.fast    = config.EMA_FAST
         self.medium  = config.EMA_MEDIUM
         self.slow    = config.EMA_SLOW

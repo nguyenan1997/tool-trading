@@ -27,6 +27,15 @@ class StrategyManager:
         return self._current_key
 
     def get_all_strategies(self):
-        return [{"id": k, "name": v.name} for k, v in self._strategies.items()]
+        return [{"id": k, "name": v.name, "magic": v.magic} for k, v in self._strategies.items()]
+
+    def get_magics(self):
+        return [v.magic for v in self._strategies.values()]
+
+    def get_name_by_magic(self, magic: int):
+        for v in self._strategies.values():
+            if v.magic == magic:
+                return v.name
+        return None
 
 strategy_manager = StrategyManager()

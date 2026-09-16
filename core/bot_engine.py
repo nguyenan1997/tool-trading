@@ -19,9 +19,15 @@ class BotEngine:
         self._thread: threading.Thread = None # type: ignore
         self.last_candle_time = None
         self.status = "Stopped"
+        self._lock = threading.Lock()
 
     def start(self):
-        if not self.is_running:
+        with self._lock:
+            if self.is_running:
+                return
+            # Chờ thread cũ thoát hẳn để tránh 2 vòng lặp chạy song song
+            if self._thread is not None and self._thread.is_alive():
+                return
             self.is_running = True
             self.status = "Running"
             self._thread = threading.Thread(target=self._run_loop, daemon=True)
@@ -29,9 +35,13 @@ class BotEngine:
             logger.info("Bot Engine STARTED")
 
     def stop(self):
-        self.is_running = False
-        self.status = "Stopped"
-        logger.info("Bot Engine STOPPED")
+        with self._lock:
+            self.is_running = False
+            self.status = "Stopped"
+            t = self._thread
+            if t is not None and t.is_alive() and t is not threading.current_thread():
+                t.join(timeout=10)
+            logger.info("Bot Engine STOPPED")
 
     def _run_loop(self):
         if not mt5h.connect():
@@ -60,6 +70,7 @@ class BotEngine:
 
     def _on_candle_tick(self):
         strategy = strategy_manager.get_current_strategy()
+        magic = getattr(strategy, "magic", config.MAGIC_NUMBER)
         count = getattr(strategy, "history_bars", 200)
         df = mt5h.get_candles(config.SYMBOL, config.TIMEFRAME, count=count)
         if df is None or len(df) < 50:
@@ -67,7 +78,8 @@ class BotEngine:
 
         df = strategy.calculate_indicators(df)
         signal = strategy.check_signal(df)
-        position = mt5h.get_open_position(config.SYMBOL, config.MAGIC_NUMBER)
+        # Chỉ quản lý lệnh của ĐÚNG chiến lược hiện tại (magic riêng)
+        position = mt5h.get_open_position(config.SYMBOL, magic)
 
         # ── BE-move: dời SL về giá mở lệnh khi đã lãi >= R lần ──
         be_r = getattr(strategy, "be_move_at_r", 0)
@@ -104,6 +116,6 @@ class BotEngine:
             
             if sl and tp:
                 logger.info(f"⚡ EXECUTE {signal} | Strategy: {strategy.name} | Price: {price} | SL: {sl} | TP: {tp}")
-                mt5h.open_position(config.SYMBOL, signal, config.FIXED_LOT, sl, tp, config.MAGIC_NUMBER, config.ORDER_COMMENT)
+                mt5h.open_position(config.SYMBOL, signal, config.FIXED_LOT, sl, tp, magic, config.ORDER_COMMENT)
 
 bot_engine = BotEngine()

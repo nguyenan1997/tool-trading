@@ -61,8 +61,9 @@ class TrendMomentumStrategy(BaseStrategy):
         session=config.TM_SESSION,
         history_bars=config.TM_HISTORY_BARS,
         be_move_at_r=config.TM_BE_AT_R,
+        magic=config.MAGIC_TM,
     ):
-        super().__init__("Trend Momentum")
+        super().__init__("Trend Momentum", magic=magic)
         self.lookback = lookback
         self.rsi_period = rsi_period
         self.rsi_buy = rsi_buy

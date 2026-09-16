@@ -37,7 +37,10 @@ FIXED_LOT       = 0.01
 RISK_PERCENT    = 10.0      # % of account balance per trade
 
 # --- Order Settings ---
-MAGIC_NUMBER    = 20260319
+# Mỗi chiến lược có MAGIC riêng → quản lý lệnh độc lập.
+# Đổi chiến lược KHÔNG đụng tới lệnh của chiến lược khác (giữ nguyên SL/TP).
+MAGIC_NUMBER    = 20260319   # 3 EMA Crossover
+MAGIC_TM        = 20260320   # Trend Momentum
 ORDER_COMMENT   = "EMA_Crossover_Bot"
 
 # --- Trading Hours (UTC) – leave empty to trade 24/7 ---
