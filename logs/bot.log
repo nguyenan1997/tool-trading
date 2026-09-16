@@ -1017,3 +1017,8 @@ ValueError: list.index(x): x not in list
 2026-09-17 02:02:00  INFO      ⏳ PHIÊN  |  Còn 13h57m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:02
 2026-09-17 02:06:04  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
 2026-09-17 02:08:00  INFO      ⏳ PHIÊN  |  Còn 13h51m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:08
+2026-09-17 02:14:00  INFO      ⏳ PHIÊN  |  Còn 13h45m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:14
+2026-09-17 02:20:00  INFO      ⏳ PHIÊN  |  Còn 13h39m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:20
+2026-09-17 02:26:00  INFO      ⏳ PHIÊN  |  Còn 13h33m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:26
+2026-09-17 02:32:00  INFO      ⏳ PHIÊN  |  Còn 13h27m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:32
+2026-09-17 02:37:00  INFO      ⏳ PHIÊN  |  Còn 13h22m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:37
