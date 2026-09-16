@@ -19,3 +19,6 @@ def setup_logger():
             logging.StreamHandler(),
         ],
     )
+
+    # Không ghi access log (GET/POST ...) của Flask vào file bot.log
+    logging.getLogger("werkzeug").setLevel(logging.WARNING)

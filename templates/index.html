@@ -183,6 +183,29 @@
         .profit-pos { color: var(--success); }
         .profit-neg { color: var(--danger); }
 
+        /* Trading Log */
+        .log-panel {
+            background: #0b1120;
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            height: 340px;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Menlo', monospace;
+            font-size: 0.78rem;
+            line-height: 1.55;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .log-line { color: #cbd5e1; }
+        .log-muted { color: #64748b; }
+        .log-info { color: #93c5fd; }
+        .log-trade { color: #4ade80; }
+        .log-sell { color: #f87171; }
+        .log-warn { color: #fbbf24; }
+        .log-error { color: #f87171; }
+        .log-meta { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--text-dim); }
+
         /* Animations */
         @keyframes pulse {
             0% { opacity: 1; }
@@ -280,6 +303,17 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Trading Log -->
+            <div class="card" style="grid-column: span 3;">
+                <div class="card-title">
+                    <span style="display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="terminal"></i> Trading Log</span>
+                    <span id="log-meta" class="log-meta" style="margin-left: auto;">---</span>
+                </div>
+                <div id="log-panel" class="log-panel">
+                    <div class="log-muted">Đang tải log...</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -288,6 +322,41 @@
         lucide.createIcons();
 
         const API_BASE = "http://localhost:5000/api";
+
+        function escapeHtml(s) {
+            return s.replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+        }
+
+        function logClass(line) {
+            if (line.includes('ERROR')) return 'log-error';
+            if (line.includes('WARNING')) return 'log-warn';
+            if (line.includes('SELL') || line.includes('LOSS')) return 'log-sell';
+            if (line.includes('BUY') || line.includes('EXECUTE') || line.includes('OPENED') ||
+                line.includes('CLOSED') || line.includes('PROFIT') || line.includes('BE-MOVE') ||
+                line.includes('MODIFIED')) return 'log-trade';
+            if (line.includes('INFO')) return 'log-info';
+            return 'log-line';
+        }
+
+        async function fetchLogs() {
+            try {
+                const res = await fetch(`${API_BASE}/logs?lines=300`);
+                const data = await res.json();
+                const panel = document.getElementById('log-panel');
+                if (!panel) return;
+                const lines = data.lines || [];
+                const atBottom = panel.scrollHeight - panel.scrollTop - panel.clientHeight < 40;
+                if (lines.length === 0) {
+                    panel.innerHTML = '<div class="log-muted">(Chưa có log)</div>';
+                } else {
+                    panel.innerHTML = lines.map(l => `<div class="${logClass(l)}">${escapeHtml(l)}</div>`).join('');
+                }
+                document.getElementById('log-meta').innerText = `${lines.length} dòng`;
+                if (atBottom) panel.scrollTop = panel.scrollHeight;
+            } catch (e) {
+                console.error("Log fetch error:", e);
+            }
+        }
 
         async function fetchData() {
             try {
@@ -340,7 +409,10 @@
                     // Update dropdown once
                     loadStrategies(status.current_strategy);
                 }
-                
+
+                // 5. Trading log
+                await fetchLogs();
+
             } catch (e) {
                 console.error("Fetch Error:", e);
             }

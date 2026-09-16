@@ -8,6 +8,8 @@ import config
 from datetime import datetime
 import pandas as pd
 import logging
+import os
+import re
 from core.bot_engine import bot_engine
 from strategies.manager import strategy_manager
 from backtest.engine import Backtester
@@ -16,6 +18,9 @@ from strategies.triple_ema import TripleEmaStrategy
 from strategies.trend_momentum import TrendMomentumStrategy
 
 logger = logging.getLogger(__name__)
+
+# Nhận diện dòng access log của Flask/Werkzeug: ... "GET /api/... HTTP/1.1" 200 -
+_ACCESS_LOG_RE = re.compile(r'"\s*(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+\S+\s+HTTP/\d')
 
 
 def _build_strategy(data):
@@ -133,6 +138,45 @@ def register_routes(app):
             "symbol": config.SYMBOL,
             "timeframe": config.TIMEFRAME
         })
+
+    @app.route('/api/logs', methods=['GET'])
+    def get_logs():
+        """Trả về N dòng log gần nhất (mặc định 200)."""
+        lines_val = request.args.get("lines")
+        try:
+            max_lines = int(lines_val) if lines_val else 200
+        except ValueError:
+            max_lines = 200
+        max_lines = max(1, min(max_lines, 1000))
+
+        log_path = config.LOG_FILE
+        if not os.path.isabs(log_path):
+            log_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), log_path)
+
+        try:
+            # Đọc lùi từ cuối file cho tới khi gom đủ `max_lines` dòng KHÔNG phải access log
+            with open(log_path, "rb") as f:
+                f.seek(0, os.SEEK_END)
+                size = f.tell()
+                block = 16384
+                data = b""
+                while size > 0:
+                    read_size = min(block, size)
+                    size -= read_size
+                    f.seek(size)
+                    data = f.read(read_size) + data
+                    lines = data.decode("utf-8", errors="replace").splitlines()
+                    filtered = [l for l in lines if not _ACCESS_LOG_RE.search(l)]
+                    if len(filtered) > max_lines:
+                        break
+            lines = [l for l in data.decode("utf-8", errors="replace").splitlines()
+                     if not _ACCESS_LOG_RE.search(l)]
+            return jsonify({"lines": lines[-max_lines:]})
+        except FileNotFoundError:
+            return jsonify({"lines": []})
+        except Exception as e:
+            logger.error(f"Cannot read log file: {e}")
+            return jsonify({"error": str(e)}), 500
 
     @app.route('/api/account', methods=['GET'])
     def get_account():
