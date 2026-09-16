@@ -2,6 +2,7 @@
 backtest/engine.py
 Lõi xử lý Back-test: giả lập giao dịch trên dữ liệu lịch sử.
 """
+import math
 import pandas as pd
 import logging
 from datetime import datetime
@@ -10,15 +11,31 @@ from strategies.base import BaseStrategy
 logger = logging.getLogger(__name__)
 
 class Backtester:
-    def __init__(self, strategy: BaseStrategy, initial_balance=1000, lot_size=0.1, digits=5, spread=0.30):
+    def __init__(self, strategy: BaseStrategy, initial_balance=1000, lot_size=0.1, digits=5, spread=0.30,
+                 volume_min=0.01, volume_step=0.01):
         self.strategy = strategy
         self.initial_balance = initial_balance
         self.balance = initial_balance
         self.lot_size = lot_size
         self.digits = digits
         self.spread = spread  # Spread thật từ broker (đơn vị: price, ví dụ 0.30 cho XAUUSD)
+        self.volume_min = volume_min
+        self.volume_step = volume_step
         self.trades = []
         self.current_position = None  # None | {"type": "BUY/SELL", "entry": float, "sl": float, "tp": float, "time": datetime}
+
+    def _effective_partial_frac(self) -> float:
+        """Tỷ lệ khối lượng chốt sớm thực tế (làm tròn theo volume_step).
+        Trả về 0 nếu không thể chia (lot quá nhỏ) — khớp với mt5_handler.split_volume()."""
+        frac = getattr(self.strategy, "partial_frac", 0) or 0
+        if frac <= 0 or frac >= 1:
+            return 0.0
+        step = self.volume_step or 0.01
+        vol = round(math.floor((self.lot_size * frac) / step + 1e-9) * step, 2)
+        remaining = round(self.lot_size - vol, 2)
+        if vol < self.volume_min - 1e-9 or remaining < self.volume_min - 1e-9:
+            return 0.0
+        return vol / self.lot_size
 
     def run(self, df: pd.DataFrame):
         """
@@ -84,6 +101,11 @@ class Backtester:
                             "entry": entry_price,
                             "sl": sl,
                             "tp": tp,
+                            "R": abs(entry_price - sl),
+                            "partial_frac": self._effective_partial_frac(),
+                            "partial_at_r": getattr(self.strategy, "partial_at_r", 0) or 0,
+                            "partial_done": False,
+                            "pnl_partial": 0.0,
                             "entry_time": next_candle.name if hasattr(next_candle, 'name') else (i+1)
                         }
 
@@ -97,12 +119,30 @@ class Backtester:
         high = candle["high"] + self.spread
         exit_time = candle.name if hasattr(candle, 'name') else "N/A"
 
-        # ── BE-move (chỉ khi chiến lược yêu cầu) ──
+        # ── Chốt một phần (partial TP) + BE-move ──
+        # Thứ tự giống bot live: tính biên độ thuận lợi từ nến này → chốt phần → dời BE.
         be_r = getattr(self.strategy, "be_move_at_r", 0)
-        if be_r and pos["type"] == "BUY" and candle["high"] >= pos["entry"] + (pos["entry"] - pos["sl"]):
-            pos["sl"] = round(pos["entry"], self.digits)
-        elif be_r and pos["type"] == "SELL" and candle["low"] <= pos["entry"] - (pos["sl"] - pos["entry"]):
-            pos["sl"] = round(pos["entry"], self.digits)
+        part_r = pos.get("partial_at_r", 0)
+        part_f = pos.get("partial_frac", 0)
+        R = pos.get("R", 0)
+
+        if R > 0:
+            if pos["type"] == "BUY":
+                hw = (candle["high"] - pos["entry"]) / R
+                if part_f > 0 and part_r > 0 and not pos["partial_done"] and hw >= part_r:
+                    pos["pnl_partial"] = part_f * part_r * R * self.lot_size * 100
+                    pos["partial_done"] = True
+                    pos["sl"] = round(max(pos["sl"], pos["entry"]), self.digits)
+                if be_r and hw >= be_r:
+                    pos["sl"] = round(max(pos["sl"], pos["entry"]), self.digits)
+            else:
+                hw = (pos["entry"] - candle["low"]) / R
+                if part_f > 0 and part_r > 0 and not pos["partial_done"] and hw >= part_r:
+                    pos["pnl_partial"] = part_f * part_r * R * self.lot_size * 100
+                    pos["partial_done"] = True
+                    pos["sl"] = round(min(pos["sl"], pos["entry"]), self.digits)
+                if be_r and hw >= be_r:
+                    pos["sl"] = round(min(pos["sl"], pos["entry"]), self.digits)
 
         result = None
         exit_price = 0
@@ -126,9 +166,18 @@ class Backtester:
         if result:
             # Tính toán P/L thực tế cho XAUUSD (1 lot = 100 ounces)
             pnl_points = (exit_price - pos["entry"]) if pos["type"] == "BUY" else (pos["entry"] - exit_price)
-            # Profit = chênh lệch giá * khối lựợng * 100 (contract size)
-            profit_value = pnl_points * self.lot_size * 100
-            
+            # Chỉ còn phần khối lượng chưa chốt + phần đã chốt sớm (nếu có)
+            rem = 1.0 - (pos["partial_frac"] if pos["partial_done"] else 0.0)
+            profit_value = pnl_points * self.lot_size * rem * 100 + pos["pnl_partial"]
+
+            # Phân loại theo lãi/lỗ thực tế (lệnh chốt một phần rồi thoát hòa vốn vẫn là PROFIT)
+            if profit_value > 1e-9:
+                outcome = "PROFIT"
+            elif profit_value < -1e-9:
+                outcome = "LOSS"
+            else:
+                outcome = "BREAKEVEN"
+
             self.balance += profit_value
             self.trades.append({
                 "type": pos["type"],
@@ -136,7 +185,8 @@ class Backtester:
                 "exit": exit_price,
                 "entry_time": pos["entry_time"],
                 "exit_time": exit_time,
-                "result": result,
+                "result": outcome,
+                "partial": pos["partial_done"],
                 "pnl": profit_value,
                 "balance": self.balance
             })
@@ -145,12 +195,15 @@ class Backtester:
     def _print_summary(self):
         total_trades = len(self.trades)
         wins = len([t for t in self.trades if t["result"] == "PROFIT"])
-        losses = total_trades - wins
+        losses = len([t for t in self.trades if t["result"] == "LOSS"])
+        be = total_trades - wins - losses
+        partials = len([t for t in self.trades if t.get("partial")])
         win_rate = (wins / total_trades * 100) if total_trades > 0 else 0
-        
+
         print(f"--- KẾT QUẢ BACK-TEST ---")
         print(f"Tổng số lệnh: {total_trades}")
-        print(f"Thắng: {wins} | Thua: {losses}")
+        print(f"Thắng: {wins} | Thua: {losses} | Hòa vốn: {be}")
+        print(f"Lệnh chốt một phần: {partials}")
         print(f"Tỉ lệ thắng: {win_rate:.2f}%")
         print(f"Số dư cuối: {self.balance:.2f}")
         print(f"------------------------")
