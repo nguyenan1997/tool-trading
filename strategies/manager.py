@@ -12,7 +12,7 @@ class StrategyManager:
             "3ema": TripleEmaStrategy(),
             "trend_momentum": TrendMomentumStrategy(),
         }
-        self._current_key = "3ema" # Mặc định: giữ nguyên chiến lược cũ
+        self._current_key = "trend_momentum" # Mặc định khi khởi động
 
     def set_strategy(self, key: str):
         if key in self._strategies:
