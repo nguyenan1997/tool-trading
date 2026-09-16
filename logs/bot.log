@@ -876,3 +876,5 @@ ValueError: list.index(x): x not in list
 2026-09-16 14:53:21  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
 2026-09-16 14:53:55  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
 2026-09-16 14:53:55  INFO      Bot Engine STARTED
+2026-09-16 14:54:31  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:54:48  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
