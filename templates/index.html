@@ -349,11 +349,11 @@
             if (sessionState.in_session) {
                 el.innerText = "Đang trong phiên";
                 el.style.color = "#4ade80";
-                det.innerText = sessionState.session ? `Phiên ${sessionState.session} (giờ broker)` : "";
+                det.innerText = sessionState.session ? `Phiên ${sessionState.session} (giờ Việt Nam)` : "";
             } else if (sessionState.target) {
                 el.innerText = "Còn " + formatCountdown((sessionState.target - Date.now()) / 1000);
                 el.style.color = "#fbbf24";
-                det.innerText = sessionState.open_at ? `Mở lúc ${sessionState.open_at} (giờ broker)` : "";
+                det.innerText = sessionState.open_at ? `Mở lúc ${sessionState.open_at} (giờ Việt Nam)` : "";
             } else {
                 el.innerText = "---";
                 det.innerText = "";

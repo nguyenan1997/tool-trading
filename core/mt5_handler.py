@@ -185,6 +185,41 @@ def calc_lot_by_risk(symbol: str, sl_distance: float, balance: float, risk_pct: 
 
 
 # ────────────────────────────────────────────────
+#  Filling mode (tránh lỗi 10030 Unsupported filling mode)
+# ────────────────────────────────────────────────
+_FILLING_ORDER = (mt5.ORDER_FILLING_FOK, mt5.ORDER_FILLING_IOC, mt5.ORDER_FILLING_RETURN)
+
+
+def _supported_filling(info) -> int:
+    """Chọn chế độ khớp lệnh mà symbol hỗ trợ (theo symbol_info.filling_mode)."""
+    fm = getattr(info, "filling_mode", 0) or 0
+    # MT5 Python không export SYMBOL_FILLING_*; giá trị chuẩn: FOK = 1, IOC = 2
+    if fm & getattr(mt5, "SYMBOL_FILLING_IOC", 2):
+        return mt5.ORDER_FILLING_IOC
+    if fm & getattr(mt5, "SYMBOL_FILLING_FOK", 1):
+        return mt5.ORDER_FILLING_FOK
+    return mt5.ORDER_FILLING_RETURN
+
+
+def _order_send(request: dict, info=None):
+    """Gửi lệnh; nếu bị lỗi 10030 (Unsupported filling mode) thì tự thử mode khác."""
+    if info is not None:
+        request["type_filling"] = _supported_filling(info)
+    result = mt5.order_send(request)
+    if result is None:
+        return result
+    if result.retcode == mt5.TRADE_RETCODE_INVALID_FILL:
+        for fm in _FILLING_ORDER:
+            if request.get("type_filling") == fm:
+                continue
+            request["type_filling"] = fm
+            result = mt5.order_send(request)
+            if result is None or result.retcode != mt5.TRADE_RETCODE_INVALID_FILL:
+                break
+    return result
+
+
+# ────────────────────────────────────────────────
 #  Open / Close Orders
 # ────────────────────────────────────────────────
 def open_position(
@@ -229,11 +264,11 @@ def open_position(
         "type_filling": mt5.ORDER_FILLING_IOC,
     }
 
-    result = mt5.order_send(request)
-    if result.retcode != mt5.TRADE_RETCODE_DONE:
-        logger.error(
-            f"open_position FAILED  |  retcode={result.retcode}  |  {result.comment}"
-        )
+    result = _order_send(request, info)
+    if result is None or result.retcode != mt5.TRADE_RETCODE_DONE:
+        code = result.retcode if result else "None"
+        comment = result.comment if result else "order_send returned None"
+        logger.error(f"open_position FAILED  |  retcode={code}  |  {comment}")
         return False
 
     logger.info(
@@ -248,6 +283,7 @@ def close_position(position, magic: int, comment: str = "close") -> bool:
     tick = get_tick(position.symbol)
     if tick is None:
         return False
+    info = get_symbol_info(position.symbol)
 
     if position.type == mt5.POSITION_TYPE_BUY:
         price    = tick.bid
@@ -269,11 +305,13 @@ def close_position(position, magic: int, comment: str = "close") -> bool:
         "type_filling": mt5.ORDER_FILLING_IOC,
     }
 
-    result = mt5.order_send(request)
-    if result.retcode != mt5.TRADE_RETCODE_DONE:
+    result = _order_send(request, info)
+    if result is None or result.retcode != mt5.TRADE_RETCODE_DONE:
+        code = result.retcode if result else "None"
+        msg = result.comment if result else "order_send returned None"
         logger.error(
             f"close_position FAILED  |  Ticket={position.ticket}  |  "
-            f"retcode={result.retcode}  |  {result.comment}"
+            f"retcode={code}  |  {msg}"
         )
         return False
 
@@ -340,11 +378,13 @@ def close_position_partial(position, frac: float, magic: int = 0, comment: str =
         "type_filling": mt5.ORDER_FILLING_IOC,
     }
 
-    result = mt5.order_send(request)
-    if result.retcode != mt5.TRADE_RETCODE_DONE:
+    result = _order_send(request, info)
+    if result is None or result.retcode != mt5.TRADE_RETCODE_DONE:
+        code = result.retcode if result else "None"
+        msg = result.comment if result else "order_send returned None"
         logger.error(
             f"partial close FAILED  |  Ticket={position.ticket}  |  "
-            f"retcode={result.retcode}  |  {result.comment}"
+            f"retcode={code}  |  {msg}"
         )
         return False
 

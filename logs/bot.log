@@ -921,3 +921,24 @@ ValueError: list.index(x): x not in list
 2026-09-16 22:10:26  INFO      Connected  |  Account: 91454560  |  Balance: 200.00 USD  |  Broker: LiteFinance Global LLC
 2026-09-16 22:10:26  INFO      Bot Engine STARTED
 2026-09-16 22:11:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (12–21h giờ broker)  |  giờ broker 18:11
+2026-09-16 22:13:29  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 22:17:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (12–21h giờ broker)  |  giờ broker 18:17
+2026-09-16 22:20:24  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 22:21:15  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 22:22:14  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 22:22:14  WARNING   Cache lỗi định dạng, bỏ qua để tạo lại: backtest/data\XAUUSD_M1_100000.csv (list.index(x): x not in list)
+2026-09-16 22:22:32  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 22:22:50  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 22:23:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (12–21h giờ broker)  |  giờ broker 18:23
+2026-09-16 22:24:14  INFO      Connected  |  Account: 91454560  |  Balance: 200.00 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 22:24:14  INFO      Bot Engine STARTED
+2026-09-16 22:25:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (12–21h giờ broker)  |  giờ broker 18:25
+2026-09-16 22:26:00  INFO      ⚡ EXECUTE SELL | Strategy: Trend Momentum | Price: 4347.41 | SL: 4361.46 | TP: 4319.3
+2026-09-16 22:26:00  ERROR     open_position FAILED  |  retcode=10027  |  AutoTrading disabled by client
+2026-09-16 22:27:00  INFO      ⚡ EXECUTE SELL | Strategy: Trend Momentum | Price: 4346.31 | SL: 4360.36 | TP: 4318.2
+2026-09-16 22:27:00  ERROR     open_position FAILED  |  retcode=10030  |  Unsupported filling mode
+2026-09-16 22:29:29  INFO      Connected  |  Account: 91454560  |  Balance: 200.00 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 22:29:29  INFO      Bot Engine STARTED
+2026-09-16 22:30:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–01:00 giờ Việt Nam)  |  giờ broker 22:30
+2026-09-16 22:30:00  INFO      ⚡ EXECUTE SELL | Strategy: Trend Momentum | Price: 4344.62 | SL: 4358.67 | TP: 4316.51
+2026-09-16 22:30:00  INFO      🔴 SELL OPENED  |  Ticket=342072406  |  Price=4344.62000  |  SL=4358.67000  |  TP=4316.51000  |  Lot=0.02

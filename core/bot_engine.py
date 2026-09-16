@@ -53,28 +53,47 @@ class BotEngine:
             return datetime.fromtimestamp(tick.time, timezone.utc).replace(tzinfo=None)
         return datetime.now(timezone.utc).replace(tzinfo=None)
 
+    def _broker_offset(self) -> int:
+        """Chênh lệch giờ broker so với UTC (tự nhận diện từ tick, fallback config)."""
+        tick = mt5h.get_tick(config.SYMBOL)
+        if tick is None:
+            return int(getattr(config, "BROKER_UTC_OFFSET", 0))
+        server_wall = datetime.fromtimestamp(tick.time, timezone.utc).replace(tzinfo=None)
+        utc_now = datetime.now(timezone.utc).replace(tzinfo=None)
+        return int(round((server_wall - utc_now).total_seconds() / 3600.0))
+
     def get_session_status(self) -> dict:
-        """Trạng thái phiên giao dịch + đếm ngược tới lúc mở phiên (giờ broker)."""
+        """Trạng thái phiên + đếm ngược, hiển thị theo GIỜ VIỆT NAM (UTC+7).
+        Phiên (TM_SESSION) vẫn định nghĩa theo giờ broker; ở đây chỉ quy đổi để hiển thị."""
         start, end = getattr(config, "TM_SESSION", (12, 21))
-        now = self._server_now()
-        h = now.hour
-        label_range = f"{start:02d}–{end:02d}h"
+        server_now = self._server_now()                      # giờ broker (naive)
+        off = self._broker_offset()                          # broker so với UTC
+        vn_off = int(getattr(config, "VN_UTC_OFFSET", 7))
+        vn = vn_off - off                                    # giờ broker -> giờ VN
+        # "Bây giờ" luôn tính từ đồng hồ UTC thật -> đúng giờ VN
+        vn_now = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=vn_off)
+
+        vn_start = (start + vn) % 24
+        vn_end = (end + vn) % 24
+        label_range = f"{vn_start:02d}:00–{vn_end:02d}:00"
+        h = server_now.hour
         if start <= h <= end:
             return {
-                "in_session": True, "now": now.strftime("%H:%M"),
+                "in_session": True, "now": vn_now.strftime("%H:%M"),
                 "session": label_range, "seconds_to_open": 0, "open_at": None,
-                "label": f"Đang trong phiên vào lệnh ({label_range} giờ broker)",
+                "label": f"Đang trong phiên vào lệnh ({label_range} giờ Việt Nam)",
             }
-        target = now.replace(hour=start, minute=0, second=0, microsecond=0)
-        if target <= now:
+        target = server_now.replace(hour=start, minute=0, second=0, microsecond=0)
+        if target <= server_now:
             target += timedelta(days=1)
-        secs = int((target - now).total_seconds())
+        secs = int((target - server_now).total_seconds())
+        target_vn = target + timedelta(hours=vn)
         hh, mm = divmod(secs // 60, 60)
         return {
-            "in_session": False, "now": now.strftime("%H:%M"),
+            "in_session": False, "now": vn_now.strftime("%H:%M"),
             "session": label_range, "seconds_to_open": secs,
-            "open_at": target.strftime("%H:%M"),
-            "label": f"Còn {hh}h{mm:02d}m nữa tới phiên vào lệnh ({start:02d}:00 giờ broker)",
+            "open_at": target_vn.strftime("%H:%M"),
+            "label": f"Còn {hh}h{mm:02d}m nữa tới phiên vào lệnh ({vn_start:02d}:00 giờ Việt Nam)",
         }
 
     def _maybe_log_session(self, interval_sec: int = 300):
