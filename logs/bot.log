@@ -729,3 +729,105 @@
 2026-09-16 13:56:46  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
 2026-09-16 13:56:46  INFO      Bot Engine STARTED
 2026-09-16 13:57:00  INFO      ⏳ PHIÊN  |  Còn 2h03m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 09:56
+2026-09-16 13:58:28  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 13:58:37  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 13:59:07  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 13:59:27  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 13:59:45  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:02:00  INFO      ⏳ PHIÊN  |  Còn 1h58m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 10:01
+2026-09-16 14:02:23  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:02:23  ERROR     Exception on /api/backtest/run [POST]
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\flask_cors\extension.py", line 206, in wrapped_function
+    return cors_after_request(app_any.make_response(f(*args, **kwargs)))
+                                                    ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\src\Tool Trading\api\routes.py", line 93, in run_backtest_api
+    df = get_historical_data(symbol, tf, count=count, start_date=start_date)
+  File "C:\src\Tool Trading\backtest\data_loader.py", line 35, in get_historical_data
+    df = pd.read_csv(file_path, index_col="time", parse_dates=True)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 873, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 300, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 1645, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 1922, in _make_engine
+    return mapping[engine](f, **self.options)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\c_parser_wrapper.py", line 153, in __init__
+    self._set_noconvert_columns()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\c_parser_wrapper.py", line 196, in _set_noconvert_columns
+    noconvert_columns = self._set_noconvert_dtype_columns(
+        col_indices,
+        self.names,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\base_parser.py", line 442, in _set_noconvert_dtype_columns
+    noconvert_columns.add(_set(k))
+                          ~~~~^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\base_parser.py", line 430, in _set
+    x = col_indices[names.index(x)]
+                    ~~~~~~~~~~~^^^
+ValueError: list.index(x): x not in list
+2026-09-16 14:02:27  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:02:27  ERROR     Exception on /api/backtest/run [POST]
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\flask_cors\extension.py", line 206, in wrapped_function
+    return cors_after_request(app_any.make_response(f(*args, **kwargs)))
+                                                    ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\src\Tool Trading\api\routes.py", line 93, in run_backtest_api
+    df = get_historical_data(symbol, tf, count=count, start_date=start_date)
+  File "C:\src\Tool Trading\backtest\data_loader.py", line 35, in get_historical_data
+    df = pd.read_csv(file_path, index_col="time", parse_dates=True)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 873, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 300, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 1645, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 1922, in _make_engine
+    return mapping[engine](f, **self.options)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\c_parser_wrapper.py", line 153, in __init__
+    self._set_noconvert_columns()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\c_parser_wrapper.py", line 196, in _set_noconvert_columns
+    noconvert_columns = self._set_noconvert_dtype_columns(
+        col_indices,
+        self.names,
+    )
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\base_parser.py", line 442, in _set_noconvert_dtype_columns
+    noconvert_columns.add(_set(k))
+                          ~~~~^^^
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\base_parser.py", line 430, in _set
+    x = col_indices[names.index(x)]
+                    ~~~~~~~~~~~^^^
+ValueError: list.index(x): x not in list
+2026-09-16 14:03:43  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 14:03:43  INFO      Bot Engine STARTED
+2026-09-16 14:03:58  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:04:00  INFO      ⏳ PHIÊN  |  Còn 1h56m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 10:03
+2026-09-16 14:04:13  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:04:32  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:04:45  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:04:55  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2

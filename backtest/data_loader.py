@@ -31,9 +31,12 @@ def get_historical_data(symbol: str, timeframe: str, count: int = 1000, start_da
     file_path = os.path.join(DATA_DIR, cache_name)
     
     if use_cache and os.path.exists(file_path):
-        print(f"Lấy dữ liệu từ CACHE: {file_path}")
-        df = pd.read_csv(file_path, index_col="time", parse_dates=True)
-        return df
+        try:
+            df = pd.read_csv(file_path, index_col="time", parse_dates=True)
+            print(f"Lấy dữ liệu từ CACHE: {file_path}")
+            return df
+        except Exception as e:
+            logger.warning(f"Cache lỗi định dạng, bỏ qua để tạo lại: {file_path} ({e})")
 
     # Nếu file cache chính xác chưa có -> tìm file cache lớn hơn đủ rows
     csvs = sorted(Path(DATA_DIR).glob(f"{symbol}_{timeframe}_*.csv"),
@@ -46,7 +49,8 @@ def get_historical_data(symbol: str, timeframe: str, count: int = 1000, start_da
             if len(df) >= count:
                 df = df.iloc[-count:].copy()
                 print(f"Dùng cache lớn hơn ({p.name}, {len(df)} nến) thay cho {count}")
-                df.to_csv(file_path, index=False)
+                # Giữ index 'time' khi ghi (index=True) để lần sau đọc lại được
+                df.to_csv(file_path)
                 return df
         except Exception:
             continue
