@@ -419,6 +419,7 @@ def close_position_partial(position, frac: float, magic: int = 0, comment: str =
         )
         return False
 
+    remaining = round(position.volume - vol, 2)
     logger.info(
         f"✂️ PARTIAL CLOSE  |  Ticket={position.ticket}  |  "
         f"đóng {vol} lot, còn {remaining} lot"

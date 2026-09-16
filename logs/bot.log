@@ -998,3 +998,11 @@ ValueError: list.index(x): x not in list
 2026-09-17 01:26:44  INFO      Connected  |  Account: 91454560  |  Balance: 157.48 USD  |  Broker: LiteFinance Global LLC
 2026-09-17 01:26:44  INFO      Bot Engine STARTED
 2026-09-17 01:27:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:27
+2026-09-17 01:28:58  INFO      Connected  |  Account: 91454560  |  Balance: 157.48 USD  |  Broker: LiteFinance Global LLC
+2026-09-17 01:28:58  INFO      Bot Engine STARTED
+2026-09-17 01:29:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:29
+2026-09-17 01:33:09  ERROR     Error in tick: name 'remaining' is not defined
+2026-09-17 01:34:00  INFO      ⚡ EXECUTE SELL | Strategy: Trend Momentum | Price: 4287.32 | SL: 4306.84 | TP: 4248.28
+2026-09-17 01:34:29  WARNING   ⚠️ TRƯỢT GIÁ 494 points (> 30)  |  yêu cầu 4287.32 -> khớp 4282.38  |  ĐÓNG LỆNH, coi như không vào
+2026-09-17 01:34:48  INFO      ✅ CLOSED  |  Ticket=342239547  |  Profit=-1.14
+2026-09-17 01:35:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:35
