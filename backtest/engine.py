@@ -1,6 +1,15 @@
 """
 backtest/engine.py
 Lõi xử lý Back-test: giả lập giao dịch trên dữ liệu lịch sử.
+
+Quy ước giá (khớp MetaTrader5 / bot thật):
+  - Dữ liệu nến MT5 là giá BID (open/high/low/close).
+  - BUY  : vào lệnh tại ASK (open + spread), đóng lệnh tại BID.
+  - SELL : vào lệnh tại BID (open),        đóng lệnh tại ASK (giá + spread).
+  - Sàn theo dõi SL/TP liên tục TRONG nến (dùng high/low).
+  - Bot chỉ xét chốt một phần + dời SL hòa vốn MỘT LẦN mỗi nến, tại giá đóng nến
+    (giống bot_engine._on_candle_tick), nên partial/BE dùng giá close chứ không
+    dùng high/low.
 """
 import math
 import pandas as pd
@@ -10,6 +19,7 @@ from strategies.base import BaseStrategy
 
 logger = logging.getLogger(__name__)
 
+
 class Backtester:
     def __init__(self, strategy: BaseStrategy, initial_balance=1000, lot_size=0.1, digits=5, spread=0.30,
                  volume_min=0.01, volume_step=0.01):
@@ -18,7 +28,7 @@ class Backtester:
         self.balance = initial_balance
         self.lot_size = lot_size
         self.digits = digits
-        self.spread = spread  # Spread thật từ broker (đơn vị: price, ví dụ 0.30 cho XAUUSD)
+        self.spread = spread  # Spread thật từ broker (đơn vị: price, ví dụ 0.22 cho XAUUSD)
         self.volume_min = volume_min
         self.volume_step = volume_step
         self.trades = []
@@ -40,61 +50,50 @@ class Backtester:
     def run(self, df: pd.DataFrame):
         """
         Chạy Back-test trên một DataFrame nến.
+        Mỗi vòng lặp xử lý 1 nến k theo đúng trình tự của bot thật:
+          1. Sàn khớp SL/TP trong nến k (nếu đang có lệnh).
+          2. Lúc nến k đóng: bot xét chốt một phần + dời SL hòa vốn.
+          3. Lúc nến k đóng: bot xét tín hiệu và vào lệnh ở open nến k+1.
         """
         print(f"--- BẮT ĐẦU BACK-TEST: {self.strategy.name} ---")
         df = self.strategy.calculate_indicators(df)
-        
+
         # Bắt đầu từ khi đủ dữ liệu cho các chỉ báo (ví dụ EMA 200)
-        start_idx = 100 
+        start_idx = 100
         if len(df) <= start_idx:
             print("Dữ liệu quá ngắn để Back-test")
             return []
 
-        for i in range(start_idx, len(df) - 1):
-            current_candle = df.iloc[i]
-            next_candle = df.iloc[i+1]
+        n = len(df)
+        for k in range(start_idx, n):
+            candle = df.iloc[k]
 
-            just_closed_this_iter = False  # Lệnh có vừa đóng ở iteration này không?
+            # 1. Sàn theo dõi SL/TP liên tục trong nến k (BUY khớp BID, SELL khớp ASK)
+            if self.current_position is not None:
+                self._check_sl_tp(candle)
 
-            # 1. Kiểm tra SL/TP trên NEXT_CANDLE
-            if self.current_position:
-                self._check_exit(next_candle)
-                if not self.current_position:
-                    just_closed_this_iter = True  # Lệnh vừa đóng ngay trong iteration này
+            # 2. Lúc nến k đóng, bot xét chốt một phần + dời SL hòa vốn tại giá close
+            if self.current_position is not None:
+                self._manage_position(candle)
 
-            # 2. Kiểm tra tín hiệu mới - NHƯNG PHẢI BỎ QUA nếu lệnh vừa đóng iteration này
-            # ─────────────────────────────────────────────────────────────────────────────
-            # Real bot khi lệnh đóng giữa nến K (do TP/SL tick):
-            #   → Bot chờ đến cuối nến K mới check signal (sig_candle = K)
-            #   → Vào lệnh mới tại open nến K+1
-            #
-            # Backtest không dùng just_closed_this_iter:
-            #   → Sẽ check signal NGAY trong cùng iteration với candle K = next_candle
-            #   → sig_candle = K-1 (SAI), entry tại K open (SAI = quá khứ!)
-            #
-            # Với just_closed_this_iter = True:
-            #   → Bỏ qua signal check ở iteration này
-            #   → Iteration tiếp theo: current=K, next=K+1
-            #     sub_df[-2] = K ✅  entry = K+1 open ✅ (khớp real bot)
-            # ─────────────────────────────────────────────────────────────────────────────
-            if not self.current_position and not just_closed_this_iter:
-                sub_df = df.iloc[:i+2]
+            # 3. Lúc nến k đóng, bot xét tín hiệu; vào lệnh tại open nến k+1
+            if self.current_position is None and (k + 1) < n:
+                # [-1] = nến k+1 (vừa mở, chưa đóng), [-2] = nến k (đã đóng) — giống
+                # df mà bot thật truyền vào check_signal/get_sl_tp.
+                sub_df = df.iloc[:k + 2]
                 signal = self.strategy.check_signal(sub_df)
 
                 if signal:
-                    # Vào lệnh tại giá OPEN của nến TIẾP THEO (nến i+1)
-                    # Mô phỏng spread thật của broker:
-                    #   BUY  → khớp tại ASK = open + spread
-                    #   SELL → khớp tại BID = open (dữ liệu nến MT5 luôn là Bid)
-                    # Round cả 2 loại để tránh float64 precision artifact (4388.3900000001)
+                    next_candle = df.iloc[k + 1]
                     open_price = next_candle["open"]
+                    # BUY khớp tại ASK = open + spread; SELL khớp tại BID = open
                     if signal == "BUY":
                         entry_price = round(open_price + self.spread, self.digits)
                     else:
                         entry_price = round(open_price, self.digits)
 
                     sl, tp = self.strategy.get_sl_tp(sub_df, entry_price, self.digits, signal)
-                    
+
                     if sl and tp:
                         self.current_position = {
                             "type": signal,
@@ -106,91 +105,119 @@ class Backtester:
                             "partial_at_r": getattr(self.strategy, "partial_at_r", 0) or 0,
                             "partial_done": False,
                             "pnl_partial": 0.0,
-                            "entry_time": next_candle.name if hasattr(next_candle, 'name') else (i+1)
+                            "entry_time": next_candle.name if hasattr(next_candle, 'name') else (k + 1)
                         }
 
         self._print_summary()
         return self.trades
 
-    def _check_exit(self, candle):
+    def _check_sl_tp(self, candle):
+        """Sàn khớp SL/TP TRONG nến. BUY theo BID, SELL theo ASK.
+        Ưu tiên xử lý gap ở giá open, rồi mới tới high/low. Nếu 1 nến chạm cả SL
+        lẫn TP thì chọn SL (kịch bản bất lợi) cho an toàn."""
         pos = self.current_position
-        # Dữ liệu nến là giá BID. Khi SELL chạm SL (giá tăng), thực tế sẽ chạm tại Ask = high + spread
-        low  = candle["low"]
-        high = candle["high"] + self.spread
-        exit_time = candle.name if hasattr(candle, 'name') else "N/A"
+        d = self.digits
 
-        # ── Chốt một phần (partial TP) + BE-move ──
-        # Thứ tự giống bot live: tính biên độ thuận lợi từ nến này → chốt phần → dời BE.
-        be_r = getattr(self.strategy, "be_move_at_r", 0)
-        part_r = pos.get("partial_at_r", 0)
-        part_f = pos.get("partial_frac", 0)
-        R = pos.get("R", 0)
-
-        if R > 0:
-            if pos["type"] == "BUY":
-                hw = (candle["high"] - pos["entry"]) / R
-                if part_f > 0 and part_r > 0 and not pos["partial_done"] and hw >= part_r:
-                    pos["pnl_partial"] = part_f * part_r * R * self.lot_size * 100
-                    pos["partial_done"] = True
-                    pos["sl"] = round(max(pos["sl"], pos["entry"]), self.digits)
-                if be_r and hw >= be_r:
-                    pos["sl"] = round(max(pos["sl"], pos["entry"]), self.digits)
-            else:
-                hw = (pos["entry"] - candle["low"]) / R
-                if part_f > 0 and part_r > 0 and not pos["partial_done"] and hw >= part_r:
-                    pos["pnl_partial"] = part_f * part_r * R * self.lot_size * 100
-                    pos["partial_done"] = True
-                    pos["sl"] = round(min(pos["sl"], pos["entry"]), self.digits)
-                if be_r and hw >= be_r:
-                    pos["sl"] = round(min(pos["sl"], pos["entry"]), self.digits)
-
-        result = None
-        exit_price = 0
+        # Nến là BID; ASK = BID + spread
+        bid_open = candle["open"]
+        bid_high = candle["high"]
+        bid_low = candle["low"]
+        ask_open = candle["open"] + self.spread
+        ask_high = candle["high"] + self.spread
+        ask_low = candle["low"] + self.spread
 
         if pos["type"] == "BUY":
-            if low <= pos["sl"]: # Chạm SL
-                result = "LOSS"
-                exit_price = pos["sl"]
-            elif high >= pos["tp"]: # Chạm TP
-                result = "PROFIT"
-                exit_price = pos["tp"]
-        
-        elif pos["type"] == "SELL":
-            if high >= pos["sl"]: # Chạm SL
-                result = "LOSS"
-                exit_price = pos["sl"]
-            elif low <= pos["tp"]: # Chạm TP
-                result = "PROFIT"
-                exit_price = pos["tp"]
+            # BUY đóng ở BID: SL khi bid <= sl, TP khi bid >= tp
+            if bid_open <= pos["sl"]:
+                self._close_position(bid_open, candle)
+            elif bid_open >= pos["tp"]:
+                self._close_position(bid_open, candle)
+            elif bid_low <= pos["sl"]:
+                self._close_position(pos["sl"], candle)
+            elif bid_high >= pos["tp"]:
+                self._close_position(pos["tp"], candle)
+        else:
+            # SELL đóng ở ASK: SL khi ask >= sl, TP khi ask <= tp
+            if ask_open >= pos["sl"]:
+                self._close_position(ask_open, candle)
+            elif ask_open <= pos["tp"]:
+                self._close_position(ask_open, candle)
+            elif ask_high >= pos["sl"]:
+                self._close_position(pos["sl"], candle)
+            elif ask_low <= pos["tp"]:
+                self._close_position(pos["tp"], candle)
 
-        if result:
-            # Tính toán P/L thực tế cho XAUUSD (1 lot = 100 ounces)
-            pnl_points = (exit_price - pos["entry"]) if pos["type"] == "BUY" else (pos["entry"] - exit_price)
-            # Chỉ còn phần khối lượng chưa chốt + phần đã chốt sớm (nếu có)
-            rem = 1.0 - (pos["partial_frac"] if pos["partial_done"] else 0.0)
-            profit_value = pnl_points * self.lot_size * rem * 100 + pos["pnl_partial"]
+    def _manage_position(self, candle):
+        """Bot xét chốt một phần + dời SL hòa vốn lúc nến đóng.
+        Giá quan sát: BUY = BID close, SELL = ASK close (= close + spread) — giống
+        bot_engine._on_candle_tick (price = tick.bid nếu BUY, tick.ask nếu SELL)."""
+        pos = self.current_position
+        d = self.digits
+        if pos["type"] == "BUY":
+            price = candle["close"]
+        else:
+            price = candle["close"] + self.spread
 
-            # Phân loại theo lãi/lỗ thực tế (lệnh chốt một phần rồi thoát hòa vốn vẫn là PROFIT)
-            if profit_value > 1e-9:
-                outcome = "PROFIT"
-            elif profit_value < -1e-9:
-                outcome = "LOSS"
+        R = pos.get("R", 0)
+        if R <= 0:
+            return
+
+        if pos["type"] == "BUY":
+            favorable = price - pos["entry"]
+        else:
+            favorable = pos["entry"] - price
+        hw = favorable / R  # số R đã đi được
+
+        # 1) Chốt một phần tại giá thị trường hiện tại (chỉ 1 lần)
+        part_f = pos.get("partial_frac", 0) or 0
+        part_r = pos.get("partial_at_r", 0) or 0
+        if part_f > 0 and part_r > 0 and not pos["partial_done"] and hw >= part_r:
+            if pos["type"] == "BUY":
+                unit = price - pos["entry"]
             else:
-                outcome = "BREAKEVEN"
+                unit = pos["entry"] - price
+            pos["pnl_partial"] = part_f * unit * self.lot_size * 100
+            pos["partial_done"] = True
 
-            self.balance += profit_value
-            self.trades.append({
-                "type": pos["type"],
-                "entry": pos["entry"],
-                "exit": exit_price,
-                "entry_time": pos["entry_time"],
-                "exit_time": exit_time,
-                "result": outcome,
-                "partial": pos["partial_done"],
-                "pnl": profit_value,
-                "balance": self.balance
-            })
-            self.current_position = None
+        # 2) Dời SL về hòa vốn khi đạt be_move_at_r (không tự dời khi partial)
+        be_r = getattr(self.strategy, "be_move_at_r", 0) or 0
+        if be_r > 0 and hw >= be_r:
+            if pos["type"] == "BUY":
+                pos["sl"] = round(max(pos["sl"], pos["entry"]), d)
+            else:
+                pos["sl"] = round(min(pos["sl"], pos["entry"]), d)
+
+    def _close_position(self, exit_price, candle):
+        """Đóng toàn bộ phần còn lại tại `exit_price` và ghi nhận lệnh."""
+        pos = self.current_position
+        exit_price = round(float(exit_price), self.digits)
+        pnl_points = (exit_price - pos["entry"]) if pos["type"] == "BUY" else (pos["entry"] - exit_price)
+
+        # Chỉ còn phần khối lượng chưa chốt + phần đã chốt sớm (nếu có)
+        rem = 1.0 - (pos["partial_frac"] if pos["partial_done"] else 0.0)
+        profit_value = pnl_points * self.lot_size * rem * 100 + pos["pnl_partial"]
+
+        # Phân loại theo lãi/lỗ thực tế (chốt một phần rồi thoát hòa vốn vẫn là PROFIT)
+        if profit_value > 1e-9:
+            outcome = "PROFIT"
+        elif profit_value < -1e-9:
+            outcome = "LOSS"
+        else:
+            outcome = "BREAKEVEN"
+
+        self.balance += profit_value
+        self.trades.append({
+            "type": pos["type"],
+            "entry": pos["entry"],
+            "exit": exit_price,
+            "entry_time": pos["entry_time"],
+            "exit_time": candle.name if hasattr(candle, 'name') else "N/A",
+            "result": outcome,
+            "partial": pos["partial_done"],
+            "pnl": profit_value,
+            "balance": self.balance
+        })
+        self.current_position = None
 
     def _print_summary(self):
         total_trades = len(self.trades)

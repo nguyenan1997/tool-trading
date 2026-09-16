@@ -902,3 +902,14 @@ ValueError: list.index(x): x not in list
 2026-09-16 15:00:33  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
 2026-09-16 15:00:56  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
 2026-09-16 15:01:00  INFO      ⏳ PHIÊN  |  Còn 0h59m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 11:00
+2026-09-16 21:02:57  INFO      Connected  |  Account: 91105889  |  Balance: 200.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 21:02:57  INFO      Bot Engine STARTED
+2026-09-16 21:03:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (12–21h giờ broker)  |  giờ broker 17:03
+2026-09-16 21:03:00  INFO      ⚡ EXECUTE SELL | Strategy: Trend Momentum | Price: 4332.15 | SL: 4345.04 | TP: 4306.37
+2026-09-16 21:03:00  ERROR     open_position FAILED  |  retcode=10027  |  AutoTrading disabled by client
+2026-09-16 21:18:05  INFO      Connected  |  Account: 91454560  |  Balance: 200.00 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 21:18:05  INFO      Bot Engine STARTED
+2026-09-16 21:26:00  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 21:26:00  WARNING   Cache lỗi định dạng, bỏ qua để tạo lại: backtest/data\XAUUSD_M1_30000.csv (list.index(x): x not in list)
+2026-09-16 21:26:09  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 21:49:04  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
