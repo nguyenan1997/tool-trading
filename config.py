@@ -43,7 +43,7 @@ RISK_PERCENT    = 10.0      # % of account balance per trade
 # Trượt giá tối đa khi vào lệnh (points; XAUUSD 1 point = 0.01).
 # Nếu giá khớp lệch quá ngưỡng này so với giá yêu cầu -> hủy/đóng ngay, coi như không vào lệnh.
 # Đặt 0 để tắt giới hạn.
-MAX_SLIPPAGE_POINTS = 30
+MAX_SLIPPAGE_POINTS = 50
 
 # MAGIC riêng để quản lý lệnh độc lập (giữ nguyên SL/TP khi đổi tham số).
 MAGIC_TM        = 20260320   # Trend Momentum

@@ -1006,3 +1006,14 @@ ValueError: list.index(x): x not in list
 2026-09-17 01:34:29  WARNING   ⚠️ TRƯỢT GIÁ 494 points (> 30)  |  yêu cầu 4287.32 -> khớp 4282.38  |  ĐÓNG LỆNH, coi như không vào
 2026-09-17 01:34:48  INFO      ✅ CLOSED  |  Ticket=342239547  |  Profit=-1.14
 2026-09-17 01:35:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:35
+2026-09-17 01:36:00  INFO      ⚡ EXECUTE SELL | Strategy: Trend Momentum | Price: 4275.37 | SL: 4294.89 | TP: 4236.33
+2026-09-17 01:36:01  INFO      🔴 SELL OPENED  |  Ticket=342245080  |  Fill=4275.23000  |  Yêu cầu=4275.37000  |  SL=4294.89000  |  TP=4236.33000  |  Lot=0.02  |  trượt=14pts
+2026-09-17 01:41:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:41
+2026-09-17 01:42:19  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-17 01:43:44  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-17 01:47:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:47
+2026-09-17 01:52:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:52
+2026-09-17 01:57:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:57
+2026-09-17 02:02:00  INFO      ⏳ PHIÊN  |  Còn 13h57m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:02
+2026-09-17 02:06:04  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-17 02:08:00  INFO      ⏳ PHIÊN  |  Còn 13h51m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:08
