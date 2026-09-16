@@ -28,6 +28,9 @@ TM_ADX_THRESH   = 22        # Chỉ trade khi ADX H1 ≥ ngưỡng
 TM_SESSION      = (12, 21)  # (Giờ bắt đầu, giờ kết thúc) UTC — London + New York
 TM_HISTORY_BARS = 20000     # Số nến M1 cần nạp để tính chỉ báo H1/M15
 TM_BE_AT_R      = 1.0       # Dời SL về hòa vốn khi giá thuận lợi đạt R lần này
+TM_MIN_ATR_PCT  = 0.5       # Chỉ trade khi ATR(M15) nằm ở nửa trên của 24h gần nhất
+                            # (0 = tắt lọc biến động). Thử nghiệm: lọc bỏ vùng biến động thấp giúp
+                            # +lợi nhuận, tăng win rate, giảm drawdown.
 
 # --- Partial Take-Profit (chốt lời từng phần) ---
 # Khi giá đạt TM_PARTIAL_AT_R lần khoảng cách SL, chốt TM_PARTIAL_FRAC khối lượng.

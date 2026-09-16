@@ -831,3 +831,48 @@ ValueError: list.index(x): x not in list
 2026-09-16 14:04:32  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
 2026-09-16 14:04:45  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
 2026-09-16 14:04:55  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:06:12  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:06:59  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:06:59  ERROR     copy_rates_from_pos failed for XAUUSD M1 → (-2, 'Terminal: Invalid params')
+2026-09-16 14:06:59  INFO      MT5 disconnected.
+2026-09-16 14:07:00  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 14:07:04  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:07:13  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:07:13  INFO      MT5 disconnected.
+2026-09-16 14:08:00  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 14:10:00  INFO      ⏳ PHIÊN  |  Còn 1h50m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 10:09
+2026-09-16 14:16:00  INFO      ⏳ PHIÊN  |  Còn 1h44m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 10:15
+2026-09-16 14:20:55  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:21:00  INFO      ⏳ PHIÊN  |  Còn 1h39m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 10:20
+2026-09-16 14:27:00  INFO      ⏳ PHIÊN  |  Còn 1h33m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 10:26
+2026-09-16 14:33:00  INFO      ⏳ PHIÊN  |  Còn 1h27m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 10:32
+2026-09-16 14:38:00  INFO      ⏳ PHIÊN  |  Còn 1h22m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 10:37
+2026-09-16 14:44:00  INFO      ⏳ PHIÊN  |  Còn 1h16m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 10:43
+2026-09-16 14:45:45  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 14:45:45  INFO      Bot Engine STARTED
+2026-09-16 14:46:00  INFO      ⏳ PHIÊN  |  Còn 1h14m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 10:45
+2026-09-16 14:46:15  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:48:19  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:49:22  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:49:23  INFO      MT5 disconnected.
+2026-09-16 14:50:00  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 14:51:15  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:51:16  INFO      MT5 disconnected.
+2026-09-16 14:52:00  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 14:52:00  INFO      ⏳ PHIÊN  |  Còn 1h08m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 10:51
+2026-09-16 14:52:02  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:52:02  ERROR     copy_rates_from_pos failed for XAUUSD M1 → (-2, 'Terminal: Invalid params')
+2026-09-16 14:52:02  INFO      MT5 disconnected.
+2026-09-16 14:52:29  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 14:52:29  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:52:56  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:52:57  ERROR     copy_rates_from_pos failed for XAUUSD M1 → (-2, 'Terminal: Invalid params')
+2026-09-16 14:52:57  INFO      MT5 disconnected.
+2026-09-16 14:53:00  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 14:53:15  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:53:15  ERROR     copy_rates_from_pos failed for XAUUSD M1 → (-2, 'Terminal: Invalid params')
+2026-09-16 14:53:15  INFO      MT5 disconnected.
+2026-09-16 14:53:21  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 14:53:21  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 14:53:55  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 14:53:55  INFO      Bot Engine STARTED

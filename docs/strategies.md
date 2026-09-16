@@ -70,6 +70,7 @@ Toàn bộ chỉ báo dùng nến **ĐÃ ĐÓNG** (shift 1 trên mỗi khung), k
 1. **Trend H1**: giá đóng nến phải nằm đúng phía so với EMA200 H1 (BUY: `close > ema200`; SELL: `close < ema200`).
 2. **Sức mạnh xu hướng H1**: `ADX(14) H1 ≥ TM_ADX_THRESH` (mặc định **22**).
 3. **Giờ giao dịch**: `hour ∈ TM_SESSION` mặc định **(12, 21)** = phiên London + New York (giờ UTC; giờ cột nến MT5 — xem ghi chú bên dưới).
+4. **Biến động**: `ATR(14, M15)` phải nằm ở **nửa trên** (`≥ TM_MIN_ATR_PCT = 0.5`) so với 1440 nến M1 gần nhất (~24h). Bỏ qua khi thị trường êm/đi ngang. Đặt `TM_MIN_ATR_PCT = 0` để tắt.
 
 **LỆNH MUA (BUY):**
 - `close > EMA200(H1)` — xu hướng lớn tăng.

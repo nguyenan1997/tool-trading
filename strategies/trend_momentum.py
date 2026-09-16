@@ -63,6 +63,7 @@ class TrendMomentumStrategy(BaseStrategy):
         be_move_at_r=config.TM_BE_AT_R,
         partial_frac=config.TM_PARTIAL_FRAC,
         partial_at_r=config.TM_PARTIAL_AT_R,
+        min_atr_pct=config.TM_MIN_ATR_PCT,
         magic=config.MAGIC_TM,
     ):
         super().__init__("Trend Momentum", magic=magic)
@@ -78,6 +79,7 @@ class TrendMomentumStrategy(BaseStrategy):
         self.be_move_at_r = be_move_at_r
         self.partial_frac = partial_frac
         self.partial_at_r = partial_at_r
+        self.min_atr_pct = min_atr_pct
 
     def calculate_indicators(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()
@@ -133,8 +135,10 @@ class TrendMomentumStrategy(BaseStrategy):
         base["prior_high"] = tmp["high"].shift(1).rolling(self.lookback).max().to_numpy()
         base["prior_low"] = tmp["low"].shift(1).rolling(self.lookback).min().to_numpy()
         base["hour"] = tmp["ts"].dt.hour.to_numpy()
+        # Bộ lọc biến động: xếp hạng ATR(M15) so với 1440 nến M1 gần nhất (~24h)
+        base["atr_rank"] = base["atr15"].rolling(1440).rank(pct=True)
 
-        for col in ("atr15", "ema200", "adx14", "rsi", "prior_high", "prior_low", "hour"):
+        for col in ("atr15", "ema200", "adx14", "rsi", "prior_high", "prior_low", "hour", "atr_rank"):
             df[col] = base[col].to_numpy()
         df["in_session"] = df["hour"].between(self.session[0], self.session[1])
         return df
@@ -150,6 +154,7 @@ class TrendMomentumStrategy(BaseStrategy):
             rsi = float(sig["rsi"])
             prior_high = float(sig["prior_high"])
             prior_low = float(sig["prior_low"])
+            atr_rank = float(sig["atr_rank"])
         except Exception:
             return None
         if not all(np.isfinite((ema200, atr15, adx14, rsi, prior_high, prior_low))):
@@ -157,6 +162,9 @@ class TrendMomentumStrategy(BaseStrategy):
         if not bool(sig["in_session"]):
             return None
         if adx14 < self.adx_thresh:
+            return None
+        # Bộ lọc biến động: tránh thị trường êm/đi ngang (ATR thấp)
+        if not np.isfinite(atr_rank) or atr_rank < self.min_atr_pct:
             return None
 
         if sig["close"] > ema200 and sig["close"] > prior_high and rsi >= self.rsi_buy:

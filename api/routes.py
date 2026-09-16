@@ -42,6 +42,7 @@ def _build_strategy(data):
             session=config.TM_SESSION,
             history_bars=config.TM_HISTORY_BARS,
             be_move_at_r=config.TM_BE_AT_R,
+            min_atr_pct=_num("tm_min_atr_pct", config.TM_MIN_ATR_PCT),
         ), sid
 
     strategy = TripleEmaStrategy()
