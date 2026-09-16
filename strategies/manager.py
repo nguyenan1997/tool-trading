@@ -3,13 +3,11 @@ strategy_manager.py
 Quản lý việc lựa chọn và truy xuất chiến lược.
 """
 
-from .triple_ema import TripleEmaStrategy
 from .trend_momentum import TrendMomentumStrategy
 
 class StrategyManager:
     def __init__(self):
         self._strategies = {
-            "3ema": TripleEmaStrategy(),
             "trend_momentum": TrendMomentumStrategy(),
         }
         self._current_key = "trend_momentum" # Mặc định khi khởi động

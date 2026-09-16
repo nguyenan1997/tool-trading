@@ -116,7 +116,7 @@ class BotEngine:
 
     def _on_candle_tick(self):
         strategy = strategy_manager.get_current_strategy()
-        magic = getattr(strategy, "magic", config.MAGIC_NUMBER)
+        magic = getattr(strategy, "magic", config.MAGIC_TM)
         count = getattr(strategy, "history_bars", 200)
         df = mt5h.get_candles(config.SYMBOL, config.TIMEFRAME, count=count)
         if df is None or len(df) < 50:

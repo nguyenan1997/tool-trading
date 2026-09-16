@@ -246,7 +246,7 @@
                     <div id="range-count-block">
                         <div class="input-group">
                             <label>Số lượng nến (nến gần nhất)</label>
-                            <input type="number" id="count" value="1000" min="100" step="100">
+                            <input type="number" id="count" value="20000" min="100" step="100">
                         </div>
                         <div class="hint" id="count-hint"></div>
                     </div>
@@ -276,14 +276,8 @@
 
                 <div class="section">
                     <div class="section-title"><i data-lucide="brain"></i> 4. Chiến lược</div>
-                    <label class="strat-card selected" onclick="selectStrategy('3ema', this)">
-                        <input type="radio" name="strategy" value="3ema" checked>
-                        <b>3 EMA Crossover</b>
-                        <span><span class="tag tag-m1">M1</span></span>
-                        <p>EMA 9×21 cắt nhau + giá đóng trên/dưới cả EMA50. Nhiều lệnh, phù hợp có xu hướng nhỏ.</p>
-                    </label>
-                    <label class="strat-card" onclick="selectStrategy('trend_momentum', this)">
-                        <input type="radio" name="strategy" value="trend_momentum">
+                    <label class="strat-card selected" onclick="selectStrategy('trend_momentum', this)">
+                        <input type="radio" name="strategy" value="trend_momentum" checked>
                         <b>Trend Momentum</b>
                         <span><span class="tag tag-mtf">M1 · M15 · H1</span></span>
                         <p>Chỉ vào lệnh khi xu hướng lớn rõ ràng (ADX/EMA200 H1), phá đỉnh/đáy M1 + RSI. Ít lệnh, lợi nhuận ròng cao hơn.</p>
@@ -293,25 +287,7 @@
                 <div class="section">
                     <div class="section-title"><i data-lucide="sliders-horizontal"></i> 5. Tham số chiến lược</div>
 
-                    <div id="params-3ema">
-                        <div class="param-block">
-                            <div class="label">Đường EMA</div>
-                            <div class="col3">
-                                <div><label>Nhanh</label><input type="number" id="ema_fast" value="9"></div>
-                                <div><label>Vừa</label><input type="number" id="ema_medium" value="21"></div>
-                                <div><label>Chậm</label><input type="number" id="ema_slow" value="50"></div>
-                            </div>
-                        </div>
-                        <div class="param-block">
-                            <div class="label">Thoát lệnh</div>
-                            <div class="input-group" style="margin:0;">
-                                <label>Tỉ lệ lợi nhuận (1 : X so với SL)</label>
-                                <input type="number" id="rr" step="0.1" value="3.0" min="0.5">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="params-trend-momentum" style="display:none;">
+                    <div id="params-trend-momentum">
                         <div class="param-block">
                             <div class="label">Điểm vào (M1)</div>
                             <div class="col2">
@@ -393,15 +369,6 @@
             document.querySelectorAll('.strat-card').forEach(c => c.classList.remove('selected'));
             cardEl.classList.add('selected');
             cardEl.querySelector('input').checked = true;
-            document.getElementById('params-3ema').style.display = key === '3ema' ? 'block' : 'none';
-            document.getElementById('params-trend-momentum').style.display = key === 'trend_momentum' ? 'block' : 'none';
-            if (key === 'trend_momentum' && document.getElementById('range_mode').value === 'count') {
-                const c = document.getElementById('count');
-                if (parseInt(c.value) < 20000) {
-                    c.value = 30000;
-                    updateCountHint();
-                }
-            }
         }
 
         /* ── Khoảng thời gian ── */
@@ -443,22 +410,14 @@
                 balance: document.getElementById('balance').value,
                 lot: document.getElementById('lot').value,
                 strategy: strategy,
+                tm_lookback: document.getElementById('tm_lookback').value,
+                tm_rsi_period: document.getElementById('tm_rsi_period').value,
+                tm_rsi_buy: document.getElementById('tm_rsi_buy').value,
+                tm_rsi_sell: document.getElementById('tm_rsi_sell').value,
+                tm_sl_atr: document.getElementById('tm_sl_atr').value,
+                tm_tp_r: document.getElementById('tm_tp_r').value,
+                tm_adx_thresh: document.getElementById('tm_adx_thresh').value,
             };
-
-            if (strategy === '3ema') {
-                params.ema_fast = document.getElementById('ema_fast').value;
-                params.ema_medium = document.getElementById('ema_medium').value;
-                params.ema_slow = document.getElementById('ema_slow').value;
-                params.rr = document.getElementById('rr').value;
-            } else {
-                params.tm_lookback = document.getElementById('tm_lookback').value;
-                params.tm_rsi_period = document.getElementById('tm_rsi_period').value;
-                params.tm_rsi_buy = document.getElementById('tm_rsi_buy').value;
-                params.tm_rsi_sell = document.getElementById('tm_rsi_sell').value;
-                params.tm_sl_atr = document.getElementById('tm_sl_atr').value;
-                params.tm_tp_r = document.getElementById('tm_tp_r').value;
-                params.tm_adx_thresh = document.getElementById('tm_adx_thresh').value;
-            }
 
             try {
                 const res = await fetch('/api/backtest/run', {
@@ -482,7 +441,7 @@
             }
         }
 
-        const strategyNames = { '3ema': '3 EMA Crossover', 'trend_momentum': 'Trend Momentum' };
+        const strategyNames = { 'trend_momentum': 'Trend Momentum' };
 
         /* ── Tính thêm chỉ số từ danh sách lệnh ── */
         function computeStats(data) {

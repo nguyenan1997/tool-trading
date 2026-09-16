@@ -14,7 +14,6 @@ from core.bot_engine import bot_engine
 from strategies.manager import strategy_manager
 from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data
-from strategies.triple_ema import TripleEmaStrategy
 from strategies.trend_momentum import TrendMomentumStrategy
 
 logger = logging.getLogger(__name__)
@@ -24,33 +23,23 @@ _ACCESS_LOG_RE = re.compile(r'"\s*(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+\
 
 
 def _build_strategy(data):
-    """Xây dựng chiến lược theo tham số `strategy` (tách rõ từng loại)."""
-    sid = (data.get("strategy") or "3ema").strip().lower()
-
-    if sid == "trend_momentum":
-        def _num(key, default, cast=float):
-            val = data.get(key)
-            return cast(val) if val not in (None, "") else default
-        return TrendMomentumStrategy(
-            lookback=_num("tm_lookback", config.TM_LOOKBACK, int),
-            rsi_period=_num("tm_rsi_period", config.TM_RSI_PERIOD, int),
-            rsi_buy=_num("tm_rsi_buy", config.TM_RSI_BUY),
-            rsi_sell=_num("tm_rsi_sell", config.TM_RSI_SELL),
-            sl_atr=_num("tm_sl_atr", config.TM_SL_ATR),
-            tp_r=_num("tm_tp_r", config.TM_TP_R),
-            adx_thresh=_num("tm_adx_thresh", config.TM_ADX_THRESH),
-            session=config.TM_SESSION,
-            history_bars=config.TM_HISTORY_BARS,
-            be_move_at_r=config.TM_BE_AT_R,
-            min_atr_pct=_num("tm_min_atr_pct", config.TM_MIN_ATR_PCT),
-        ), sid
-
-    strategy = TripleEmaStrategy()
-    if "ema_fast" in data: strategy.fast = int(data["ema_fast"])
-    if "ema_medium" in data: strategy.medium = int(data["ema_medium"])
-    if "ema_slow" in data: strategy.slow = int(data["ema_slow"])
-    if "rr" in data: strategy.rr = float(data["rr"])
-    return strategy, "3ema"
+    """Xây dựng chiến lược Trend Momentum theo tham số từ UI."""
+    def _num(key, default, cast=float):
+        val = data.get(key)
+        return cast(val) if val not in (None, "") else default
+    return TrendMomentumStrategy(
+        lookback=_num("tm_lookback", config.TM_LOOKBACK, int),
+        rsi_period=_num("tm_rsi_period", config.TM_RSI_PERIOD, int),
+        rsi_buy=_num("tm_rsi_buy", config.TM_RSI_BUY),
+        rsi_sell=_num("tm_rsi_sell", config.TM_RSI_SELL),
+        sl_atr=_num("tm_sl_atr", config.TM_SL_ATR),
+        tp_r=_num("tm_tp_r", config.TM_TP_R),
+        adx_thresh=_num("tm_adx_thresh", config.TM_ADX_THRESH),
+        session=config.TM_SESSION,
+        history_bars=config.TM_HISTORY_BARS,
+        be_move_at_r=config.TM_BE_AT_R,
+        min_atr_pct=_num("tm_min_atr_pct", config.TM_MIN_ATR_PCT),
+    ), "trend_momentum"
 
 def register_routes(app):
     @app.route('/')
@@ -95,7 +84,7 @@ def register_routes(app):
         if df is None or df.empty:
             return jsonify({"error": "Failed to get data for the specified range"}), 400
             
-        # Khởi tạo chiến lược theo selector (3ema / trend_momentum)
+        # Khởi tạo chiến lược Trend Momentum
         strategy, sid = _build_strategy(data)
         
         # Chạy backtest với spread + digits thật từ broker

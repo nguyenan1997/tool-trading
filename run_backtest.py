@@ -5,7 +5,7 @@ Chạy thử nghiệm chiến lược trên dữ liệu lịch sử.
 from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data
 # from backtest.visualizer import plot_results # Đã loại bỏ
-from strategies.triple_ema import TripleEmaStrategy
+from strategies.trend_momentum import TrendMomentumStrategy
 import config
 import logging
 import pandas as pd
@@ -37,7 +37,7 @@ def main():
     print(f"📅 Dữ liệu từ: {start_date} đến {end_date}")
     
     # 3. Khởi tạo Chiến lược
-    strategy = TripleEmaStrategy()
+    strategy = TrendMomentumStrategy()
     
     # 4. Chạy Back-test
     tester = Backtester(

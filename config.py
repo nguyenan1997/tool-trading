@@ -6,14 +6,6 @@
 SYMBOL      = "XAUUSD"
 TIMEFRAME   = "M1"          # M1 M5 M15 M30 H1 H4 D1
 
-# --- Indicator Settings ---
-EMA_FAST        = 9
-EMA_MEDIUM      = 21
-EMA_SLOW        = 50
-
-# --- Strategy Settings ---
-RR_RATIO        = 3.0       # Tỷ lệ Risk:Reward (1:3)
-
 # --- Trend Momentum Strategy ---
 # Điểm vào: EMA200 H1 (trend) + ADX H1 > ngưỡng + Donchian (phá đỉnh/đáy 20 nến M1)
 #           + RSI M1 cùng chiều, chỉ trade trong phiên London+New York (UTC).
@@ -48,11 +40,9 @@ FIXED_LOT       = 0.02      # >= 0.02 để chốt một phần (partial TP) ho�
 RISK_PERCENT    = 10.0      # % of account balance per trade
 
 # --- Order Settings ---
-# Mỗi chiến lược có MAGIC riêng → quản lý lệnh độc lập.
-# Đổi chiến lược KHÔNG đụng tới lệnh của chiến lược khác (giữ nguyên SL/TP).
-MAGIC_NUMBER    = 20260319   # 3 EMA Crossover
+# MAGIC riêng để quản lý lệnh độc lập (giữ nguyên SL/TP khi đổi tham số).
 MAGIC_TM        = 20260320   # Trend Momentum
-ORDER_COMMENT   = "EMA_Crossover_Bot"
+ORDER_COMMENT   = "TrendMomentum_Bot"
 
 # --- Trading Hours (UTC) – leave empty to trade 24/7 ---
 # Example: TRADE_HOURS = [(0, 22)]  means trade from 00:00 to 22:00 UTC

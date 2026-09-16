@@ -1,57 +1,11 @@
 # Chiến lược giao dịch — Tài liệu chi tiết
 
-Trạng thái hiện tại của bot: **M1 XAUUSD**, 2 chiến lược (`3ema`, `trend_momentum`).
-Mặc định bot chạy `3ema`. User đổi qua giao diện/API bằng `strategy_id`.
+Trạng thái hiện tại của bot: **M1 XAUUSD**, 1 chiến lược (`trend_momentum`).
+Bot chạy `trend_momentum` mặc định; đổi tham số qua giao diện/API.
 
 ---
 
-## 1. Phương pháp 3 EMA Crossover (`strategies/triple_ema.py`)
-
-### Ý tưởng
-Bắt kịp xu hướng khi EMA nhanh cắt EMA vừa, và khẳng định xu hướng bằng việc giá đóng nến nằm trên/dưới cả 3 EMA (trend filter).
-
-### Khung thời gian
-- Chỉ dùng nến **M1** (khung của bot). Không có multi-timeframe.
-
-### Chỉ báo
-| Chỉ báo | Tham số | Mặc định |
-|---|---|---|
-| EMA nhanh | `EMA_FAST` | 9 |
-| EMA vừa | `EMA_MEDIUM` | 21 |
-| EMA chậm | `EMA_SLOW` | 50 |
-
-### Điều kiện vào lệnh (kiểm tra trên **nến đóng** `df.iloc[-2]`)
-Tín hiệu chỉ được xét sau khi **nến thứ N đã đóng** (bot chờ nến kế tiếp mới tính tín hiệu).
-
-**LỆNH MUA (BUY)** — tất cả điều kiện cùng xảy ra:
-1. **Crossover**: EMA9 cắt lên trên EMA21 tại nến hiện tại, trong khi nến trước đó EMA9 ≤ EMA21.
-   `cross_up = (ema9_prev ≤ ema21_prev) and (ema9_now > ema21_now)`
-2. **Xác nhận xu hướng tăng**: giá đóng nến `close > EMA9` AND `close > EMA21` AND `close > EMA50`.
-
-**LỆNH BÁN (SELL)** — đối xứng:
-1. **Crossdown**: EMA9 cắt xuống dưới EMA21 tại nến hiện tại, nến trước EMA9 ≥ EMA21.
-   `cross_down = (ema9_prev ≥ ema21_prev) and (ema9_now < ema21_now)`
-2. **Xác nhận xu hướng giảm**: `close < EMA9` AND `close < EMA21` AND `close < EMA50`.
-
-**Không có filter về giờ giao dịch** (trade 24/7, trừ khi bật `TRADE_HOURS` ở config).
-
-### Stop Loss / Take Profit
-- **SL** = giá của **EMA21** tại nến tín hiệu (`ema21` tại `iloc[-2]`).
-- **TP** = dựa theo tỷ lệ Risk:Reward (`RR_RATIO = 3.0`, tức 1:3):
-  - BUY: khoảng cách `dist = entry - SL`; `TP = entry + dist × RR`.
-  - SELL: `dist = SL - entry`; `TP = entry - dist × RR`.
-- Nếu `dist ≤ 0` (SL không hợp lệ), **bỏ qua lệnh** (không vào).
-
-### Quản lý lệnh
-Ra vào chuẩn market/limit ở tick tiếp theo: giá vào = giá Ask (BUY) hoặc Bid (SELL) tại lúc xử lý.
-SL/TP đặt ngay khi mở lệnh. **Không có** trailing / break-even.
-
-### Đánh giá
-- Win rate cao hơn (~30-40%) nhưng lợi nhuận thực tế kém hơn Trend Momentum (đã kiểm tra backtest: dễ bị SL quét nhiều trong sideway).
-
----
-
-## 2. Phương pháp Trend Momentum (`strategies/trend_momentum.py`)
+## 1. Phương pháp Trend Momentum (`strategies/trend_momentum.py`)
 
 ### Ý tưởng
 Chỉ vào lệnh khi **xu hướng lớn H1 rõ ràng** (ADX tăng + EMA200), và vào lệnh tại **điểm phá vỡ Momentum trên M1** (Donchian breakout 20 nến) có xác nhận RSI cùng chiều. Chỉ trade trong **phiên London + New York**.
@@ -69,7 +23,7 @@ Toàn bộ chỉ báo dùng nến **ĐÃ ĐÓNG** (shift 1 trên mỗi khung), k
 **Tiền lọc (buffers) – nếu thoả tất cả:**
 1. **Trend H1**: giá đóng nến phải nằm đúng phía so với EMA200 H1 (BUY: `close > ema200`; SELL: `close < ema200`).
 2. **Sức mạnh xu hướng H1**: `ADX(14) H1 ≥ TM_ADX_THRESH` (mặc định **22**).
-3. **Giờ giao dịch**: `hour ∈ TM_SESSION` mặc định **(12, 21)** = phiên London + New York (giờ UTC; giờ cột nến MT5 — xem ghi chú bên dưới).
+3. **Giờ giao dịch**: `hour ∈ TM_SESSION` mặc định **(12, 21)** = phiên London + New York (giờ cột nến MT5 — xem ghi chú bên dưới).
 4. **Biến động**: `ATR(14, M15)` phải nằm ở **nửa trên** (`≥ TM_MIN_ATR_PCT = 0.5`) so với 1440 nến M1 gần nhất (~24h). Bỏ qua khi thị trường êm/đi ngang. Đặt `TM_MIN_ATR_PCT = 0` để tắt.
 
 **LỆNH MUA (BUY):**
@@ -103,7 +57,7 @@ Toàn bộ chỉ báo dùng nến **ĐÃ ĐÓNG** (shift 1 trên mỗi khung), k
 > Hiệu quả đo được (100k nến M1, lot 0.01, vốn $100): chốt 50%@1R nâng win rate từ ~30% lên **~52–57%** ở cả train lẫn OOS, lợi nhuận thấp hơn đôi chút và drawdown giảm.
 
 ### Vì sao chỉ cần 20.000 nến M1?
-`TM_HISTORY_BARS = 20000` (≈ 14 ngày M1) để H1 có đủ 200 nến tính EMA200/ADX chuẩn, và M15 đủ để ATR ổn định. Bot nạp **đúng số nến này mỗi lần** tính tín hiệu (khác với 3EMA chỉ cần vài trăm nến).
+`TM_HISTORY_BARS = 20000` (≈ 14 ngày M1) để H1 có đủ 200 nến tính EMA200/ADX chuẩn, và M15 đủ để ATR ổn định. Bot nạp **đúng số nến này mỗi lần** tính tín hiệu.
 
 ### Hiệu năng đo được (demo broker LiteFinance, XAUUSD, 06/2026 → 09/2026)
 - Số lệnh: 221, win rate **~30.8%** (thắng ít nhưng payoff lớn).
@@ -114,11 +68,11 @@ Toàn bộ chỉ báo dùng nến **ĐÃ ĐÓNG** (shift 1 trên mỗi khung), k
 
 ---
 
-## 3. Cách bot thực thi chung (`core/bot_engine.py`)
+## 2. Cách bot thực thi chung (`core/bot_engine.py`)
 
 1. Bot chờ **nến M1 mới đóng** (loop theo `tf_seconds`, cộng 0.5s trễ).
-2. Nạp nến: `get_candles(SYMBOL, M1, count = strategy.history_bars)` (3EMA dùng mặc định cũ, Trend Momentum dùng 20000).
-3. `strategy.calculate_indicators(df)` → nếu có vị thế đang mở: **BE-move** khi giá đạt 1R (chỉ với strategy có `be_move_at_r > 0`).
+2. Nạp nến: `get_candles(SYMBOL, M1, count = strategy.history_bars)` (Trend Momentum dùng 20000).
+3. `strategy.calculate_indicators(df)` → nếu có vị thế đang mở: **BE-move** khi giá đạt 1R, chốt một phần khi đạt 1R (chỉ với strategy có `be_move_at_r`/`partial_at_r` > 0).
 4. Nếu **không có vị thế** và `check_signal(df)` trả `BUY`/`SELL` → mở lệnh tại giá tick hiện tại (Ask/Bid), SL/TP theo `get_sl_tp`.
 
 ### Quy ước giá
@@ -126,20 +80,3 @@ Toàn bộ chỉ báo dùng nến **ĐÃ ĐÓNG** (shift 1 trên mỗi khung), k
 
 ### Giờ trong tài liệu
 - `TM_SESSION` viết theo **giờ broker** (cột `time` của nến MT5). LiteFinance demo dùng giờ server = UTC(+2/+3 theo DST). Khi so với giờ UTC máy bạn, nhớ cộng offset (vd session 12–21 server tương ứng ~10–19 UTC mùa hè).
-
----
-
-## 4. So sánh nhanh
-
-| Tiêu chí | 3 EMA Crossover | Trend Momentum |
-|---|---|---|
-| TF | M1 | M1 + M15 + H1 |
-| Trend filter | Giá vs 3 EMA M1 | EMA200 H1 + ADX H1 ≥ 22 |
-| Entry | EMA9×21 cross + giá >/< cả 3 EMA | Donchian 20-nến breakout + RSI(7) cùng chiều |
-| Giờ giao dịch | 24/7 | Phiên (12, 21) server |
-| SL | EMA21 | 1.5 × ATR(M15) |
-| TP | 3 × SL | 2 × SL |
-| BE-move | Không | Có (khi +1R) |
-| Chốt một phần | Không | Có (50% tại +1R, cần lot ≥ 0.02) |
-| Số nến cần nạp | nhỏ (~200) | 20000 |
-| Phong cách | Nhiều lệnh, win rate cao | Ít lệnh, payoff cao, lợi nhuận ròng tốt hơn |
