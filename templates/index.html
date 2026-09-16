@@ -168,15 +168,17 @@
 
         th {
             text-align: left;
-            padding: 1rem;
+            padding: 0.7rem 0.75rem;
             color: var(--text-dim);
             font-size: 0.75rem;
             text-transform: uppercase;
+            white-space: nowrap;
             border-bottom: 1px solid var(--border);
         }
 
         td {
-            padding: 1rem;
+            padding: 0.7rem 0.75rem;
+            white-space: nowrap;
             border-bottom: 1px solid var(--border);
         }
 
@@ -262,7 +264,7 @@
             </div>
 
             <!-- Trade List -->
-            <div class="card" style="grid-column: span 2;">
+            <div class="card" style="grid-column: span 3;">
                 <div class="card-title"><i data-lucide="list"></i> Active Positions</div>
                 <div class="table-container">
                     <table>
@@ -314,7 +316,7 @@
             </div>
 
             <!-- Trading Log -->
-            <div class="card" style="grid-column: span 3;">
+            <div class="card" style="grid-column: span 2;">
                 <div class="card-title">
                     <span style="display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="terminal"></i> Trading Log</span>
                     <span id="log-meta" class="log-meta" style="margin-left: auto;">---</span>
