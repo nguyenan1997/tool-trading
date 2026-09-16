@@ -47,7 +47,7 @@ def get_historical_data(symbol: str, timeframe: str, count: int = 1000,
     - Cache cũ hơn `max_age_hours` (mặc định config.BACKTEST_CACHE_HOURS) sẽ bị tải lại.
     """
     if max_age_hours is None:
-        max_age_hours = getattr(config, "BACKTEST_CACHE_HOURS", 2)
+        max_age_hours = getattr(config, "BACKTEST_CACHE_HOURS", 0.1)
 
     if not os.path.exists(DATA_DIR):
         os.makedirs(DATA_DIR)
@@ -108,7 +108,7 @@ def get_historical_data(symbol: str, timeframe: str, count: int = 1000,
             return df
     except Exception as e:
         logger.error(f"Error loading historical data: {e}")
-    finally:
-        mt5h.disconnect()
 
+    # Không gọi mt5h.disconnect() ở đây: MT5 dùng chung với bot đang chạy,
+    # shutdown sẽ ngắt kết nối của bot. Cứ để MT5 kết nối sẵn.
     return None

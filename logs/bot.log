@@ -958,3 +958,7 @@ ValueError: list.index(x): x not in list
 2026-09-16 22:57:10  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
 2026-09-16 22:58:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–01:00 giờ Việt Nam)  |  giờ broker 22:58
 2026-09-16 23:03:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–01:00 giờ Việt Nam)  |  giờ broker 23:03
+2026-09-16 23:04:00  INFO      ⚡ EXECUTE SELL | Strategy: Trend Momentum | Price: 4349.08 | SL: 4363.63 | TP: 4319.98
+2026-09-16 23:04:00  INFO      🔴 SELL OPENED  |  Ticket=342091751  |  Price=4349.08000  |  SL=4363.63000  |  TP=4319.98000  |  Lot=0.02
+2026-09-16 23:08:24  INFO      Connected  |  Account: 91454560  |  Balance: 171.08 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 23:08:24  INFO      Bot Engine STARTED

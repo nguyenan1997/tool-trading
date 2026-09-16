@@ -49,7 +49,7 @@ ORDER_COMMENT   = "TrendMomentum_Bot"
 TRADE_HOURS     = []        # [] = no restriction
 
 # --- Backtest ---
-BACKTEST_CACHE_HOURS = 2    # Cache nến cũ hơn bao nhiêu giờ thì tự tải lại
+BACKTEST_CACHE_HOURS = 0.1  # Cache cũ hơn bao nhiêu giờ thì tự tải lại (0.1 ≈ 6 phút; đặt 0 = luôn tải lại)
 
 # --- Hiển thị giờ trên UI ---
 VN_UTC_OFFSET     = 7       # Múi giờ Việt Nam (UTC+7) để hiển thị
