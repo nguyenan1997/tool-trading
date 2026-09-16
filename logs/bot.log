@@ -717,3 +717,15 @@
 2026-09-16 10:30:31  INFO      Connected  |  Account: 91105889  |  Balance: 119.65 USD  |  Broker: LiteFinance Global LLC
 2026-09-16 13:38:08  INFO      Bot Engine STARTED
 2026-09-16 13:38:08  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 13:39:58  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 13:39:58  INFO      Bot Engine STARTED
+2026-09-16 13:40:33  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 13:40:57  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 13:42:16  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 13:54:11  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 13:55:36  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 13:55:36  INFO      Bot Engine STARTED
+2026-09-16 13:56:00  INFO      ⏳ PHIÊN  |  Còn 2h04m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 09:55
+2026-09-16 13:56:46  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 13:56:46  INFO      Bot Engine STARTED
+2026-09-16 13:57:00  INFO      ⏳ PHIÊN  |  Còn 2h03m nữa tới phiên vào lệnh (12:00 giờ broker)  |  giờ broker 09:56

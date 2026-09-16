@@ -5,7 +5,7 @@ Hệ điều hành của Bot (Trading Loop).
 import time
 import threading
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 import config
 from . import mt5_handler as mt5h
@@ -22,6 +22,7 @@ class BotEngine:
         self._lock = threading.Lock()
         self._pos_r = {}          # ticket -> R ban đầu (khoảng cách entry→SL)
         self._partial_done = set()  # các ticket đã chốt một phần
+        self._last_session_log = 0.0  # lần cuối ghi log phiên
 
     def start(self):
         with self._lock:
@@ -45,6 +46,48 @@ class BotEngine:
                 t.join(timeout=10)
             logger.info("Bot Engine STOPPED")
 
+    def _server_now(self) -> datetime:
+        """Giờ broker/server (naive) lấy từ tick mới nhất."""
+        tick = mt5h.get_tick(config.SYMBOL)
+        if tick is not None:
+            return datetime.fromtimestamp(tick.time, timezone.utc).replace(tzinfo=None)
+        return datetime.now(timezone.utc).replace(tzinfo=None)
+
+    def get_session_status(self) -> dict:
+        """Trạng thái phiên giao dịch + đếm ngược tới lúc mở phiên (giờ broker)."""
+        start, end = getattr(config, "TM_SESSION", (12, 21))
+        now = self._server_now()
+        h = now.hour
+        label_range = f"{start:02d}–{end:02d}h"
+        if start <= h <= end:
+            return {
+                "in_session": True, "now": now.strftime("%H:%M"),
+                "session": label_range, "seconds_to_open": 0, "open_at": None,
+                "label": f"Đang trong phiên vào lệnh ({label_range} giờ broker)",
+            }
+        target = now.replace(hour=start, minute=0, second=0, microsecond=0)
+        if target <= now:
+            target += timedelta(days=1)
+        secs = int((target - now).total_seconds())
+        hh, mm = divmod(secs // 60, 60)
+        return {
+            "in_session": False, "now": now.strftime("%H:%M"),
+            "session": label_range, "seconds_to_open": secs,
+            "open_at": target.strftime("%H:%M"),
+            "label": f"Còn {hh}h{mm:02d}m nữa tới phiên vào lệnh ({start:02d}:00 giờ broker)",
+        }
+
+    def _maybe_log_session(self, interval_sec: int = 300):
+        """Ghi log trạng thái phiên định kỳ (mặc định mỗi 5 phút)."""
+        if time.time() - self._last_session_log < interval_sec:
+            return
+        self._last_session_log = time.time()
+        try:
+            s = self.get_session_status()
+            logger.info(f"⏳ PHIÊN  |  {s['label']}  |  giờ broker {s['now']}")
+        except Exception as e:
+            logger.error(f"session log error: {e}")
+
     def _run_loop(self):
         if not mt5h.connect():
             self.status = "Error: MT5 Connect Failed"
@@ -62,6 +105,7 @@ class BotEngine:
                 if wait > 5: continue
 
                 try:
+                    self._maybe_log_session()
                     self._on_candle_tick()
                 except Exception as e:
                     logger.error(f"Error in tick: {e}")

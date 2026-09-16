@@ -131,12 +131,18 @@ def register_routes(app):
 
     @app.route('/api/status', methods=['GET'])
     def get_status():
+        try:
+            session = bot_engine.get_session_status()
+        except Exception as e:
+            logger.warning(f"session status error: {e}")
+            session = None
         return jsonify({
             "bot_running": bot_engine.is_running,
             "bot_status": bot_engine.status,
             "current_strategy": strategy_manager.get_current_key(),
             "symbol": config.SYMBOL,
-            "timeframe": config.TIMEFRAME
+            "timeframe": config.TIMEFRAME,
+            "session": session
         })
 
     @app.route('/api/logs', methods=['GET'])

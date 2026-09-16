@@ -302,6 +302,13 @@
                         <i data-lucide="refresh-cw"></i>
                     </button>
                 </div>
+
+                <!-- Đếm ngược tới phiên vào lệnh -->
+                <div style="margin-top: 1.5rem; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 0.75rem; background: #0b1120;">
+                    <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em;">Phiên vào lệnh</div>
+                    <div id="session-countdown" style="font-size: 1.35rem; font-weight: 700; margin-top: 0.25rem;">---</div>
+                    <div id="session-detail" style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.25rem;"></div>
+                </div>
             </div>
 
             <!-- Trading Log -->
@@ -323,6 +330,38 @@
 
         const API_BASE = "http://localhost:5000/api";
 
+        // Đếm ngược tới phiên vào lệnh
+        let sessionState = { in_session: false, target: null, session: "", open_at: null };
+
+        function formatCountdown(sec) {
+            sec = Math.max(0, Math.floor(sec));
+            const h = Math.floor(sec / 3600);
+            const m = Math.floor((sec % 3600) / 60);
+            const s = sec % 60;
+            if (h > 0) return `${h}h ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`;
+            return `${m}m ${String(s).padStart(2, '0')}s`;
+        }
+
+        function renderSession() {
+            const el = document.getElementById('session-countdown');
+            const det = document.getElementById('session-detail');
+            if (!el) return;
+            if (sessionState.in_session) {
+                el.innerText = "Đang trong phiên";
+                el.style.color = "#4ade80";
+                det.innerText = sessionState.session ? `Phiên ${sessionState.session} (giờ broker)` : "";
+            } else if (sessionState.target) {
+                el.innerText = "Còn " + formatCountdown((sessionState.target - Date.now()) / 1000);
+                el.style.color = "#fbbf24";
+                det.innerText = sessionState.open_at ? `Mở lúc ${sessionState.open_at} (giờ broker)` : "";
+            } else {
+                el.innerText = "---";
+                det.innerText = "";
+            }
+        }
+
+        setInterval(renderSession, 1000);
+
         function escapeHtml(s) {
             return s.replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
         }
@@ -334,6 +373,7 @@
             if (line.includes('BUY') || line.includes('EXECUTE') || line.includes('OPENED') ||
                 line.includes('CLOSED') || line.includes('PROFIT') || line.includes('BE-MOVE') ||
                 line.includes('MODIFIED')) return 'log-trade';
+            if (line.includes('PHIÊN')) return 'log-info';
             if (line.includes('INFO')) return 'log-info';
             return 'log-line';
         }
@@ -377,6 +417,17 @@
                     toggleBtn.className = "btn";
                 }
                 lucide.createIcons();
+
+                // 1b. Session countdown
+                if (status.session) {
+                    sessionState.in_session = status.session.in_session;
+                    sessionState.session = status.session.session || "";
+                    sessionState.open_at = status.session.open_at;
+                    sessionState.target = status.session.in_session
+                        ? null
+                        : Date.now() + status.session.seconds_to_open * 1000;
+                    renderSession();
+                }
 
                 // 2. Account
                 const accRes = await fetch(`${API_BASE}/account`);
