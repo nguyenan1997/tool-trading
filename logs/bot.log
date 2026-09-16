@@ -983,3 +983,18 @@ ValueError: list.index(x): x not in list
 2026-09-17 00:31:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–01:00 giờ Việt Nam)  |  giờ broker 00:31
 2026-09-17 00:37:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–01:00 giờ Việt Nam)  |  giờ broker 00:37
 2026-09-17 00:42:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–01:00 giờ Việt Nam)  |  giờ broker 00:42
+2026-09-17 00:48:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–01:00 giờ Việt Nam)  |  giờ broker 00:48
+2026-09-17 00:54:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–01:00 giờ Việt Nam)  |  giờ broker 00:54
+2026-09-17 00:59:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–01:00 giờ Việt Nam)  |  giờ broker 00:59
+2026-09-17 01:01:00  INFO      ⚡ EXECUTE SELL | Strategy: Trend Momentum | Price: 4339.51 | SL: 4353.08 | TP: 4312.37
+2026-09-17 01:02:40  INFO      🔴 SELL OPENED  |  Ticket=342155952  |  Price=4339.51000  |  SL=4353.08000  |  TP=4312.37000  |  Lot=0.02
+2026-09-17 01:05:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–01:00 giờ Việt Nam)  |  giờ broker 01:05
+2026-09-17 01:10:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–01:00 giờ Việt Nam)  |  giờ broker 01:10
+2026-09-17 01:13:00  INFO      ⚡ EXECUTE SELL | Strategy: Trend Momentum | Price: 4314.34 | SL: 4327.91 | TP: 4287.2
+2026-09-17 01:13:00  INFO      🔴 SELL OPENED  |  Ticket=342191511  |  Price=4314.34000  |  SL=4327.91000  |  TP=4287.20000  |  Lot=0.02
+2026-09-17 01:16:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–01:00 giờ Việt Nam)  |  giờ broker 01:16
+2026-09-17 01:17:50  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-17 01:22:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–01:00 giờ Việt Nam)  |  giờ broker 01:22
+2026-09-17 01:26:44  INFO      Connected  |  Account: 91454560  |  Balance: 157.48 USD  |  Broker: LiteFinance Global LLC
+2026-09-17 01:26:44  INFO      Bot Engine STARTED
+2026-09-17 01:27:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:27

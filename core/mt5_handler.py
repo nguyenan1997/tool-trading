@@ -189,6 +189,13 @@ def calc_lot_by_risk(symbol: str, sl_distance: float, balance: float, risk_pct: 
 # ────────────────────────────────────────────────
 _FILLING_ORDER = (mt5.ORDER_FILLING_FOK, mt5.ORDER_FILLING_IOC, mt5.ORDER_FILLING_RETURN)
 
+# Retcode liên quan tới trượt giá / giá đổi
+_SLIPPAGE_RETCODES = {
+    10004,  # TRADE_RETCODE_REQUOTE
+    10020,  # TRADE_RETCODE_PRICE_CHANGED
+    10021,  # TRADE_RETCODE_PRICE_OFF
+}
+
 
 def _supported_filling(info) -> int:
     """Chọn chế độ khớp lệnh mà symbol hỗ trợ (theo symbol_info.filling_mode)."""
@@ -230,6 +237,7 @@ def open_position(
     tp: float,
     magic: int,
     comment: str,
+    max_slippage_points: int = None,
 ) -> bool:
     info = get_symbol_info(symbol)
     if info is None:
@@ -238,6 +246,10 @@ def open_position(
     tick = get_tick(symbol)
     if tick is None:
         return False
+
+    import config
+    if max_slippage_points is None:
+        max_slippage_points = int(getattr(config, "MAX_SLIPPAGE_POINTS", 0))
 
     if order_type == "BUY":
         price     = tick.ask
@@ -263,18 +275,37 @@ def open_position(
         "type_time":   mt5.ORDER_TIME_GTC,
         "type_filling": mt5.ORDER_FILLING_IOC,
     }
+    if max_slippage_points > 0:
+        request["deviation"] = max_slippage_points  # giới hạn trượt giá (points)
 
     result = _order_send(request, info)
     if result is None or result.retcode != mt5.TRADE_RETCODE_DONE:
         code = result.retcode if result else "None"
-        comment = result.comment if result else "order_send returned None"
-        logger.error(f"open_position FAILED  |  retcode={code}  |  {comment}")
+        msg = result.comment if result else "order_send returned None"
+        if code in _SLIPPAGE_RETCODES:
+            logger.warning(f"⚠️ BỎ LỆNH do trượt giá  |  retcode={code}  |  {msg}")
+        else:
+            logger.error(f"open_position FAILED  |  retcode={code}  |  {msg}")
+        return False
+
+    fill = float(getattr(result, "price", 0) or price)
+    slip_points = abs(fill - price) / info.point
+
+    # Broker có thể bỏ qua `deviation` -> khớp lệch quá ngưỡng thì đóng ngay, coi như không vào
+    if max_slippage_points > 0 and slip_points > max_slippage_points:
+        logger.warning(
+            f"⚠️ TRƯỢT GIÁ {slip_points:.0f} points (> {max_slippage_points})  |  "
+            f"yêu cầu {price:.{digits}f} -> khớp {fill:.{digits}f}  |  ĐÓNG LỆNH, coi như không vào"
+        )
+        pos = get_open_position(symbol, magic)
+        if pos is not None:
+            close_position(pos, magic, "slippage cancel")
         return False
 
     logger.info(
         f"{'🟢 BUY' if order_type == 'BUY' else '🔴 SELL'} OPENED  |  "
-        f"Ticket={result.order}  |  Price={price:.5f}  |  "
-        f"SL={sl:.5f}  |  TP={tp:.5f}  |  Lot={lot}"
+        f"Ticket={result.order}  |  Fill={fill:.5f}  |  Yêu cầu={price:.5f}  |  "
+        f"SL={sl:.5f}  |  TP={tp:.5f}  |  Lot={lot}  |  trượt={slip_points:.0f}pts"
     )
     return True
 

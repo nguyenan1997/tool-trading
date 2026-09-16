@@ -40,6 +40,11 @@ FIXED_LOT       = 0.02      # >= 0.02 để chốt một phần (partial TP) ho�
 RISK_PERCENT    = 10.0      # % of account balance per trade
 
 # --- Order Settings ---
+# Trượt giá tối đa khi vào lệnh (points; XAUUSD 1 point = 0.01).
+# Nếu giá khớp lệch quá ngưỡng này so với giá yêu cầu -> hủy/đóng ngay, coi như không vào lệnh.
+# Đặt 0 để tắt giới hạn.
+MAX_SLIPPAGE_POINTS = 30
+
 # MAGIC riêng để quản lý lệnh độc lập (giữ nguyên SL/TP khi đổi tham số).
 MAGIC_TM        = 20260320   # Trend Momentum
 ORDER_COMMENT   = "TrendMomentum_Bot"

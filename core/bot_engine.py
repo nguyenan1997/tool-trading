@@ -73,8 +73,9 @@ class BotEngine:
         # "Bây giờ" luôn tính từ đồng hồ UTC thật -> đúng giờ VN
         vn_now = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=vn_off)
 
+        # Phiên bao gồm cả giờ `end` (xét start <= h <= end) nên kết thúc thật là end+1 giờ
         vn_start = (start + vn) % 24
-        vn_end = (end + vn) % 24
+        vn_end = (end + 1 + vn) % 24
         label_range = f"{vn_start:02d}:00–{vn_end:02d}:00"
         h = server_now.hour
         if start <= h <= end:
