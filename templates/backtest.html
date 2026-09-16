@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Bot - Hệ thống Backtest</title>
+    <title>Trading Bot - Backtest</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
@@ -18,13 +18,14 @@
             --text-dim: #94a3b8;
             --success: #22c55e;
             --danger: #ef4444;
+            --warning: #f59e0b;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
 
         body {
             background: var(--bg);
-            background-image: 
+            background-image:
                 radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
                 radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.1) 0px, transparent 50%);
             color: var(--text);
@@ -32,7 +33,7 @@
             padding: 2rem;
         }
 
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1280px; margin: 0 auto; }
 
         header {
             display: flex;
@@ -52,7 +53,7 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .grid { display: grid; grid-template-columns: 350px 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+        .grid { display: grid; grid-template-columns: 360px 1fr; gap: 1.5rem; margin-bottom: 2rem; }
 
         .card {
             background: var(--card-bg);
@@ -74,7 +75,26 @@
             gap: 0.5rem;
         }
 
-        .input-group { margin-bottom: 1rem; }
+        nav { display: flex; gap: 2rem; align-items: center; }
+        nav a { text-decoration: none; font-weight: 600; }
+
+        /* ── Phần cài đặt ── */
+        .section { padding-bottom: 1.25rem; border-bottom: 1px dashed rgba(255,255,255,0.08); margin-bottom: 1.25rem; }
+        .section:last-of-type { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.03em;
+        }
+        .section-title i { width: 1rem; height: 1rem; color: var(--primary); }
+
+        .input-group { margin-bottom: 0.8rem; }
         label { display: block; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.4rem; }
         input, select {
             background: #1e293b;
@@ -84,39 +104,97 @@
             border-radius: 0.75rem;
             width: 100%;
             outline: none;
+            font-size: 0.85rem;
         }
+        input:focus, select:focus { border-color: var(--primary); }
+        input:disabled, select:disabled { opacity: 0.3; }
+
+        .hint { font-size: 0.7rem; color: var(--text-dim); margin-top: 0.35rem; line-height: 1.5; }
+
+        /* ── Card chọn chiến lược ── */
+        .strat-card {
+            display: block;
+            position: relative;
+            padding: 0.8rem 0.9rem;
+            border: 1px solid var(--border);
+            border-radius: 0.9rem;
+            margin-bottom: 0.6rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .strat-card:hover { border-color: rgba(99,102,241,0.5); }
+        .strat-card input { position: absolute; opacity: 0; pointer-events: none; }
+        .strat-card.selected { border-color: var(--primary); background: rgba(99,102,241,0.12); }
+        .strat-card b { display: block; font-size: 0.85rem; margin-bottom: 0.15rem; }
+        .strat-card span { display: flex; align-items: center; gap: 0.35rem; }
+        .strat-card p { font-size: 0.7rem; color: var(--text-dim); line-height: 1.45; }
+        .strat-card .tag {
+            font-size: 0.62rem;
+            font-weight: 600;
+            padding: 0.1rem 0.45rem;
+            border-radius: 0.4rem;
+            color: var(--text);
+        }
+        .tag-m1 { background: rgba(34,197,94,0.2); color: var(--success); }
+        .tag-mtf { background: rgba(245,158,11,0.2); color: var(--warning); }
+
+        /* ── Nhóm tham số con ── */
+        .param-block { border: 1px solid rgba(255,255,255,0.07); border-radius: 0.9rem; padding: 0.8rem; margin-bottom: 0.8rem; }
+        .param-block .label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); margin-bottom: 0.6rem; font-weight: 600; }
+        .col2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+        .col3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
 
         .btn {
-            background: var(--primary);
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
             color: white;
             border: none;
-            padding: 0.8rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
+            padding: 0.9rem;
+            border-radius: 0.9rem;
+            font-weight: 700;
+            font-size: 0.95rem;
             cursor: pointer;
             width: 100%;
             transition: all 0.2s;
-            margin-top: 1rem;
+            margin-top: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
-        .btn:hover { background: var(--primary-hover); transform: scale(1.02); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        .summary-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
-        .stat-box { background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 1rem; border: 1px solid var(--border); }
-        .stat-label { font-size: 0.7rem; color: var(--text-dim); }
-        .stat-value { font-size: 1.2rem; font-weight: 700; margin-top: 0.2rem; }
+        /* ── Bảng thống kê kết quả ── */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; }
+        .stat-box { background: rgba(255,255,255,0.04); padding: 0.8rem; border-radius: 0.9rem; border: 1px solid var(--border); }
+        .stat-label { font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+        .stat-value { font-size: 1.1rem; font-weight: 700; margin-top: 0.2rem; }
+        .stat-box .sub { font-size: 0.68rem; color: var(--text-dim); margin-top: 0.15rem; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
-        th { text-align: left; padding: 0.75rem; color: var(--text-dim); border-bottom: 1px solid var(--border); }
-        td { padding: 0.75rem; border-bottom: 1px solid var(--border); }
-        
-        .row-profit { color: var(--success); }
-        .row-loss { color: var(--danger); }
+        /* ── Bảng giao dịch ── */
+        table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        th { text-align: left; padding: 0.6rem 0.75rem; color: var(--text-dim); border-bottom: 1px solid var(--border); white-space: nowrap; }
+        td { padding: 0.65rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap; }
+        tbody tr:hover { background: rgba(255,255,255,0.03); }
 
-        #equity-chart { width: 100%; height: 450px; }
+        .badge { padding: 0.15rem 0.5rem; border-radius: 0.5rem; font-size: 0.68rem; font-weight: 700; }
+        .badge-win { background: rgba(34,197,94,0.15); color: var(--success); }
+        .badge-loss { background: rgba(239,68,68,0.15); color: var(--danger); }
+        .pl-pos { color: var(--success); font-weight: 600; }
+        .pl-neg { color: var(--danger); font-weight: 600; }
 
-        nav { display: flex; gap: 2rem; align-items: center; }
-        nav a { text-decoration: none; font-weight: 600; }
+        .buy-tag, .sell-tag { padding: 0.15rem 0.4rem; border-radius: 0.4rem; font-size: 0.68rem; font-weight: 700; }
+        .buy-tag { background: rgba(34,197,94,0.15); color: var(--success); }
+        .sell-tag { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+        #equity-chart { width: 100%; height: 420px; }
+        .chart-empty { display: flex; height: 100%; align-items: center; justify-content: center; color: var(--text-dim); flex-direction: column; gap: 0.75rem; }
+
+        .section-hr { margin: 1.2rem 0; border: none; border-top: 1px solid rgba(255,255,255,0.08); }
+        .spin { animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .scroll-area { max-height: 320px; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -128,147 +206,180 @@
             </div>
             <nav>
                 <a href="/" style="color: var(--text-dim);">Giao dịch trực tiếp</a>
-                <a href="/backtest" style="color: var(--primary);">Kiểm tra lại (Backtest)</a>
+                <a href="/backtest" style="color: var(--primary);">Backtest</a>
             </nav>
         </header>
 
         <div class="grid">
-            <!-- Sidebar: Inputs -->
+            <!-- ── Sidebar: Cài đặt ── -->
             <div class="card">
-                <div class="card-title"><i data-lucide="settings-2"></i> Thông số cấu hình</div>
-                
-                <div class="input-group">
-                    <label>Cặp tài sản</label>
-                    <input type="text" id="symbol" value="XAUUSD">
+                <div class="card-title"><i data-lucide="settings-2"></i> Thiết lập mô phỏng</div>
+
+                <div class="section">
+                    <div class="section-title"><i data-lucide="coins"></i> 1. Tài sản &amp; khung thời gian</div>
+                    <div class="col2">
+                        <div class="input-group">
+                            <label>Cặp tài sản</label>
+                            <input type="text" id="symbol" value="XAUUSD">
+                        </div>
+                        <div class="input-group">
+                            <label>Khung thời gian</label>
+                            <select id="timeframe">
+                                <option value="M1">M1</option>
+                                <option value="M5">M5</option>
+                                <option value="M15">M15</option>
+                                <option value="H1">H1</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                
-                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-                    <div style="flex: 1;">
-                        <label>Khung thời gian</label>
-                        <select id="timeframe">
-                            <option value="M1">M1</option>
-                            <option value="M5">M5</option>
-                            <option value="M15">M15</option>
-                            <option value="H1">H1</option>
+
+                <div class="section">
+                    <div class="section-title"><i data-lucide="calendar-range"></i> 2. Khoảng thời gian test</div>
+                    <div class="input-group">
+                        <label>Chọn kiểu</label>
+                        <select id="range_mode" onchange="toggleRangeMode()">
+                            <option value="count">Số nến gần nhất</option>
+                            <option value="date">Từ ngày bắt đầu đến nay</option>
                         </select>
                     </div>
-                    <div style="flex: 1;">
-                        <label>Ngày bắt đầu (Tùy chọn)</label>
-                        <input type="date" id="start_date">
+                    <div id="range-count-block">
+                        <div class="input-group">
+                            <label>Số lượng nến (nến gần nhất)</label>
+                            <input type="number" id="count" value="1000" min="100" step="100">
+                        </div>
+                        <div class="hint" id="count-hint"></div>
                     </div>
-                </div>
-                
-                <div class="input-group">
-                    <label>Số lượng nến (nếu không chọn ngày)</label>
-                    <input type="number" id="count" value="1000">
-                </div>
-
-                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-                    <div style="flex: 1;">
-                        <label>Vốn khởi đầu ($)</label>
-                        <input type="number" id="balance" value="100">
-                    </div>
-                    <div style="flex: 1;">
-                        <label>Khối lượng lệnh (Lot)</label>
-                        <input type="number" id="lot" step="0.01" value="0.01">
+                    <div id="range-date-block" style="display:none;">
+                        <div class="input-group">
+                            <label>Ngày bắt đầu (đến hiện tại)</label>
+                            <input type="date" id="start_date">
+                        </div>
+                        <div class="hint">Dùng khi bạn muốn test toàn bộ dữ liệu từ một mốc ngày.</div>
                     </div>
                 </div>
 
-                <hr style="opacity: 0.1; margin: 1.5rem 0;">
-                <div class="card-title" style="margin-bottom: 1rem;">Chiến lược giao dịch</div>
-
-                <div class="input-group">
-                    <label>Chiến lược</label>
-                    <select id="strategy" onchange="toggleStrategyParams()">
-                        <option value="3ema">3 EMA Crossover (M1)</option>
-                        <option value="trend_momentum">Trend Momentum (M1/M15/H1)</option>
-                    </select>
+                <div class="section">
+                    <div class="section-title"><i data-lucide="wallet"></i> 3. Vốn &amp; khối lượng</div>
+                    <div class="col2">
+                        <div class="input-group">
+                            <label>Vốn khởi đầu ($)</label>
+                            <input type="number" id="balance" value="100" min="1">
+                        </div>
+                        <div class="input-group">
+                            <label>Khối lượng (Lot)</label>
+                            <input type="number" id="lot" step="0.01" value="0.01" min="0.01" max="1">
+                        </div>
+                    </div>
+                    <div class="hint" style="margin-top:0.2rem;">Kết quả phụ thuộc trực tiếp vào lot. Với vốn nhỏ, nên dùng 0.01.</div>
                 </div>
 
-                <div id="params-3ema">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
-                        <div><label>EMA Nhanh</label><input type="number" id="ema_fast" value="9"></div>
-                        <div><label>EMA Vừa</label><input type="number" id="ema_medium" value="21"></div>
-                        <div><label>EMA Chậm</label><input type="number" id="ema_slow" value="50"></div>
-                    </div>
-                    <div class="input-group">
-                        <label>Tỉ lệ lợi nhuận RR (1:X)</label>
-                        <input type="number" id="rr" step="0.1" value="3.0">
-                    </div>
+                <div class="section">
+                    <div class="section-title"><i data-lucide="brain"></i> 4. Chiến lược</div>
+                    <label class="strat-card selected" onclick="selectStrategy('3ema', this)">
+                        <input type="radio" name="strategy" value="3ema" checked>
+                        <b>3 EMA Crossover</b>
+                        <span><span class="tag tag-m1">M1</span></span>
+                        <p>EMA 9×21 cắt nhau + giá đóng trên/dưới cả EMA50. Nhiều lệnh, phù hợp có xu hướng nhỏ.</p>
+                    </label>
+                    <label class="strat-card" onclick="selectStrategy('trend_momentum', this)">
+                        <input type="radio" name="strategy" value="trend_momentum">
+                        <b>Trend Momentum</b>
+                        <span><span class="tag tag-mtf">M1 · M15 · H1</span></span>
+                        <p>Chỉ vào lệnh khi xu hướng lớn rõ ràng (ADX/EMA200 H1), phá đỉnh/đáy M1 + RSI. Ít lệnh, lợi nhuận ròng cao hơn.</p>
+                    </label>
                 </div>
 
-                <div id="params-trend-momentum" style="display: none;">
-                    <p style="font-size:0.72rem; color:var(--text-dim); margin-bottom:0.8rem;">
-                        Gợi ý: cần ≥ 20 000 nến M1 để chỉ báo H1 (EMA200, ADX) hoạt động.
-                    </p>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
-                        <div><label>Lookback (nến M1)</label><input type="number" id="tm_lookback" value="20"></div>
-                        <div><label>RSI Period</label><input type="number" id="tm_rsi_period" value="7"></div>
-                        <div><label>RSI Mua &ge;</label><input type="number" id="tm_rsi_buy" value="55"></div>
-                        <div><label>RSI Bán &le;</label><input type="number" id="tm_rsi_sell" value="45"></div>
+                <div class="section">
+                    <div class="section-title"><i data-lucide="sliders-horizontal"></i> 5. Tham số chiến lược</div>
+
+                    <div id="params-3ema">
+                        <div class="param-block">
+                            <div class="label">Đường EMA</div>
+                            <div class="col3">
+                                <div><label>Nhanh</label><input type="number" id="ema_fast" value="9"></div>
+                                <div><label>Vừa</label><input type="number" id="ema_medium" value="21"></div>
+                                <div><label>Chậm</label><input type="number" id="ema_slow" value="50"></div>
+                            </div>
+                        </div>
+                        <div class="param-block">
+                            <div class="label">Thoát lệnh</div>
+                            <div class="input-group" style="margin:0;">
+                                <label>Tỉ lệ lợi nhuận (1 : X so với SL)</label>
+                                <input type="number" id="rr" step="0.1" value="3.0" min="0.5">
+                            </div>
+                        </div>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
-                        <div><label>SL (x ATR M15)</label><input type="number" id="tm_sl_atr" step="0.1" value="1.5"></div>
-                        <div><label>TP (x khoảng SL)</label><input type="number" id="tm_tp_r" step="0.1" value="2.0"></div>
-                    </div>
-                    <div class="input-group">
-                        <label>ADX H1 ngưỡng &ge;</label>
-                        <input type="number" id="tm_adx_thresh" value="22">
+
+                    <div id="params-trend-momentum" style="display:none;">
+                        <div class="param-block">
+                            <div class="label">Điểm vào (M1)</div>
+                            <div class="col2">
+                                <div><label>Độ dài phá vỡ (nến)</label><input type="number" id="tm_lookback" value="20" min="5"></div>
+                                <div><label>RSI Period</label><input type="number" id="tm_rsi_period" value="7" min="2"></div>
+                                <div><label>RSI vào lệnh Mua ≥</label><input type="number" id="tm_rsi_buy" value="55"></div>
+                                <div><label>RSI vào lệnh Bán ≤</label><input type="number" id="tm_rsi_sell" value="45"></div>
+                            </div>
+                        </div>
+                        <div class="param-block">
+                            <div class="label">Lọc xu hướng (H1)</div>
+                            <div class="input-group" style="margin:0;">
+                                <label>ADX H1 tối thiểu ≥</label>
+                                <input type="number" id="tm_adx_thresh" value="22" min="5" max="50">
+                            </div>
+                            <div class="hint">Càng cao càng chắc xu hướng nhưng bỏ lỡ tín hiệu sớm.</div>
+                        </div>
+                        <div class="param-block">
+                            <div class="label">Thoát lệnh</div>
+                            <div class="col2">
+                                <div><label>SL (× ATR M15)</label><input type="number" id="tm_sl_atr" step="0.1" value="1.5" min="0.5"></div>
+                                <div><label>TP (× khoảng SL)</label><input type="number" id="tm_tp_r" step="0.1" value="2.0" min="0.5"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <button id="run-btn" class="btn" onclick="runBacktest()">
-                    <i data-lucide="play-circle" style="vertical-align: middle; margin-right: 5px;"></i> Bắt đầu mô phỏng
+                    <i data-lucide="play-circle"></i> Chạy mô phỏng
                 </button>
-
-                <!-- Summary Panel -->
-                <div id="summary-panel" class="summary-mini" style="display: none;">
-                    <div class="stat-box">
-                        <div class="stat-label">Tổng lệnh</div>
-                        <div id="res-trades" class="stat-value">--</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Tỉ lệ thắng</div>
-                        <div id="res-winrate" class="stat-value">--%</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Lợi nhuận ròng</div>
-                        <div id="res-profit" class="stat-value" style="color: var(--success);">--</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Chiến lược</div>
-                        <div id="res-strategy" class="stat-value">--</div>
-                    </div>
-                </div>
             </div>
 
-            <!-- Main: Chart & Results -->
-            <div class="card" style="padding: 0;">
+            <!-- ── Kết quả ── -->
+            <div class="card" style="padding: 0; display:flex; flex-direction:column; min-height: 600px;">
                 <div style="padding: 1.5rem 1.5rem 0 1.5rem;">
-                    <div class="card-title"><i data-lucide="line-chart"></i> Hiệu suất tài khoản (Equity)</div>
+                    <div class="card-title"><i data-lucide="line-chart"></i> Kết quả mô phỏng</div>
                 </div>
-                <div id="equity-chart">
-                    <div style="display: flex; height: 100%; align-items: center; justify-content: center; color: var(--text-dim);">
-                        Thiết lập thông số và nhấn Bắt đầu để xem kết quả
+
+                <div style="padding: 0 1.5rem;">
+                    <div class="stats-grid" id="stats-grid" style="display:none;"></div>
+                </div>
+
+                <div id="equity-chart" style="padding: 1rem 1.5rem 0 1.5rem;">
+                    <div class="chart-empty">
+                        <i data-lucide="chart-line" style="width: 2rem; height: 2rem; opacity: 0.4;"></i>
+                        <span>Chọn cấu hình ở bên trái và bấm <b>Chạy mô phỏng</b></span>
                     </div>
                 </div>
-                
-                <!-- Table for Trades -->
-                <div style="padding: 1.5rem; max-height: 300px; overflow-y: auto;">
-                    <div class="card-title"><i data-lucide="history"></i> Lịch sử giao dịch mô phỏng</div>
-                    <table id="trades-table">
-                        <thead>
-                            <tr>
-                                <th>Thời gian</th>
-                                <th>Loại</th>
-                                <th>Giá vào</th>
-                                <th>Giá đóng</th>
-                                <th>Kết quả</th>
-                                <th>Lợi nhuận ($)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="trades-body"></tbody>
-                    </table>
+
+                <div style="padding: 1.2rem 1.5rem 1.5rem 1.5rem;">
+                    <div class="card-title"><i data-lucide="history"></i> Chi tiết giao dịch</div>
+                    <div class="scroll-area">
+                        <table id="trades-table">
+                            <thead>
+                                <tr>
+                                    <th>Vào lệnh</th>
+                                    <th>Loại</th>
+                                    <th>Giá vào</th>
+                                    <th>Giá thoát</th>
+                                    <th>Giữ lệnh</th>
+                                    <th>Kết quả</th>
+                                    <th>PnL ($)</th>
+                                    <th>Số dư ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trades-body"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -277,37 +388,57 @@
     <script>
         lucide.createIcons();
 
-        function toggleStrategyParams() {
-            const strategy = document.getElementById('strategy').value;
-            document.getElementById('params-3ema').style.display = strategy === '3ema' ? 'block' : 'none';
-            document.getElementById('params-trend-momentum').style.display = strategy === 'trend_momentum' ? 'block' : 'none';
+        /* ── Chọn chiến lược ── */
+        function selectStrategy(key, cardEl) {
+            document.querySelectorAll('.strat-card').forEach(c => c.classList.remove('selected'));
+            cardEl.classList.add('selected');
+            cardEl.querySelector('input').checked = true;
+            document.getElementById('params-3ema').style.display = key === '3ema' ? 'block' : 'none';
+            document.getElementById('params-trend-momentum').style.display = key === 'trend_momentum' ? 'block' : 'none';
+            if (key === 'trend_momentum' && document.getElementById('range_mode').value === 'count') {
+                const c = document.getElementById('count');
+                if (parseInt(c.value) < 20000) {
+                    c.value = 30000;
+                    updateCountHint();
+                }
+            }
         }
 
-        document.getElementById('start_date').addEventListener('change', function() {
-            const countInput = document.getElementById('count');
-            const countLabel = countInput.parentElement.querySelector('label');
-            if (this.value) {
-                countInput.disabled = true;
-                countInput.style.opacity = '0.3';
-                countLabel.innerText = 'Số lượng nến (Bị bỏ qua - dùng Ngày)';
-            } else {
-                countInput.disabled = false;
-                countInput.style.opacity = '1';
-                countLabel.innerText = 'Số lượng nến (nếu không chọn ngày)';
-            }
-        });
+        /* ── Khoảng thời gian ── */
+        function toggleRangeMode() {
+            const mode = document.getElementById('range_mode').value;
+            document.getElementById('range-count-block').style.display = mode === 'count' ? 'block' : 'none';
+            document.getElementById('range-date-block').style.display = mode === 'date' ? 'block' : 'none';
+        }
 
+        const DAYS_EST = { 'M1': 1440, 'M5': 288, 'M15': 96, 'H1': 24 };
+        function updateCountHint() {
+            const tf = document.getElementById('timeframe').value;
+            const count = parseInt(document.getElementById('count').value) || 0;
+            const div = DAYS_EST[tf] || 24;
+            const days = (count / div).toFixed(1);
+            document.getElementById('count-hint').innerText =
+                count > 0 ? `≈ ${days} ngày giao dịch gần nhất (${tf}). Trend Momentum cần ≥ 20.000 nến M1.` : '';
+        }
+        document.getElementById('count').addEventListener('input', updateCountHint);
+        document.getElementById('timeframe').addEventListener('change', updateCountHint);
+        updateCountHint();
+
+        let lastInitialBalance = 100;
+
+        /* ── Chạy mô phỏng ── */
         async function runBacktest() {
             const btn = document.getElementById('run-btn');
             btn.disabled = true;
-            btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Đang xử lý...';
+            btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Đang chạy...';
             lucide.createIcons();
 
-            const strategy = document.getElementById('strategy').value;
+            const strategy = document.querySelector('input[name="strategy"]:checked').value;
+            lastInitialBalance = parseFloat(document.getElementById('balance').value);
             const params = {
                 symbol: document.getElementById('symbol').value,
                 timeframe: document.getElementById('timeframe').value,
-                start_date: document.getElementById('start_date').value,
+                start_date: document.getElementById('range_mode').value === 'date' ? document.getElementById('start_date').value : '',
                 count: document.getElementById('count').value,
                 balance: document.getElementById('balance').value,
                 lot: document.getElementById('lot').value,
@@ -336,48 +467,112 @@
                     body: JSON.stringify(params)
                 });
                 const data = await res.json();
-
                 if (data.error) {
                     alert("Lỗi: " + data.error);
                     return;
                 }
-
                 displayResults(data);
             } catch (e) {
                 console.error(e);
                 alert("Yêu cầu thất bại. Hãy kiểm tra server.");
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i data-lucide="play-circle"></i> Bắt đầu mô phỏng';
+                btn.innerHTML = '<i data-lucide="play-circle"></i> Chạy mô phỏng';
                 lucide.createIcons();
             }
         }
 
         const strategyNames = { '3ema': '3 EMA Crossover', 'trend_momentum': 'Trend Momentum' };
 
+        /* ── Tính thêm chỉ số từ danh sách lệnh ── */
+        function computeStats(data) {
+            const trades = data.trades;
+            const wins = trades.filter(t => t.result === 'PROFIT');
+            const losses = trades.filter(t => t.result === 'LOSS');
+            const grossWin = wins.reduce((s, t) => s + t.pnl, 0);
+            const grossLoss = Math.abs(losses.reduce((s, t) => s + t.pnl, 0));
+
+            let peak = -Infinity, maxDD = 0;
+            for (const t of trades) {
+                peak = Math.max(peak, t.balance);
+                maxDD = Math.max(maxDD, peak - t.balance);
+            }
+
+            const avgWin = wins.length ? grossWin / wins.length : 0;
+            const avgLoss = losses.length ? grossLoss / losses.length : 0;
+            const pf = grossLoss > 0 ? grossWin / grossLoss : (grossWin > 0 ? Infinity : 0);
+
+            const period = trades.length
+                ? trades[0].entry_time + " → " + trades[trades.length - 1].entry_time
+                : "—";
+
+            const first = trades.length ? trades.reduce((a,b) => a.pnl < b.pnl ? a : b) : null;
+            const last = null;
+
+            return { wins, losses, grossWin, grossLoss, avgWin, avgLoss, pf, maxDD, period,
+                     best: first ? first.pnl : 0, bestTime: first ? first.entry_time : "",
+                     worst: first ? null : null };
+        }
+
+        function fmtMoney(v) {
+            const sign = v > 0 ? '+' : (v < 0 ? '-' : '');
+            return sign + '$' + Math.abs(v).toFixed(2);
+        }
+
+        function buildStats(data) {
+            const s = computeStats(data);
+            const sum = data.summary;
+            const profitCls = sum.profit >= 0 ? 'var(--success)' : 'var(--danger)';
+
+            const boxes = [
+                { label: 'Lợi nhuận ròng', value: fmtMoney(sum.profit), cls: profitCls, sub: `TN: ${sum.total_trades} lệnh` },
+                { label: 'Tỉ lệ thắng', value: sum.win_rate + '%', sub: `${s.wins.length} thắng / ${s.losses.length} thua` },
+                { label: 'Số dư cuối', value: '$' + sum.final_balance.toLocaleString(), sub: `Vốn đầu: $${lastInitialBalance.toLocaleString()}` },
+                { label: 'Lợi nhuận trung bình / lệnh', value: fmtMoney(sum.total_trades ? sum.profit / sum.total_trades : 0), sub: `Thắng ${fmtMoney(s.avgWin)} · Thua ${fmtMoney(-s.avgLoss)}` },
+                { label: 'Hệ số lợi nhuận (PF)', value: s.pf === Infinity ? '∞' : s.pf.toFixed(2), sub: 'Tổng thắng ÷ Tổng thua' },
+                { label: 'Sụt giảm tối đa', value: '$' + s.maxDD.toFixed(2), cls: s.maxDD > 0 ? 'var(--danger)' : 'var(--success)', sub: 'Peak → đáy của số dư' },
+                { label: 'Chiến lược', value: strategyNames[sum.strategy] || sum.strategy, sub: `Spread dùng: ${sum.spread_used}` },
+                { label: 'Khoảng thời gian có lệnh', value: '', sub: s.period },
+            ];
+
+            const grid = document.getElementById('stats-grid');
+            grid.style.display = 'grid';
+            grid.innerHTML = boxes.map(b => `
+                <div class="stat-box">
+                    <div class="stat-label">${b.label}</div>
+                    <div class="stat-value" ${b.cls ? `style="color:${b.cls};"` : ''}>${b.value || '—'}</div>
+                    <div class="sub">${b.sub || ''}</div>
+                </div>
+            `).join('');
+        }
+
+        function fmtHolding(t1, t2) {
+            const a = new Date(t1.replace(' ', 'T'));
+            const b = new Date(t2.replace(' ', 'T'));
+            if (isNaN(a) || isNaN(b)) return '—';
+            const mins = Math.round((b - a) / 60000);
+            if (mins < 60) return `${mins}p`;
+            const h = Math.floor(mins / 60), m = mins % 60;
+            return m ? `${h}h${m.toString().padStart(2,'0')}m` : `${h}h`;
+        }
+
         function displayResults(data) {
-            const panel = document.getElementById('summary-panel');
-            panel.style.display = 'grid';
-            panel.style.gridTemplateColumns = '1fr 1fr';
-            document.getElementById('res-trades').innerText = data.summary.total_trades;
-            document.getElementById('res-winrate').innerText = data.summary.win_rate + '%';
-            document.getElementById('res-profit').innerText = '$' + data.summary.profit.toLocaleString();
-            document.getElementById('res-profit').style.color = data.summary.profit >= 0 ? 'var(--success)' : 'var(--danger)';
-            document.getElementById('res-strategy').innerText = strategyNames[data.summary.strategy] || data.summary.strategy;
+            buildStats(data);
 
             const balances = data.trades.map(t => t.balance);
             const times = data.trades.map(t => t.entry_time);
-            
+
             const trace = {
                 x: times,
                 y: balances,
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: 'Số dư',
-                line: { color: '#6366f1', width: 2 },
+                line: { color: '#6366f1', width: 2.5, shape: 'hv' },
                 marker: {
                     color: data.trades.map(t => t.result === 'PROFIT' ? '#22c55e' : '#ef4444'),
-                    size: 6
+                    size: 7,
+                    line: { color: 'rgba(15,23,42,0.9)', width: 1 }
                 },
                 hovertemplate: '<b>%{x}</b><br>Số dư: $%{y:.2f}<extra></extra>'
             };
@@ -386,47 +581,50 @@
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
                 font: { color: '#94a3b8' },
-                margin: { t: 20, b: 60, l: 60, r: 20 },
+                margin: { t: 20, b: 55, l: 60, r: 20 },
                 hovermode: 'closest',
                 dragmode: 'pan',
-                xaxis: { 
-                    gridcolor: 'rgba(255,255,255,0.05)', 
-                    zeroline: false,
-                    title: 'Thời gian',
-                    fixedrange: false
-                },
-                yaxis: { 
-                    gridcolor: 'rgba(255,255,255,0.05)', 
-                    zeroline: false,
-                    fixedrange: false 
-                }
+                showlegend: false,
+                shapes: [{
+                    type: 'line',
+                    xref: 'paper', x0: 0, x1: 1,
+                    yref: 'y', y0: lastInitialBalance, y1: lastInitialBalance,
+                    line: { color: 'rgba(255,255,255,0.35)', width: 1, dash: 'dash' }
+                }],
+                annotations: [{
+                    xref: 'paper', x: 0, y: lastInitialBalance,
+                    text: `Vốn ban đầu ${lastInitialBalance}`, showarrow: false,
+                    font: { size: 11, color: '#94a3b8' }, yshift: 8
+                }],
+                xaxis: { gridcolor: 'rgba(255,255,255,0.05)', zeroline: false, title: 'Thời gian', fixedrange: false },
+                yaxis: { gridcolor: 'rgba(255,255,255,0.05)', zeroline: false, fixedrange: false }
             };
 
             const config = {
                 responsive: true,
                 scrollZoom: true,
-                displayModeBar: true,
-                modeBarButtonsToAdd: ['dragmode', 'pan2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d'],
                 displaylogo: false
             };
 
             Plotly.newPlot('equity-chart', [trace], layout, config);
 
             const body = document.getElementById('trades-body');
-            body.innerHTML = data.trades.map(t => {
-                const resText = t.result === 'PROFIT' ? 'THẮNG' : 'THUA';
-                const typeText = t.type === 'BUY' ? 'MUA' : 'BÁN';
+            body.innerHTML = data.trades.slice().reverse().map(t => {
+                const win = t.result === 'PROFIT';
+                const isBuy = t.type === 'BUY';
                 return `
-                    <tr class="${t.result === 'PROFIT' ? 'row-profit' : 'row-loss'}">
+                    <tr>
                         <td>${t.entry_time}</td>
-                        <td>${typeText}</td>
+                        <td><span class="${isBuy ? 'buy-tag' : 'sell-tag'}">${isBuy ? 'MUA' : 'BÁN'}</span></td>
                         <td>${t.entry.toFixed(2)}</td>
                         <td>${t.exit.toFixed(2)}</td>
-                        <td>${resText}</td>
-                        <td>${t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(2)}</td>
+                        <td>${fmtHolding(t.entry_time, t.exit_time)}</td>
+                        <td><span class="badge ${win ? 'badge-win' : 'badge-loss'}">${win ? 'THẮNG' : 'THUA'}</span></td>
+                        <td class="${t.pnl >= 0 ? 'pl-pos' : 'pl-neg'}">${fmtMoney(t.pnl)}</td>
+                        <td>$${t.balance.toFixed(2)}</td>
                     </tr>
                 `;
-            }).reverse().join('');
+            }).join('');
         }
     </script>
 </body>

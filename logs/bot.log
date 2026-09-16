@@ -2569,3 +2569,247 @@ TypeError: '<' not supported between instances of 'str' and 'int'
 2026-09-16 00:57:01  INFO      127.0.0.1 - - [16/Sep/2026 00:57:01] "POST /api/strategy HTTP/1.1" 200 -
 2026-09-16 00:57:01  INFO      127.0.0.1 - - [16/Sep/2026 00:57:01] "GET /api/status HTTP/1.1" 200 -
 2026-09-16 00:58:19  INFO      127.0.0.1 - - [16/Sep/2026 00:58:19] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:00:47  INFO      127.0.0.1 - - [16/Sep/2026 01:00:47] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:00:47  INFO      127.0.0.1 - - [16/Sep/2026 01:00:47] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:00:47  INFO      127.0.0.1 - - [16/Sep/2026 01:00:47] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:00:49  INFO      127.0.0.1 - - [16/Sep/2026 01:00:49] "GET / HTTP/1.1" 200 -
+2026-09-16 01:00:49  INFO      127.0.0.1 - - [16/Sep/2026 01:00:49] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:00:49  INFO      127.0.0.1 - - [16/Sep/2026 01:00:49] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:00:49  INFO      127.0.0.1 - - [16/Sep/2026 01:00:49] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:00:49  INFO      127.0.0.1 - - [16/Sep/2026 01:00:49] "GET /api/strategies HTTP/1.1" 200 -
+2026-09-16 01:00:52  INFO      127.0.0.1 - - [16/Sep/2026 01:00:52] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:00:52  INFO      127.0.0.1 - - [16/Sep/2026 01:00:52] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:00:52  INFO      127.0.0.1 - - [16/Sep/2026 01:00:52] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:00:55  INFO      127.0.0.1 - - [16/Sep/2026 01:00:55] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:00:55  INFO      127.0.0.1 - - [16/Sep/2026 01:00:55] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:00:55  INFO      127.0.0.1 - - [16/Sep/2026 01:00:55] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:00:58  INFO      127.0.0.1 - - [16/Sep/2026 01:00:58] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:00:58  INFO      127.0.0.1 - - [16/Sep/2026 01:00:58] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:00:58  INFO      127.0.0.1 - - [16/Sep/2026 01:00:58] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:00:58  INFO      127.0.0.1 - - [16/Sep/2026 01:00:58] "GET / HTTP/1.1" 200 -
+2026-09-16 01:00:58  INFO      127.0.0.1 - - [16/Sep/2026 01:00:58] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:00:58  INFO      127.0.0.1 - - [16/Sep/2026 01:00:58] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:00:58  INFO      127.0.0.1 - - [16/Sep/2026 01:00:58] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:00:58  INFO      127.0.0.1 - - [16/Sep/2026 01:00:58] "GET /api/strategies HTTP/1.1" 200 -
+2026-09-16 01:00:59  INFO      127.0.0.1 - - [16/Sep/2026 01:00:59] "GET / HTTP/1.1" 200 -
+2026-09-16 01:00:59  INFO      127.0.0.1 - - [16/Sep/2026 01:00:59] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:00:59  INFO      127.0.0.1 - - [16/Sep/2026 01:00:59] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:00:59  INFO      127.0.0.1 - - [16/Sep/2026 01:00:59] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:00:59  INFO      127.0.0.1 - - [16/Sep/2026 01:00:59] "GET /api/strategies HTTP/1.1" 200 -
+2026-09-16 01:00:59  INFO      127.0.0.1 - - [16/Sep/2026 01:00:59] "GET / HTTP/1.1" 200 -
+2026-09-16 01:00:59  INFO      127.0.0.1 - - [16/Sep/2026 01:00:59] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:00:59  INFO      127.0.0.1 - - [16/Sep/2026 01:00:59] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:00:59  INFO      127.0.0.1 - - [16/Sep/2026 01:00:59] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:00:59  INFO      127.0.0.1 - - [16/Sep/2026 01:00:59] "GET /api/strategies HTTP/1.1" 200 -
+2026-09-16 01:01:02  INFO      127.0.0.1 - - [16/Sep/2026 01:01:02] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:01:02  INFO      127.0.0.1 - - [16/Sep/2026 01:01:02] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:01:02  INFO      127.0.0.1 - - [16/Sep/2026 01:01:02] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:01:05  INFO      127.0.0.1 - - [16/Sep/2026 01:01:05] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:01:05  INFO      127.0.0.1 - - [16/Sep/2026 01:01:05] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:01:05  INFO      127.0.0.1 - - [16/Sep/2026 01:01:05] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:01:08  INFO      127.0.0.1 - - [16/Sep/2026 01:01:08] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:01:08  INFO      127.0.0.1 - - [16/Sep/2026 01:01:08] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:01:08  INFO      127.0.0.1 - - [16/Sep/2026 01:01:08] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:01:11  INFO      127.0.0.1 - - [16/Sep/2026 01:01:11] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:01:11  INFO      127.0.0.1 - - [16/Sep/2026 01:01:11] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:01:11  INFO      127.0.0.1 - - [16/Sep/2026 01:01:11] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:01:14  INFO      127.0.0.1 - - [16/Sep/2026 01:01:14] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:01:14  INFO      127.0.0.1 - - [16/Sep/2026 01:01:14] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:01:14  INFO      127.0.0.1 - - [16/Sep/2026 01:01:14] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:01:17  INFO      127.0.0.1 - - [16/Sep/2026 01:01:17] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:01:17  INFO      127.0.0.1 - - [16/Sep/2026 01:01:17] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:01:17  INFO      127.0.0.1 - - [16/Sep/2026 01:01:17] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:01:20  INFO      127.0.0.1 - - [16/Sep/2026 01:01:20] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:01:20  INFO      127.0.0.1 - - [16/Sep/2026 01:01:20] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:01:20  INFO      127.0.0.1 - - [16/Sep/2026 01:01:20] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:01:23  INFO      127.0.0.1 - - [16/Sep/2026 01:01:23] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:01:23  INFO      127.0.0.1 - - [16/Sep/2026 01:01:23] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:01:23  INFO      127.0.0.1 - - [16/Sep/2026 01:01:23] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:01:26  INFO      127.0.0.1 - - [16/Sep/2026 01:01:26] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:01:26  INFO      127.0.0.1 - - [16/Sep/2026 01:01:26] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:01:26  INFO      127.0.0.1 - - [16/Sep/2026 01:01:26] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:01:29  INFO      127.0.0.1 - - [16/Sep/2026 01:01:29] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:01:29  INFO      127.0.0.1 - - [16/Sep/2026 01:01:29] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:01:29  INFO      127.0.0.1 - - [16/Sep/2026 01:01:29] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:01:32  INFO      127.0.0.1 - - [16/Sep/2026 01:01:32] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:01:32  INFO      127.0.0.1 - - [16/Sep/2026 01:01:32] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:01:32  INFO      127.0.0.1 - - [16/Sep/2026 01:01:32] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:01:35  INFO      127.0.0.1 - - [16/Sep/2026 01:01:35] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:01:35  INFO      127.0.0.1 - - [16/Sep/2026 01:01:35] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:01:35  INFO      127.0.0.1 - - [16/Sep/2026 01:01:35] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:01:38  INFO      127.0.0.1 - - [16/Sep/2026 01:01:38] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:01:38  INFO      127.0.0.1 - - [16/Sep/2026 01:01:38] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:01:38  INFO      127.0.0.1 - - [16/Sep/2026 01:01:38] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:01:41  INFO      127.0.0.1 - - [16/Sep/2026 01:01:41] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:01:41  INFO      127.0.0.1 - - [16/Sep/2026 01:01:41] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:01:41  INFO      127.0.0.1 - - [16/Sep/2026 01:01:41] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:01:44  INFO      127.0.0.1 - - [16/Sep/2026 01:01:44] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:01:44  INFO      127.0.0.1 - - [16/Sep/2026 01:01:44] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:01:44  INFO      127.0.0.1 - - [16/Sep/2026 01:01:44] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:01:47  INFO      127.0.0.1 - - [16/Sep/2026 01:01:47] "GET /backtest HTTP/1.1" 200 -
+2026-09-16 01:02:05  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 01:02:06  INFO      127.0.0.1 - - [16/Sep/2026 01:02:06] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-09-16 01:02:13  INFO      127.0.0.1 - - [16/Sep/2026 01:02:13] "GET / HTTP/1.1" 200 -
+2026-09-16 01:02:13  INFO      127.0.0.1 - - [16/Sep/2026 01:02:13] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:13  INFO      127.0.0.1 - - [16/Sep/2026 01:02:13] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:13  INFO      127.0.0.1 - - [16/Sep/2026 01:02:13] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:13  INFO      127.0.0.1 - - [16/Sep/2026 01:02:13] "GET /api/strategies HTTP/1.1" 200 -
+2026-09-16 01:02:16  INFO      127.0.0.1 - - [16/Sep/2026 01:02:16] "OPTIONS /api/strategy HTTP/1.1" 200 -
+2026-09-16 01:02:16  INFO      127.0.0.1 - - [16/Sep/2026 01:02:16] "POST /api/strategy HTTP/1.1" 200 -
+2026-09-16 01:02:16  INFO      127.0.0.1 - - [16/Sep/2026 01:02:16] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:16  INFO      127.0.0.1 - - [16/Sep/2026 01:02:16] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:16  INFO      127.0.0.1 - - [16/Sep/2026 01:02:16] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:16  INFO      127.0.0.1 - - [16/Sep/2026 01:02:16] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:16  INFO      127.0.0.1 - - [16/Sep/2026 01:02:16] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:16  INFO      127.0.0.1 - - [16/Sep/2026 01:02:16] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:18  INFO      127.0.0.1 - - [16/Sep/2026 01:02:18] "POST /api/strategy HTTP/1.1" 200 -
+2026-09-16 01:02:18  INFO      127.0.0.1 - - [16/Sep/2026 01:02:18] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:18  INFO      127.0.0.1 - - [16/Sep/2026 01:02:18] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:18  INFO      127.0.0.1 - - [16/Sep/2026 01:02:18] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:19  INFO      127.0.0.1 - - [16/Sep/2026 01:02:19] "POST /api/strategy HTTP/1.1" 200 -
+2026-09-16 01:02:19  INFO      127.0.0.1 - - [16/Sep/2026 01:02:19] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:19  INFO      127.0.0.1 - - [16/Sep/2026 01:02:19] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:19  INFO      127.0.0.1 - - [16/Sep/2026 01:02:19] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:19  INFO      127.0.0.1 - - [16/Sep/2026 01:02:19] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:19  INFO      127.0.0.1 - - [16/Sep/2026 01:02:19] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:19  INFO      127.0.0.1 - - [16/Sep/2026 01:02:19] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:21  INFO      127.0.0.1 - - [16/Sep/2026 01:02:21] "POST /api/strategy HTTP/1.1" 200 -
+2026-09-16 01:02:21  INFO      127.0.0.1 - - [16/Sep/2026 01:02:21] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:21  INFO      127.0.0.1 - - [16/Sep/2026 01:02:21] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:21  INFO      127.0.0.1 - - [16/Sep/2026 01:02:21] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:22  INFO      127.0.0.1 - - [16/Sep/2026 01:02:22] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:22  INFO      127.0.0.1 - - [16/Sep/2026 01:02:22] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:22  INFO      127.0.0.1 - - [16/Sep/2026 01:02:22] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:25  INFO      127.0.0.1 - - [16/Sep/2026 01:02:25] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:25  INFO      127.0.0.1 - - [16/Sep/2026 01:02:25] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:25  INFO      127.0.0.1 - - [16/Sep/2026 01:02:25] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:28  INFO      127.0.0.1 - - [16/Sep/2026 01:02:28] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:28  INFO      127.0.0.1 - - [16/Sep/2026 01:02:28] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:28  INFO      127.0.0.1 - - [16/Sep/2026 01:02:28] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:32  INFO      127.0.0.1 - - [16/Sep/2026 01:02:32] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:32  INFO      127.0.0.1 - - [16/Sep/2026 01:02:32] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:32  INFO      127.0.0.1 - - [16/Sep/2026 01:02:32] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:35  INFO      127.0.0.1 - - [16/Sep/2026 01:02:35] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:35  INFO      127.0.0.1 - - [16/Sep/2026 01:02:35] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:35  INFO      127.0.0.1 - - [16/Sep/2026 01:02:35] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:38  INFO      127.0.0.1 - - [16/Sep/2026 01:02:38] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:38  INFO      127.0.0.1 - - [16/Sep/2026 01:02:38] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:38  INFO      127.0.0.1 - - [16/Sep/2026 01:02:38] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:41  INFO      127.0.0.1 - - [16/Sep/2026 01:02:41] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:41  INFO      127.0.0.1 - - [16/Sep/2026 01:02:41] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:41  INFO      127.0.0.1 - - [16/Sep/2026 01:02:41] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:44  INFO      127.0.0.1 - - [16/Sep/2026 01:02:44] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:44  INFO      127.0.0.1 - - [16/Sep/2026 01:02:44] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:44  INFO      127.0.0.1 - - [16/Sep/2026 01:02:44] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:47  INFO      127.0.0.1 - - [16/Sep/2026 01:02:47] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:47  INFO      127.0.0.1 - - [16/Sep/2026 01:02:47] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:47  INFO      127.0.0.1 - - [16/Sep/2026 01:02:47] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:50  INFO      127.0.0.1 - - [16/Sep/2026 01:02:50] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:50  INFO      127.0.0.1 - - [16/Sep/2026 01:02:50] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:50  INFO      127.0.0.1 - - [16/Sep/2026 01:02:50] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:53  INFO      127.0.0.1 - - [16/Sep/2026 01:02:53] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:53  INFO      127.0.0.1 - - [16/Sep/2026 01:02:53] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:53  INFO      127.0.0.1 - - [16/Sep/2026 01:02:53] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:56  INFO      127.0.0.1 - - [16/Sep/2026 01:02:56] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:56  INFO      127.0.0.1 - - [16/Sep/2026 01:02:56] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:56  INFO      127.0.0.1 - - [16/Sep/2026 01:02:56] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:02:59  INFO      127.0.0.1 - - [16/Sep/2026 01:02:59] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:02:59  INFO      127.0.0.1 - - [16/Sep/2026 01:02:59] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:02:59  INFO      127.0.0.1 - - [16/Sep/2026 01:02:59] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:03:02  INFO      127.0.0.1 - - [16/Sep/2026 01:03:02] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:03:02  INFO      127.0.0.1 - - [16/Sep/2026 01:03:02] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:03:02  INFO      127.0.0.1 - - [16/Sep/2026 01:03:02] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:03:05  INFO      127.0.0.1 - - [16/Sep/2026 01:03:05] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:03:05  INFO      127.0.0.1 - - [16/Sep/2026 01:03:05] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:03:05  INFO      127.0.0.1 - - [16/Sep/2026 01:03:05] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:03:08  INFO      127.0.0.1 - - [16/Sep/2026 01:03:08] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:03:08  INFO      127.0.0.1 - - [16/Sep/2026 01:03:08] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:03:08  INFO      127.0.0.1 - - [16/Sep/2026 01:03:08] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:03:11  INFO      127.0.0.1 - - [16/Sep/2026 01:03:11] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:03:11  INFO      127.0.0.1 - - [16/Sep/2026 01:03:11] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:03:11  INFO      127.0.0.1 - - [16/Sep/2026 01:03:11] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:03:14  INFO      127.0.0.1 - - [16/Sep/2026 01:03:14] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:03:14  INFO      127.0.0.1 - - [16/Sep/2026 01:03:14] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:03:14  INFO      127.0.0.1 - - [16/Sep/2026 01:03:14] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:03:17  INFO      127.0.0.1 - - [16/Sep/2026 01:03:17] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:03:17  INFO      127.0.0.1 - - [16/Sep/2026 01:03:17] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:03:17  INFO      127.0.0.1 - - [16/Sep/2026 01:03:17] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:03:20  INFO      127.0.0.1 - - [16/Sep/2026 01:03:20] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:03:20  INFO      127.0.0.1 - - [16/Sep/2026 01:03:20] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:03:20  INFO      127.0.0.1 - - [16/Sep/2026 01:03:20] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:03:23  INFO      127.0.0.1 - - [16/Sep/2026 01:03:23] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:03:23  INFO      127.0.0.1 - - [16/Sep/2026 01:03:23] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:03:23  INFO      127.0.0.1 - - [16/Sep/2026 01:03:23] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:03:26  INFO      127.0.0.1 - - [16/Sep/2026 01:03:26] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:03:26  INFO      127.0.0.1 - - [16/Sep/2026 01:03:26] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:03:26  INFO      127.0.0.1 - - [16/Sep/2026 01:03:26] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:03:52  INFO      127.0.0.1 - - [16/Sep/2026 01:03:52] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:03:52  INFO      127.0.0.1 - - [16/Sep/2026 01:03:52] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:03:52  INFO      127.0.0.1 - - [16/Sep/2026 01:03:52] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:04:52  INFO      127.0.0.1 - - [16/Sep/2026 01:04:52] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:04:52  INFO      127.0.0.1 - - [16/Sep/2026 01:04:52] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:04:52  INFO      127.0.0.1 - - [16/Sep/2026 01:04:52] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:05:32  INFO      127.0.0.1 - - [16/Sep/2026 01:05:32] "GET /backtest HTTP/1.1" 200 -
+2026-09-16 01:05:42  INFO      127.0.0.1 - - [16/Sep/2026 01:05:42] "GET /backtest HTTP/1.1" 200 -
+2026-09-16 01:05:47  INFO      127.0.0.1 - - [16/Sep/2026 01:05:47] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:05:47  INFO      127.0.0.1 - - [16/Sep/2026 01:05:47] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:05:47  INFO      127.0.0.1 - - [16/Sep/2026 01:05:47] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:05:49  INFO      127.0.0.1 - - [16/Sep/2026 01:05:49] "GET / HTTP/1.1" 200 -
+2026-09-16 01:05:49  INFO      127.0.0.1 - - [16/Sep/2026 01:05:49] "GET /api/status HTTP/1.1" 200 -
+2026-09-16 01:05:49  INFO      127.0.0.1 - - [16/Sep/2026 01:05:49] "GET /api/account HTTP/1.1" 200 -
+2026-09-16 01:05:49  INFO      127.0.0.1 - - [16/Sep/2026 01:05:49] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 01:05:49  INFO      127.0.0.1 - - [16/Sep/2026 01:05:49] "GET /api/strategies HTTP/1.1" 200 -
+2026-09-16 01:05:50  INFO      127.0.0.1 - - [16/Sep/2026 01:05:50] "GET /backtest HTTP/1.1" 200 -
+2026-09-16 01:05:53  INFO      127.0.0.1 - - [16/Sep/2026 01:05:53] "GET /backtest HTTP/1.1" 200 -
+2026-09-16 01:05:54  INFO      127.0.0.1 - - [16/Sep/2026 01:05:54] "GET /backtest HTTP/1.1" 200 -
+2026-09-16 01:05:54  INFO      127.0.0.1 - - [16/Sep/2026 01:05:54] "GET /backtest HTTP/1.1" 200 -
+2026-09-16 01:05:55  INFO      127.0.0.1 - - [16/Sep/2026 01:05:55] "GET /backtest HTTP/1.1" 200 -
+2026-09-16 01:05:55  INFO      127.0.0.1 - - [16/Sep/2026 01:05:55] "GET /backtest HTTP/1.1" 200 -
+2026-09-16 01:05:55  INFO      127.0.0.1 - - [16/Sep/2026 01:05:55] "GET /backtest HTTP/1.1" 200 -
+2026-09-16 01:05:57  INFO      WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.101:5000
+2026-09-16 01:05:57  INFO      Press CTRL+C to quit
+2026-09-16 01:06:03  INFO      127.0.0.1 - - [16/Sep/2026 01:06:03] "GET /backtest HTTP/1.1" 200 -
+2026-09-16 01:06:14  INFO      Connected  |  Account: 91105889  |  Balance: 119.65 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 01:06:14  INFO      Bot Engine STARTED
+2026-09-16 01:06:14  INFO      WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.101:5000
+2026-09-16 01:06:14  INFO      Press CTRL+C to quit
+2026-09-16 01:06:16  INFO      127.0.0.1 - - [16/Sep/2026 01:06:16] "GET /backtest HTTP/1.1" 200 -
+2026-09-16 01:07:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4298.63 | SL: 4295.16 | TP: 4309.04
+2026-09-16 01:07:00  ERROR     open_position FAILED  |  retcode=10027  |  AutoTrading disabled by client
+2026-09-16 01:07:04  INFO      Connected  |  Account: 91105889  |  Balance: 119.65 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 01:07:04  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 01:07:09  INFO      127.0.0.1 - - [16/Sep/2026 01:07:09] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-09-16 01:08:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4298.62 | SL: 4295.16 | TP: 4309.0
+2026-09-16 01:08:00  ERROR     open_position FAILED  |  retcode=10027  |  AutoTrading disabled by client
+2026-09-16 01:10:08  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 01:10:12  INFO      127.0.0.1 - - [16/Sep/2026 01:10:12] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-09-16 01:11:04  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 01:11:08  INFO      127.0.0.1 - - [16/Sep/2026 01:11:08] "POST /api/backtest/run HTTP/1.1" 200 -
+2026-09-16 02:06:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4303.37 | SL: 4306.63 | TP: 4293.59
+2026-09-16 02:06:00  ERROR     open_position FAILED  |  retcode=10027  |  AutoTrading disabled by client
+2026-09-16 05:16:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4293.06 | SL: 4294.13 | TP: 4289.85
+2026-09-16 05:16:00  ERROR     open_position FAILED  |  retcode=10027  |  AutoTrading disabled by client
+2026-09-16 05:26:00  INFO      ⚡ EXECUTE BUY | Strategy: 3 EMA Crossover | Price: 4296.91 | SL: 4293.75 | TP: 4306.39
+2026-09-16 05:26:00  ERROR     open_position FAILED  |  retcode=10027  |  AutoTrading disabled by client
+2026-09-16 05:45:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4294.45 | SL: 4296.12 | TP: 4289.44
+2026-09-16 05:45:00  ERROR     open_position FAILED  |  retcode=10027  |  AutoTrading disabled by client
+2026-09-16 06:39:00  INFO      ⚡ EXECUTE SELL | Strategy: 3 EMA Crossover | Price: 4284.79 | SL: 4285.93 | TP: 4281.37
+2026-09-16 06:39:00  ERROR     open_position FAILED  |  retcode=10027  |  AutoTrading disabled by client
+2026-09-16 08:12:23  INFO      Connected  |  Account: 91105889  |  Balance: 119.65 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 08:14:36  INFO      Connected  |  Account: 91105889  |  Balance: 119.65 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 08:14:36  INFO      Bot Engine STARTED
+2026-09-16 08:14:37  INFO      WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.101:5000
+2026-09-16 08:14:37  INFO      Press CTRL+C to quit
+2026-09-16 08:14:41  INFO      127.0.0.1 - - [16/Sep/2026 08:14:41] "GET /backtest HTTP/1.1" 200 -
+2026-09-16 08:14:41  INFO      127.0.0.1 - - [16/Sep/2026 08:14:41] "GET /favicon.ico HTTP/1.1" 404 -
+2026-09-16 08:14:47  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 08:14:52  INFO      127.0.0.1 - - [16/Sep/2026 08:14:52] "POST /api/backtest/run HTTP/1.1" 200 -
