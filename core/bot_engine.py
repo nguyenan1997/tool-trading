@@ -20,6 +20,8 @@ class BotEngine:
         self.last_candle_time = None
         self.status = "Stopped"
         self._lock = threading.Lock()
+        self._pos_r = {}          # ticket -> R ban đầu (khoảng cách entry→SL)
+        self._partial_done = set()  # các ticket đã chốt một phần
 
     def start(self):
         with self._lock:
@@ -81,22 +83,49 @@ class BotEngine:
         # Chỉ quản lý lệnh của ĐÚNG chiến lược hiện tại (magic riêng)
         position = mt5h.get_open_position(config.SYMBOL, magic)
 
-        # ── BE-move: dời SL về giá mở lệnh khi đã lãi >= R lần ──
+        # ── Quản lý lệnh đang mở ──
+        #   1) Chốt một phần (partial TP) khi đạt partial_at_r × R
+        #   2) Dời SL về hòa vốn (BE) khi đạt be_move_at_r × R
         be_r = getattr(strategy, "be_move_at_r", 0)
-        if position is not None and be_r > 0 and position.sl:
+        part_r = getattr(strategy, "partial_at_r", 0)
+        part_f = getattr(strategy, "partial_frac", 0)
+
+        if position is not None and position.sl:
             info = mt5h.get_symbol_info(config.SYMBOL)
             tick = mt5h.get_tick(config.SYMBOL)
             if info and tick:
                 entry = position.price_open
                 stop = position.sl
-                dist = abs(entry - stop)
-                if dist > 0:
-                    buy_reach = (position.type == 0 and tick.bid >= entry + dist)
-                    sell_reach = (position.type == 1 and tick.ask <= entry - dist)
-                    digits = info.digits
-                    # Chưa BE: SL vẫn khác giá mở lệnh
-                    not_yet_be = round(stop, digits) != round(entry, digits)
-                    if (buy_reach or sell_reach) and not_yet_be:
+                digits = info.digits
+                not_yet_be = round(stop, digits) != round(entry, digits)
+
+                # Ghi nhớ R ban đầu khi SL còn ở mức gốc (chưa dời BE)
+                if position.ticket not in self._pos_r and not_yet_be:
+                    self._pos_r[position.ticket] = abs(entry - stop)
+                R = self._pos_r.get(position.ticket, 0.0)
+
+                price = tick.bid if position.type == 0 else tick.ask
+
+                # 1) Chốt một phần (chỉ 1 lần cho mỗi ticket)
+                if part_f > 0 and part_r > 0 and R > 0 and position.ticket not in self._partial_done:
+                    hit_part = (
+                        (position.type == 0 and price >= entry + part_r * R) or
+                        (position.type == 1 and price <= entry - part_r * R)
+                    )
+                    if hit_part:
+                        if mt5h.split_volume(position.volume, part_f, info) <= 0:
+                            # Khối lượng quá nhỏ để chia → bỏ qua vĩnh viễn cho ticket này
+                            self._partial_done.add(position.ticket)
+                        elif mt5h.close_position_partial(position, part_f, magic, "partial TP"):
+                            self._partial_done.add(position.ticket)
+
+                # 2) Dời SL về hòa vốn
+                if be_r > 0 and R > 0 and not_yet_be:
+                    hit_be = (
+                        (position.type == 0 and price >= entry + be_r * R) or
+                        (position.type == 1 and price <= entry - be_r * R)
+                    )
+                    if hit_be:
                         logger.info(
                             f"⚡ BE-MOVE  |  ticket={position.ticket}  |  "
                             f"SL {stop:.{digits}f} → {entry:.{digits}f}"
@@ -105,6 +134,15 @@ class BotEngine:
                             config.SYMBOL, position.ticket,
                             sl=round(entry, digits), tp=position.tp,
                         )
+
+        # Dọn bộ nhớ theo dõi các ticket đã đóng
+        open_tickets = {
+            p.ticket for p in mt5h.get_open_positions(config.SYMBOL, strategy_manager.get_magics())
+        }
+        for t in list(self._pos_r.keys()):
+            if t not in open_tickets:
+                self._pos_r.pop(t, None)
+                self._partial_done.discard(t)
 
         if position is None and signal:
             info = mt5h.get_symbol_info(config.SYMBOL)

@@ -90,10 +90,16 @@ Toàn bộ chỉ báo dùng nến **ĐÃ ĐÓNG** (shift 1 trên mỗi khung), k
   - BUY: `TP = entry + dist × 2`; SELL: `TP = entry - dist × 2`.
 - Nếu `ATR15` không hợp lệ (`NaN`/≤0) → **bỏ qua lệnh**.
 
-### Quản lý lệnh — Break-even move
-- Bot (không phải chiến lược) quản lý **BE-move**: khi giá thuận lợi đạt **`TM_BE_AT_R` = 1.0R** (tức lãi ≥ 1 lần khoảng cách SL ban đầu), bot **dời SL về đúng giá mở lệnh** (hòa vốn) qua `modify_position` (live) hoặc trong loop backtest (`engine._check_exit`).
-- Sau khi BE: nếu giá quay về entry → thoát **hòa vốn** (+0), nếu đi tiếp đến TP → +2R.
+### Quản lý lệnh — Chốt một phần (partial TP) + Break-even move
+- **Chốt một phần**: khi giá thuận lợi đạt **`TM_PARTIAL_AT_R` = 1.0R**, bot chốt **`TM_PARTIAL_FRAC` = 50%** khối lượng (`mt5_handler.close_position_partial`, gọi từ `bot_engine._on_candle_tick`). Phần còn lại tiếp tục giữ tới TP.
+  - Chỉ chốt **1 lần** cho mỗi ticket (theo dõi trong `bot_engine._partial_done`).
+  - **Lưu ý lot**: cần `lot ≥ 2 × volume_min` mới chia được. XAUUSD lot min 0.01 → cần **≥ 0.02 lot**; nếu 0.01 lot thì bot tự bỏ qua (vẫn dời BE bình thường).
+  - Đặt `TM_PARTIAL_FRAC = 0` để tắt.
+- **BE-move**: khi giá đạt **`TM_BE_AT_R` = 1.0R**, bot **dời SL về đúng giá mở lệnh** (hòa vốn) qua `modify_position`.
+- Sau khi chốt + BE: nếu giá quay về entry → phần còn lại thoát **hòa vốn** (lệnh vẫn lãi nhờ 50% đã chốt); nếu đi tiếp đến TP → phần còn lại ăn 2R.
 - Không có trailing stop thêm.
+
+> Hiệu quả đo được (100k nến M1, lot 0.01, vốn $100): chốt 50%@1R nâng win rate từ ~30% lên **~52–57%** ở cả train lẫn OOS, lợi nhuận thấp hơn đôi chút và drawdown giảm.
 
 ### Vì sao chỉ cần 20.000 nến M1?
 `TM_HISTORY_BARS = 20000` (≈ 14 ngày M1) để H1 có đủ 200 nến tính EMA200/ADX chuẩn, và M15 đủ để ATR ổn định. Bot nạp **đúng số nến này mỗi lần** tính tín hiệu (khác với 3EMA chỉ cần vài trăm nến).
@@ -133,5 +139,6 @@ Toàn bộ chỉ báo dùng nến **ĐÃ ĐÓNG** (shift 1 trên mỗi khung), k
 | SL | EMA21 | 1.5 × ATR(M15) |
 | TP | 3 × SL | 2 × SL |
 | BE-move | Không | Có (khi +1R) |
+| Chốt một phần | Không | Có (50% tại +1R, cần lot ≥ 0.02) |
 | Số nến cần nạp | nhỏ (~200) | 20000 |
 | Phong cách | Nhiều lệnh, win rate cao | Ít lệnh, payoff cao, lợi nhuận ròng tốt hơn |

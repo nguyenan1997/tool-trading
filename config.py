@@ -29,11 +29,19 @@ TM_SESSION      = (12, 21)  # (Giờ bắt đầu, giờ kết thúc) UTC — Lo
 TM_HISTORY_BARS = 20000     # Số nến M1 cần nạp để tính chỉ báo H1/M15
 TM_BE_AT_R      = 1.0       # Dời SL về hòa vốn khi giá thuận lợi đạt R lần này
 
+# --- Partial Take-Profit (chốt lời từng phần) ---
+# Khi giá đạt TM_PARTIAL_AT_R lần khoảng cách SL, chốt TM_PARTIAL_FRAC khối lượng.
+# Phần còn lại tiếp tục chạy tới TP; SL được dời về hòa vốn sau khi chốt.
+# Đặt TM_PARTIAL_FRAC = 0 để tắt. LƯU Ý: cần lot >= 2 × volume_min mới chia được
+# (XAUUSD lot min 0.01 → cần >= 0.02 lot; 0.01 lot sẽ tự bỏ qua).
+TM_PARTIAL_FRAC = 0.5       # Tỷ lệ khối lượng chốt sớm (0.5 = 50%)
+TM_PARTIAL_AT_R = 1.0       # Chốt khi giá đạt R lần này
+
 # --- Lot Size Mode ---
 # "FIXED"  → always use FIXED_LOT
 # "RISK"   → calculate lot based on RISK_PERCENT of balance
 LOT_MODE        = "FIXED"
-FIXED_LOT       = 0.01
+FIXED_LOT       = 0.02      # >= 0.02 để chốt một phần (partial TP) hoạt động
 RISK_PERCENT    = 10.0      # % of account balance per trade
 
 # --- Order Settings ---

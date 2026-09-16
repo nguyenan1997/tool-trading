@@ -6,6 +6,7 @@ Wrapper cho MetaTrader5 API: connect, lấy dữ liệu, đặt lệnh, đóng l
 import MetaTrader5 as mt5
 import pandas as pd
 import logging
+import math
 
 logger = logging.getLogger(__name__)
 
@@ -277,6 +278,80 @@ def close_position(position, magic: int, comment: str = "close") -> bool:
         return False
 
     logger.info(f"✅ CLOSED  |  Ticket={position.ticket}  |  Profit={position.profit:.2f}")
+    return True
+
+
+# ────────────────────────────────────────────────
+#  Partial Close (chốt lời từng phần)
+# ────────────────────────────────────────────────
+def split_volume(volume: float, frac: float, info) -> float:
+    """
+    Tính khối lượng cần đóng = volume × frac, làm tròn XUỐNG theo volume_step.
+    Trả về 0.0 nếu không thể chia hợp lệ (phần đóng hoặc phần còn lại < volume_min).
+    """
+    if info is None or frac <= 0 or frac >= 1:
+        return 0.0
+    step = info.volume_step or 0.01
+    vol = round(math.floor((volume * frac) / step + 1e-9) * step, 2)
+    remaining = round(volume - vol, 2)
+    if vol < info.volume_min - 1e-9 or remaining < info.volume_min - 1e-9:
+        return 0.0
+    return vol
+
+
+def close_position_partial(position, frac: float, magic: int = 0, comment: str = "partial") -> bool:
+    """
+    Đóng `frac` (0..1) khối lượng của vị thế. Phần còn lại giữ nguyên.
+    Trả về False nếu khối lượng quá nhỏ để chia (theo volume_min/volume_step) hoặc lỗi.
+    """
+    info = get_symbol_info(position.symbol)
+    if info is None:
+        return False
+
+    vol = split_volume(position.volume, frac, info)
+    if vol <= 0:
+        logger.info(
+            f"partial close BỎ QUA  |  volume={position.volume} quá nhỏ để chia "
+            f"(step={info.volume_step}, min={info.volume_min})"
+        )
+        return False
+
+    tick = get_tick(position.symbol)
+    if tick is None:
+        return False
+
+    if position.type == mt5.POSITION_TYPE_BUY:
+        price = tick.bid
+        mt5_type = mt5.ORDER_TYPE_SELL
+    else:
+        price = tick.ask
+        mt5_type = mt5.ORDER_TYPE_BUY
+
+    request = {
+        "action":       mt5.TRADE_ACTION_DEAL,
+        "symbol":       position.symbol,
+        "volume":       vol,
+        "type":         mt5_type,
+        "position":     position.ticket,
+        "price":        price,
+        "magic":        magic,
+        "comment":      comment,
+        "type_time":    mt5.ORDER_TIME_GTC,
+        "type_filling": mt5.ORDER_FILLING_IOC,
+    }
+
+    result = mt5.order_send(request)
+    if result.retcode != mt5.TRADE_RETCODE_DONE:
+        logger.error(
+            f"partial close FAILED  |  Ticket={position.ticket}  |  "
+            f"retcode={result.retcode}  |  {result.comment}"
+        )
+        return False
+
+    logger.info(
+        f"✂️ PARTIAL CLOSE  |  Ticket={position.ticket}  |  "
+        f"đóng {vol} lot, còn {remaining} lot"
+    )
     return True
 
 

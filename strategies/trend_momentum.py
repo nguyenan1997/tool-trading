@@ -61,6 +61,8 @@ class TrendMomentumStrategy(BaseStrategy):
         session=config.TM_SESSION,
         history_bars=config.TM_HISTORY_BARS,
         be_move_at_r=config.TM_BE_AT_R,
+        partial_frac=config.TM_PARTIAL_FRAC,
+        partial_at_r=config.TM_PARTIAL_AT_R,
         magic=config.MAGIC_TM,
     ):
         super().__init__("Trend Momentum", magic=magic)
@@ -74,6 +76,8 @@ class TrendMomentumStrategy(BaseStrategy):
         self.session = session
         self.history_bars = history_bars
         self.be_move_at_r = be_move_at_r
+        self.partial_frac = partial_frac
+        self.partial_at_r = partial_at_r
 
     def calculate_indicators(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()

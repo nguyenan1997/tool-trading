@@ -710,3 +710,10 @@
 2026-09-16 10:03:05  INFO      127.0.0.1 - - [16/Sep/2026 10:03:05] "GET /api/status HTTP/1.1" 200 -
 2026-09-16 10:03:05  INFO      127.0.0.1 - - [16/Sep/2026 10:03:05] "GET /api/account HTTP/1.1" 200 -
 2026-09-16 10:03:05  INFO      127.0.0.1 - - [16/Sep/2026 10:03:05] "GET /api/positions HTTP/1.1" 200 -
+2026-09-16 10:07:24  INFO      Connected  |  Account: 91105889  |  Balance: 119.65 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 10:07:24  INFO      Bot Engine STARTED
+2026-09-16 10:22:22  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-16 10:22:22  INFO      MT5 disconnected.
+2026-09-16 10:30:31  INFO      Connected  |  Account: 91105889  |  Balance: 119.65 USD  |  Broker: LiteFinance Global LLC
+2026-09-16 13:38:08  INFO      Bot Engine STARTED
+2026-09-16 13:38:08  INFO      Connected  |  Account: 91105889  |  Balance: 131.35 USD  |  Broker: LiteFinance Global LLC
