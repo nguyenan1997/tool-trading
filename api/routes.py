@@ -15,6 +15,7 @@ from strategies.manager import strategy_manager
 from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data
 from strategies.trend_momentum import TrendMomentumStrategy
+from strategies.asian_sweep import AsianSweepStrategy
 
 logger = logging.getLogger(__name__)
 
@@ -23,10 +24,24 @@ _ACCESS_LOG_RE = re.compile(r'"\s*(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+\
 
 
 def _build_strategy(data):
-    """Xây dựng chiến lược Trend Momentum theo tham số từ UI."""
+    """Xây dựng chiến lược theo tham số từ UI ('trend_momentum' | 'asian_sweep')."""
     def _num(key, default, cast=float):
         val = data.get(key)
         return cast(val) if val not in (None, "") else default
+
+    sid = (data.get("strategy") or "trend_momentum").strip().lower()
+
+    if sid == "asian_sweep":
+        s = AsianSweepStrategy()
+        s.range_start = _num("as_range_start", config.AS_RANGE_START, int)
+        s.range_end = _num("as_range_end", config.AS_RANGE_END, int)
+        s.kz_start = _num("as_kz_start", config.AS_KZ_START, int)
+        s.kz_end = _num("as_kz_end", config.AS_KZ_END, int)
+        s.retrace = _num("as_retrace", config.AS_RETRACE)
+        s.wait_min = _num("as_wait_min", config.AS_WAIT_MIN, int)
+        s.sl_buf_atr = _num("as_sl_buf_atr", config.AS_SL_BUF_ATR)
+        return s, "asian_sweep"
+
     return TrendMomentumStrategy(
         lookback=_num("tm_lookback", config.TM_LOOKBACK, int),
         rsi_period=_num("tm_rsi_period", config.TM_RSI_PERIOD, int),

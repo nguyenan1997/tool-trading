@@ -27,3 +27,11 @@ class BaseStrategy(ABC):
     def get_sl_tp(self, df: pd.DataFrame, entry_price: float, digits: int, order_type: str):
         """Tính toán SL và TP cho lệnh."""
         pass
+
+    def get_pending_setup(self, df: pd.DataFrame):
+        """
+        (Tùy chọn) Trả về lệnh chờ limit nếu chiến lược dùng entry hồi giá.
+        Dict: {"type": "BUY"/"SELL", "level": float, "sl": float, "tp": float, "wait_min": int}
+        Trả về None nếu không có setup. Mặc định: không dùng.
+        """
+        return None
