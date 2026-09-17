@@ -51,6 +51,8 @@ AS_KZ_START      = 9        # Killzone vào lệnh: 09:00 (broker) — phải < 
 AS_KZ_END        = 11       #                   11:59 (broker)
 AS_TP_MODE       = "range"  # "range" = biên đối diện vùng Á (hẹp) | "R" = bội số R
 AS_TP_R          = 3.0      # Dùng khi AS_TP_MODE = "R"
+AS_USE_BIAS      = True     # Lọc xu hướng H4: chỉ BUY khi giá > EMA(H4), SELL khi < EMA(H4)
+AS_BIAS_EMA      = 50       # Chu kỳ EMA trên H4 làm bias
 AS_RETRACE       = 0.5      # Hồi 50% từ điểm quét về giá đóng cây reclaim
 AS_WAIT_MIN      = 60       # Chờ tối đa (phút) sau tín hiệu
 AS_SL_BUF_ATR    = 0.2      # SL = điểm quét ± AS_SL_BUF_ATR × ATR(M15)

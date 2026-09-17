@@ -33,6 +33,8 @@ class AsianSweepStrategy(BaseStrategy):
         kz_start=config.AS_KZ_START,
         kz_end=config.AS_KZ_END,
         retrace=config.AS_RETRACE,
+        use_bias=config.AS_USE_BIAS,
+        bias_ema=config.AS_BIAS_EMA,
         tp_mode=config.AS_TP_MODE,
         tp_r=config.AS_TP_R,
         wait_min=config.AS_WAIT_MIN,
@@ -49,6 +51,8 @@ class AsianSweepStrategy(BaseStrategy):
         self.kz_start = kz_start
         self.kz_end = kz_end
         self.retrace = retrace
+        self.use_bias = use_bias
+        self.bias_ema = bias_ema
         self.tp_mode = tp_mode
         self.tp_r = tp_r
         self.wait_min = wait_min
@@ -90,6 +94,19 @@ class AsianSweepStrategy(BaseStrategy):
         m15 = m15[["ts", "atr15"]]
 
         base = pd.merge_asof(tmp, m15, on="ts", direction="backward")
+
+        # Bias H4 (EMA) — lọc xu hướng lớn (nến H4 đã đóng)
+        if self.use_bias:
+            h4 = (
+                tmp.set_index("ts")
+                .resample("4h")
+                .agg({"open": "first", "high": "max", "low": "min", "close": "last"})
+                .dropna()
+            )
+            h4["bias_ema"] = h4["close"].ewm(span=self.bias_ema, adjust=False).mean().shift(1)
+            h4 = h4.reset_index()[["ts", "bias_ema"]]
+            base = pd.merge_asof(base, h4, on="ts", direction="backward")
+
         base["hour"] = base["ts"].dt.hour
         base["date"] = base["ts"].dt.date
 
@@ -117,6 +134,9 @@ class AsianSweepStrategy(BaseStrategy):
 
         raw_buy = in_kz & base["swept_low_cum"] & (base["close"] > base["rlo"])
         raw_sell = in_kz & base["swept_high_cum"] & (base["close"] < base["rhi"])
+        if self.use_bias:
+            raw_buy = raw_buy & (base["close"] > base["bias_ema"])
+            raw_sell = raw_sell & (base["close"] < base["bias_ema"])
         base["sig_buy"] = raw_buy & (raw_buy.groupby(base["date"]).cumsum() == 1)
         base["sig_sell"] = raw_sell & (raw_sell.groupby(base["date"]).cumsum() == 1)
 
