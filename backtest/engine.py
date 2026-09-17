@@ -33,6 +33,7 @@ class Backtester:
         self.volume_step = volume_step
         self.trades = []
         self.current_position = None  # None | {"type": "BUY/SELL", "entry": float, "sl": float, "tp": float, "time": datetime}
+        self.pending = None           # lệnh chờ limit: {"type","level","sl","tp","expire_bar"}
 
     def _effective_partial_frac(self) -> float:
         """Tỷ lệ khối lượng chốt sớm thực tế (làm tròn theo volume_step).
@@ -68,6 +69,10 @@ class Backtester:
         for k in range(start_idx, n):
             candle = df.iloc[k]
 
+            # 0. Lệnh chờ limit (entry hồi giá): kiểm tra khớp trong nến k
+            if self.current_position is None and self.pending is not None:
+                self._try_fill_pending(candle, k)
+
             # 1. Sàn theo dõi SL/TP liên tục trong nến k (BUY khớp BID, SELL khớp ASK)
             if self.current_position is not None:
                 self._check_sl_tp(candle)
@@ -77,39 +82,103 @@ class Backtester:
                 self._manage_position(candle)
 
             # 3. Lúc nến k đóng, bot xét tín hiệu; vào lệnh tại open nến k+1
-            if self.current_position is None and (k + 1) < n:
+            if self.current_position is None and self.pending is None and (k + 1) < n:
                 # [-1] = nến k+1 (vừa mở, chưa đóng), [-2] = nến k (đã đóng) — giống
                 # df mà bot thật truyền vào check_signal/get_sl_tp.
                 sub_df = df.iloc[:k + 2]
-                signal = self.strategy.check_signal(sub_df)
 
-                if signal:
-                    next_candle = df.iloc[k + 1]
-                    open_price = next_candle["open"]
-                    # BUY khớp tại ASK = open + spread; SELL khớp tại BID = open
-                    if signal == "BUY":
-                        entry_price = round(open_price + self.spread, self.digits)
-                    else:
-                        entry_price = round(open_price, self.digits)
+                # Chiến lược dùng entry hồi giá → sinh lệnh chờ limit
+                setup = self.strategy.get_pending_setup(sub_df)
+                if setup:
+                    self.pending = {
+                        "type": setup["type"],
+                        "level": float(setup["level"]),
+                        "sl": float(setup["sl"]),
+                        "tp": float(setup["tp"]),
+                        "expire_bar": (k + 1) + int(setup.get("wait_min", 60)),
+                    }
+                else:
+                    signal = self.strategy.check_signal(sub_df)
 
-                    sl, tp = self.strategy.get_sl_tp(sub_df, entry_price, self.digits, signal)
+                    if signal:
+                        next_candle = df.iloc[k + 1]
+                        open_price = next_candle["open"]
+                        # BUY khớp tại ASK = open + spread; SELL khớp tại BID = open
+                        if signal == "BUY":
+                            entry_price = round(open_price + self.spread, self.digits)
+                        else:
+                            entry_price = round(open_price, self.digits)
 
-                    if sl and tp:
-                        self.current_position = {
-                            "type": signal,
-                            "entry": entry_price,
-                            "sl": sl,
-                            "tp": tp,
-                            "R": abs(entry_price - sl),
-                            "partial_frac": self._effective_partial_frac(),
-                            "partial_at_r": getattr(self.strategy, "partial_at_r", 0) or 0,
-                            "partial_done": False,
-                            "pnl_partial": 0.0,
-                            "entry_time": next_candle.name if hasattr(next_candle, 'name') else (k + 1)
-                        }
+                        sl, tp = self.strategy.get_sl_tp(sub_df, entry_price, self.digits, signal)
+
+                        if sl and tp:
+                            self.current_position = {
+                                "type": signal,
+                                "entry": entry_price,
+                                "sl": sl,
+                                "tp": tp,
+                                "R": abs(entry_price - sl),
+                                "partial_frac": self._effective_partial_frac(),
+                                "partial_at_r": getattr(self.strategy, "partial_at_r", 0) or 0,
+                                "partial_done": False,
+                                "pnl_partial": 0.0,
+                                "entry_time": next_candle.name if hasattr(next_candle, 'name') else (k + 1)
+                            }
 
         self._print_summary()
         return self.trades
+
+    def _try_fill_pending(self, candle, k):
+        """Mô phỏng lệnh chờ limit: khớp khi giá hồi tới `level` trong nến k.
+        BUY khớp tại ASK (= level + spread); SELL khớp tại BID (= level).
+        Hủy nếu giá chạm SL trước, hết hạn, hoặc vượt killzone."""
+        p = self.pending
+        if p is None:
+            return
+        if k > p["expire_bar"]:
+            self.pending = None
+            return
+
+        bid_high = candle["high"]
+        bid_low = candle["low"]
+        ask_high = candle["high"] + self.spread
+
+        if p["type"] == "BUY":
+            if bid_low <= p["sl"]:          # hỏng setup trước khi khớp
+                self.pending = None
+                return
+            if bid_low <= p["level"]:
+                entry = round(p["level"] + self.spread, self.digits)
+                sl = round(p["sl"], self.digits)
+                tp = round(p["tp"], self.digits)
+                self.pending = None
+                if entry - sl > 0:
+                    self._open_from_pending("BUY", entry, sl, tp, candle)
+        else:
+            if ask_high >= p["sl"]:
+                self.pending = None
+                return
+            if bid_high >= p["level"]:
+                entry = round(p["level"], self.digits)
+                sl = round(p["sl"], self.digits)
+                tp = round(p["tp"], self.digits)
+                self.pending = None
+                if sl - entry > 0:
+                    self._open_from_pending("SELL", entry, sl, tp, candle)
+
+    def _open_from_pending(self, typ, entry, sl, tp, candle):
+        self.current_position = {
+            "type": typ,
+            "entry": entry,
+            "sl": sl,
+            "tp": tp,
+            "R": abs(entry - sl),
+            "partial_frac": self._effective_partial_frac(),
+            "partial_at_r": getattr(self.strategy, "partial_at_r", 0) or 0,
+            "partial_done": False,
+            "pnl_partial": 0.0,
+            "entry_time": candle.name if hasattr(candle, 'name') else "N/A",
+        }
 
     def _check_sl_tp(self, candle):
         """Sàn khớp SL/TP TRONG nến. BUY theo BID, SELL theo ASK.

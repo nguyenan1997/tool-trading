@@ -23,6 +23,7 @@ class BotEngine:
         self._pos_r = {}          # ticket -> R ban đầu (khoảng cách entry→SL)
         self._partial_done = set()  # các ticket đã chốt một phần
         self._last_session_log = 0.0  # lần cuối ghi log phiên
+        self._pending = {}        # magic -> lệnh chờ limit {type, level, sl, tp, expire_ts}
 
     def start(self):
         with self._lock:
@@ -135,69 +136,12 @@ class BotEngine:
             mt5h.disconnect()
 
     def _on_candle_tick(self):
-        strategy = strategy_manager.get_current_strategy()
-        magic = getattr(strategy, "magic", config.MAGIC_TM)
-        count = getattr(strategy, "history_bars", 200)
-        df = mt5h.get_candles(config.SYMBOL, config.TIMEFRAME, count=count)
-        if df is None or len(df) < 50:
-            return
-
-        df = strategy.calculate_indicators(df)
-        signal = strategy.check_signal(df)
-        # Chỉ quản lý lệnh của ĐÚNG chiến lược hiện tại (magic riêng)
-        position = mt5h.get_open_position(config.SYMBOL, magic)
-
-        # ── Quản lý lệnh đang mở ──
-        #   1) Chốt một phần (partial TP) khi đạt partial_at_r × R
-        #   2) Dời SL về hòa vốn (BE) khi đạt be_move_at_r × R
-        be_r = getattr(strategy, "be_move_at_r", 0)
-        part_r = getattr(strategy, "partial_at_r", 0)
-        part_f = getattr(strategy, "partial_frac", 0)
-
-        if position is not None and position.sl:
-            info = mt5h.get_symbol_info(config.SYMBOL)
-            tick = mt5h.get_tick(config.SYMBOL)
-            if info and tick:
-                entry = position.price_open
-                stop = position.sl
-                digits = info.digits
-                not_yet_be = round(stop, digits) != round(entry, digits)
-
-                # Ghi nhớ R ban đầu khi SL còn ở mức gốc (chưa dời BE)
-                if position.ticket not in self._pos_r and not_yet_be:
-                    self._pos_r[position.ticket] = abs(entry - stop)
-                R = self._pos_r.get(position.ticket, 0.0)
-
-                price = tick.bid if position.type == 0 else tick.ask
-
-                # 1) Chốt một phần (chỉ 1 lần cho mỗi ticket)
-                if part_f > 0 and part_r > 0 and R > 0 and position.ticket not in self._partial_done:
-                    hit_part = (
-                        (position.type == 0 and price >= entry + part_r * R) or
-                        (position.type == 1 and price <= entry - part_r * R)
-                    )
-                    if hit_part:
-                        if mt5h.split_volume(position.volume, part_f, info) <= 0:
-                            # Khối lượng quá nhỏ để chia → bỏ qua vĩnh viễn cho ticket này
-                            self._partial_done.add(position.ticket)
-                        elif mt5h.close_position_partial(position, part_f, magic, "partial TP"):
-                            self._partial_done.add(position.ticket)
-
-                # 2) Dời SL về hòa vốn
-                if be_r > 0 and R > 0 and not_yet_be:
-                    hit_be = (
-                        (position.type == 0 and price >= entry + be_r * R) or
-                        (position.type == 1 and price <= entry - be_r * R)
-                    )
-                    if hit_be:
-                        logger.info(
-                            f"⚡ BE-MOVE  |  ticket={position.ticket}  |  "
-                            f"SL {stop:.{digits}f} → {entry:.{digits}f}"
-                        )
-                        mt5h.modify_position(
-                            config.SYMBOL, position.ticket,
-                            sl=round(entry, digits), tp=position.tp,
-                        )
+        # Chạy TẤT CẢ hệ thống đang bật — độc lập nhau (mỗi cái magic/trạng thái riêng)
+        for strategy in strategy_manager.get_active_strategies():
+            try:
+                self._process_strategy(strategy)
+            except Exception as e:
+                logger.error(f"Error in strategy {getattr(strategy, 'name', '?')}: {e}")
 
         # Dọn bộ nhớ theo dõi các ticket đã đóng
         open_tickets = {
@@ -208,16 +152,150 @@ class BotEngine:
                 self._pos_r.pop(t, None)
                 self._partial_done.discard(t)
 
-        if position is None and signal:
-            info = mt5h.get_symbol_info(config.SYMBOL)
+    def _process_strategy(self, strategy):
+        magic = getattr(strategy, "magic", config.MAGIC_TM)
+        count = getattr(strategy, "history_bars", 200)
+        df = mt5h.get_candles(config.SYMBOL, config.TIMEFRAME, count=count)
+        if df is None or len(df) < 50:
+            return
+        df = strategy.calculate_indicators(df)
+        position = mt5h.get_open_position(config.SYMBOL, magic)
+
+        # 1) Quản lý lệnh đang mở (partial + BE)
+        if position is not None:
+            self._manage_position(strategy, magic, position)
+            self._pending.pop(magic, None)   # đã có lệnh → hủy lệnh chờ
+        else:
+            # 2) Lệnh chờ limit (entry hồi giá) — nếu chiến lược dùng
+            self._process_pending(strategy, magic, df)
+
+        # 3) Vào lệnh market cho chiến lược dùng tín hiệu thường
+        if position is None and magic not in self._pending:
+            signal = strategy.check_signal(df)
+            if signal:
+                info = mt5h.get_symbol_info(config.SYMBOL)
+                tick = mt5h.get_tick(config.SYMBOL)
+                if not info or not tick:
+                    return
+                price = tick.ask if signal == "BUY" else tick.bid
+                sl, tp = strategy.get_sl_tp(df, price, info.digits, signal)
+                if sl and tp:
+                    lot = getattr(strategy, "lot", config.FIXED_LOT)
+                    comment = getattr(strategy, "comment", config.ORDER_COMMENT)
+                    logger.info(f"⚡ EXECUTE {signal} | Strategy: {strategy.name} | Price: {price} | SL: {sl} | TP: {tp}")
+                    mt5h.open_position(config.SYMBOL, signal, lot, sl, tp, magic, comment)
+
+    def _manage_position(self, strategy, magic, position):
+        #   1) Chốt một phần (partial TP) khi đạt partial_at_r × R
+        #   2) Dời SL về hòa vốn (BE) khi đạt be_move_at_r × R
+        be_r = getattr(strategy, "be_move_at_r", 0)
+        part_r = getattr(strategy, "partial_at_r", 0)
+        part_f = getattr(strategy, "partial_frac", 0)
+
+        if not position.sl:
+            return
+        info = mt5h.get_symbol_info(config.SYMBOL)
+        tick = mt5h.get_tick(config.SYMBOL)
+        if not info or not tick:
+            return
+
+        entry = position.price_open
+        stop = position.sl
+        digits = info.digits
+        not_yet_be = round(stop, digits) != round(entry, digits)
+
+        # Ghi nhớ R ban đầu khi SL còn ở mức gốc (chưa dời BE)
+        if position.ticket not in self._pos_r and not_yet_be:
+            self._pos_r[position.ticket] = abs(entry - stop)
+        R = self._pos_r.get(position.ticket, 0.0)
+
+        price = tick.bid if position.type == 0 else tick.ask
+
+        # 1) Chốt một phần (chỉ 1 lần cho mỗi ticket)
+        if part_f > 0 and part_r > 0 and R > 0 and position.ticket not in self._partial_done:
+            hit_part = (
+                (position.type == 0 and price >= entry + part_r * R) or
+                (position.type == 1 and price <= entry - part_r * R)
+            )
+            if hit_part:
+                if mt5h.split_volume(position.volume, part_f, info) <= 0:
+                    self._partial_done.add(position.ticket)
+                elif mt5h.close_position_partial(position, part_f, magic, "partial TP"):
+                    self._partial_done.add(position.ticket)
+
+        # 2) Dời SL về hòa vốn
+        if be_r > 0 and R > 0 and not_yet_be:
+            hit_be = (
+                (position.type == 0 and price >= entry + be_r * R) or
+                (position.type == 1 and price <= entry - be_r * R)
+            )
+            if hit_be:
+                logger.info(
+                    f"⚡ BE-MOVE  |  ticket={position.ticket}  |  "
+                    f"SL {stop:.{digits}f} → {entry:.{digits}f}"
+                )
+                mt5h.modify_position(
+                    config.SYMBOL, position.ticket,
+                    sl=round(entry, digits), tp=position.tp,
+                )
+
+    def _process_pending(self, strategy, magic, df):
+        p = self._pending.get(magic)
+
+        if p is not None:
+            # Hủy nếu hết hạn (thời gian chờ) hoặc vượt killzone
+            kz_end = getattr(strategy, "kz_end", None)
+            broker_hour = self._server_now().hour
+            expired = time.time() > p["expire_ts"]
+            if kz_end is not None and broker_hour >= (kz_end + 1) % 24:
+                expired = True
+            if expired:
+                logger.info(f"⏹️ HỦY LỆNH CHỜ | {strategy.name} | hết hạn")
+                self._pending.pop(magic, None)
+                return
+
             tick = mt5h.get_tick(config.SYMBOL)
-            if not info or not tick: return
-            
-            price = tick.ask if signal == "BUY" else tick.bid
-            sl, tp = strategy.get_sl_tp(df, price, info.digits, signal)
-            
-            if sl and tp:
-                logger.info(f"⚡ EXECUTE {signal} | Strategy: {strategy.name} | Price: {price} | SL: {sl} | TP: {tp}")
-                mt5h.open_position(config.SYMBOL, signal, config.FIXED_LOT, sl, tp, magic, config.ORDER_COMMENT)
+            if tick is None:
+                return
+            typ, lvl, sl, tp = p["type"], p["level"], p["sl"], p["tp"]
+
+            if typ == "BUY":
+                if tick.bid <= sl:   # setup hỏng trước khi khớp
+                    logger.info(f"⏹️ HỦY LỆNH CHỜ | {strategy.name} | giá chạm SL trước khi khớp")
+                    self._pending.pop(magic, None)
+                    return
+                if tick.bid <= lvl:
+                    lot = getattr(strategy, "lot", config.FIXED_LOT)
+                    comment = getattr(strategy, "comment", config.ORDER_COMMENT)
+                    logger.info(f"🎯 LIMIT KHỚP BUY | {strategy.name} | level={lvl:.2f} | ask={tick.ask:.2f}")
+                    if mt5h.open_position(config.SYMBOL, "BUY", lot, sl, tp, magic, comment):
+                        self._pending.pop(magic, None)
+            else:
+                if tick.ask >= sl:
+                    logger.info(f"⏹️ HỦY LỆNH CHỜ | {strategy.name} | giá chạm SL trước khi khớp")
+                    self._pending.pop(magic, None)
+                    return
+                if tick.bid >= lvl:
+                    lot = getattr(strategy, "lot", config.FIXED_LOT)
+                    comment = getattr(strategy, "comment", config.ORDER_COMMENT)
+                    logger.info(f"🎯 LIMIT KHỚP SELL | {strategy.name} | level={lvl:.2f} | bid={tick.bid:.2f}")
+                    if mt5h.open_position(config.SYMBOL, "SELL", lot, sl, tp, magic, comment):
+                        self._pending.pop(magic, None)
+            return
+
+        # Chưa có lệnh chờ → hỏi chiến lược có setup mới không
+        setup = strategy.get_pending_setup(df)
+        if setup:
+            self._pending[magic] = {
+                "type": setup["type"],
+                "level": float(setup["level"]),
+                "sl": float(setup["sl"]),
+                "tp": float(setup["tp"]),
+                "expire_ts": time.time() + float(setup.get("wait_min", 60)) * 60.0,
+            }
+            logger.info(
+                f"📌 LỆNH CHỜ {setup['type']} | {strategy.name} | "
+                f"level={setup['level']:.2f} | SL={setup['sl']:.2f} | TP={setup['tp']:.2f}"
+            )
 
 bot_engine = BotEngine()

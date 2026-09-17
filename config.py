@@ -32,6 +32,40 @@ TM_MIN_ATR_PCT  = 0.5       # Chỉ trade khi ATR(M15) nằm ở nửa trên c�
 TM_PARTIAL_FRAC = 0.5       # Tỷ lệ khối lượng chốt sớm (0.5 = 50%)
 TM_PARTIAL_AT_R = 1.0       # Chốt khi giá đạt R lần này
 
+# ============================================================
+#  ASIAN SWEEP (ICT) STRATEGY — HỆ THỐNG 2, TÁCH BIỆT HOÀN TOÀN
+# ------------------------------------------------------------
+# Trade NGOÀI khung Trend Momentum (TM = 12–21h broker).
+# Ý tưởng: vùng Á (04–07h) tích lũy → killzone sớm Âu (10–11h)
+#   giá QUÉT biên vùng Á rồi reclaim → vào LIMIT hồi 50% cây reclaim.
+#   SL sau điểm quét, TP = biên đối diện vùng Á.
+# ============================================================
+AS_ENABLED       = True
+MAGIC_ASIAN      = 20260321
+AS_COMMENT       = "AsianSweep_Bot"
+AS_LOT           = 0.02
+
+AS_RANGE_START   = 4        # Vùng Á: 04:00 (broker)
+AS_RANGE_END     = 7        #        07:59 (broker)
+AS_KZ_START      = 9        # Killzone vào lệnh: 09:00 (broker) — phải < TM_SESSION[0]
+AS_KZ_END        = 11       #                   11:59 (broker)
+AS_TP_MODE       = "range"  # "range" = biên đối diện vùng Á (hẹp) | "R" = bội số R
+AS_TP_R          = 3.0      # Dùng khi AS_TP_MODE = "R"
+AS_USE_BIAS      = True     # Lọc xu hướng H4: chỉ BUY khi giá > EMA(H4), SELL khi < EMA(H4)
+AS_BIAS_EMA      = 50       # Chu kỳ EMA trên H4 làm bias
+AS_RETRACE       = 0.5      # Hồi 50% từ điểm quét về giá đóng cây reclaim
+AS_WAIT_MIN      = 60       # Chờ tối đa (phút) sau tín hiệu
+AS_SL_BUF_ATR    = 0.2      # SL = điểm quét ± AS_SL_BUF_ATR × ATR(M15)
+AS_MIN_SWEEP_ATR = 0.2      # Yêu cầu quét vượt biên Á ít nhất bội ATR(M15) này (0 = tắt)
+                            # Giúp winrate 44%→65%, PF 2.44→3.44, chuỗi thua 6→3.
+AS_ATR_LO        = 0.0      # Lọc biến động: chỉ trade khi ATR rank >= mức này (0 = tắt)
+AS_ATR_HI        = 1.0      #                          ATR rank <= mức này (1 = tắt)
+AS_HISTORY_BARS  = 5000     # Số nến M1 nạp cho chiến lược này
+
+AS_PARTIAL_FRAC  = 0.5      # Chốt một phần (như TM)
+AS_PARTIAL_AT_R  = 1.0
+AS_BE_AT_R       = 1.0      # Dời SL về hòa vốn khi +1R
+
 # --- Lot Size Mode ---
 # "FIXED"  → always use FIXED_LOT
 # "RISK"   → calculate lot based on RISK_PERCENT of balance

@@ -282,6 +282,12 @@
                         <span><span class="tag tag-mtf">M1 · M15 · H1</span></span>
                         <p>Chỉ vào lệnh khi xu hướng lớn rõ ràng (ADX/EMA200 H1), phá đỉnh/đáy M1 + RSI. Ít lệnh, lợi nhuận ròng cao hơn.</p>
                     </label>
+                    <label class="strat-card" onclick="selectStrategy('asian_sweep', this)">
+                        <input type="radio" name="strategy" value="asian_sweep">
+                        <b>Asian Sweep (ICT)</b>
+                        <span><span class="tag tag-mtf">M1 · M15</span></span>
+                        <p>Quét biên vùng Á (04–07h broker) → reclaim trong killzone 10–11h → vào LIMIT hồi 50%. Chạy NGOÀI khung Trend Momentum.</p>
+                    </label>
                 </div>
 
                 <div class="section">
@@ -441,7 +447,7 @@
             }
         }
 
-        const strategyNames = { 'trend_momentum': 'Trend Momentum' };
+        const strategyNames = { 'trend_momentum': 'Trend Momentum', 'asian_sweep': 'Asian Sweep (ICT)' };
 
         /* ── Tính thêm chỉ số từ danh sách lệnh ── */
         function computeStats(data) {
