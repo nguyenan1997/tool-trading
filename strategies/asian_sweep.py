@@ -39,6 +39,9 @@ class AsianSweepStrategy(BaseStrategy):
         tp_r=config.AS_TP_R,
         wait_min=config.AS_WAIT_MIN,
         sl_buf_atr=config.AS_SL_BUF_ATR,
+        min_sweep_atr=config.AS_MIN_SWEEP_ATR,
+        atr_lo=config.AS_ATR_LO,
+        atr_hi=config.AS_ATR_HI,
         history_bars=config.AS_HISTORY_BARS,
         partial_frac=config.AS_PARTIAL_FRAC,
         partial_at_r=config.AS_PARTIAL_AT_R,
@@ -57,6 +60,9 @@ class AsianSweepStrategy(BaseStrategy):
         self.tp_r = tp_r
         self.wait_min = wait_min
         self.sl_buf_atr = sl_buf_atr
+        self.min_sweep_atr = min_sweep_atr
+        self.atr_lo = atr_lo
+        self.atr_hi = atr_hi
         self.history_bars = history_bars
         self.partial_frac = partial_frac
         self.partial_at_r = partial_at_r
@@ -127,8 +133,9 @@ class AsianSweepStrategy(BaseStrategy):
         base["day_low"] = base.groupby("date")["_lo_kz"].cummin()
         base["day_high"] = base.groupby("date")["_hi_kz"].cummax()
 
-        base["swept_low"] = in_kz & (base["low"] < base["rlo"])
-        base["swept_high"] = in_kz & (base["high"] > base["rhi"])
+        sweep_off = self.min_sweep_atr * base["atr15"]
+        base["swept_low"] = in_kz & (base["low"] < (base["rlo"] - sweep_off))
+        base["swept_high"] = in_kz & (base["high"] > (base["rhi"] + sweep_off))
         base["swept_low_cum"] = base.groupby("date")["swept_low"].cummax()
         base["swept_high_cum"] = base.groupby("date")["swept_high"].cummax()
 
@@ -137,6 +144,11 @@ class AsianSweepStrategy(BaseStrategy):
         if self.use_bias:
             raw_buy = raw_buy & (base["close"] > base["bias_ema"])
             raw_sell = raw_sell & (base["close"] < base["bias_ema"])
+        if self.atr_lo > 0 or self.atr_hi < 1:
+            atr_rank = base["atr15"].rolling(1440).rank(pct=True)
+            band = atr_rank.between(self.atr_lo, self.atr_hi)
+            raw_buy = raw_buy & band
+            raw_sell = raw_sell & band
         base["sig_buy"] = raw_buy & (raw_buy.groupby(base["date"]).cumsum() == 1)
         base["sig_sell"] = raw_sell & (raw_sell.groupby(base["date"]).cumsum() == 1)
 

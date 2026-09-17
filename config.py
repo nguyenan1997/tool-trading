@@ -56,6 +56,10 @@ AS_BIAS_EMA      = 50       # Chu kỳ EMA trên H4 làm bias
 AS_RETRACE       = 0.5      # Hồi 50% từ điểm quét về giá đóng cây reclaim
 AS_WAIT_MIN      = 60       # Chờ tối đa (phút) sau tín hiệu
 AS_SL_BUF_ATR    = 0.2      # SL = điểm quét ± AS_SL_BUF_ATR × ATR(M15)
+AS_MIN_SWEEP_ATR = 0.2      # Yêu cầu quét vượt biên Á ít nhất bội ATR(M15) này (0 = tắt)
+                            # Giúp winrate 44%→65%, PF 2.44→3.44, chuỗi thua 6→3.
+AS_ATR_LO        = 0.0      # Lọc biến động: chỉ trade khi ATR rank >= mức này (0 = tắt)
+AS_ATR_HI        = 1.0      #                          ATR rank <= mức này (1 = tắt)
 AS_HISTORY_BARS  = 5000     # Số nến M1 nạp cho chiến lược này
 
 AS_PARTIAL_FRAC  = 0.5      # Chốt một phần (như TM)

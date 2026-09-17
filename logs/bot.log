@@ -1080,3 +1080,14 @@ ValueError: list.index(x): x not in list
 2026-09-17 16:07:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 16:07
 2026-09-17 16:12:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 16:12
 2026-09-17 16:18:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 16:18
+2026-09-17 16:23:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 16:23
+2026-09-17 16:25:53  INFO      Connected  |  Account: 91105889  |  Balance: 200.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-17 16:25:53  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-17 16:29:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 16:29
+2026-09-17 16:34:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 16:34
+2026-09-17 16:40:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 16:40
+2026-09-17 16:40:11  INFO      Connected  |  Account: 91105889  |  Balance: 200.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-17 16:40:11  INFO      Bot Engine STARTED
+2026-09-17 16:40:18  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-17 16:40:32  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-17 16:41:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 16:41
