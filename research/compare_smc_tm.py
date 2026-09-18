@@ -24,7 +24,7 @@ from strategies.trend_momentum import TrendMomentumStrategy
 M1_FILE = "backtest/data/XAUUSD_M1_100000.csv"
 SPREAD = 0.22
 DIGITS = 2
-LOT = 0.01
+LOT = 0.02   # partial 50%@1R (mặc định SMC + TM) cần lot >= 0.02
 INITIAL = 1000.0
 
 

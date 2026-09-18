@@ -48,6 +48,7 @@ class SMCSweepChochStrategy(BaseStrategy):
         zone_lookback=config.SMC_ZONE_LOOKBACK,
         entry_frac=config.SMC_ENTRY_FRAC,
         require_fvg=config.SMC_REQUIRE_FVG,
+        entry_mode=config.SMC_ENTRY_MODE,
         use_bias=config.SMC_USE_BIAS,
         bias_ema=config.SMC_BIAS_EMA,
         sl_buf_atr=config.SMC_SL_BUF_ATR,
@@ -61,6 +62,8 @@ class SMCSweepChochStrategy(BaseStrategy):
         partial_frac=config.SMC_PARTIAL_FRAC,
         partial_at_r=config.SMC_PARTIAL_AT_R,
         be_move_at_r=config.SMC_BE_AT_R,
+        trail_at_r=config.SMC_TRAIL_AT_R,
+        trail_gap_r=config.SMC_TRAIL_GAP_R,
         magic=config.MAGIC_SMC,
     ):
         super().__init__("SMC Sweep→CHoCH→OB/FVG", magic=magic)
@@ -76,6 +79,7 @@ class SMCSweepChochStrategy(BaseStrategy):
         self.zone_lookback = zone_lookback
         self.entry_frac = entry_frac
         self.require_fvg = require_fvg
+        self.entry_mode = str(entry_mode).lower()
         self.use_bias = use_bias
         self.bias_ema = bias_ema
         self.sl_buf_atr = sl_buf_atr
@@ -89,6 +93,8 @@ class SMCSweepChochStrategy(BaseStrategy):
         self.partial_frac = partial_frac
         self.partial_at_r = partial_at_r
         self.be_move_at_r = be_move_at_r
+        self.trail_at_r = trail_at_r
+        self.trail_gap_r = trail_gap_r
         self.lot = config.SMC_LOT
         self.comment = config.SMC_COMMENT
         self.timeframe = "M5"
@@ -237,9 +243,10 @@ class SMCSweepChochStrategy(BaseStrategy):
                     elif close[i] > ref_high and (close[i] - open_[i]) >= self.disp_atr * a:
                         zone = self._bull_zone(i, base, low, high, close, open_)
                         if zone is not None:
-                            res = self._build_buy(
-                                zone, sweep_low, close[i], a, pdh[i]
-                            )
+                            if self.entry_mode == "market":
+                                res = self._market_buy(zone, sweep_low, close[i], a)
+                            else:
+                                res = self._build_buy(zone, sweep_low, close[i], a, pdh[i])
                             if res is not None:
                                 lvl_buy[i], sl_buy[i], tp_buy[i] = res
                                 sig_buy[i] = True
@@ -260,9 +267,10 @@ class SMCSweepChochStrategy(BaseStrategy):
                     elif close[i] < ref_low and (open_[i] - close[i]) >= self.disp_atr * a:
                         zone = self._bear_zone(i, base, low, high, close, open_)
                         if zone is not None:
-                            res = self._build_sell(
-                                zone, sweep_high, close[i], a, pdl[i]
-                            )
+                            if self.entry_mode == "market":
+                                res = self._market_sell(zone, sweep_high, close[i], a)
+                            else:
+                                res = self._build_sell(zone, sweep_high, close[i], a, pdl[i])
                             if res is not None:
                                 lvl_sell[i], sl_sell[i], tp_sell[i] = res
                                 sig_sell[i] = True
@@ -402,6 +410,27 @@ class SMCSweepChochStrategy(BaseStrategy):
             return None
         return float(entry), float(sl), float(tp)
 
+    # --- Vào MARKET ngay khi CHoCH (không chờ hồi) ---
+    def _market_buy(self, zone, sweep_low, ref, a):
+        zl, zh = zone
+        if not (np.isfinite(zl) and np.isfinite(zh)) or zh <= zl:
+            return None
+        sl = min(sweep_low, zl) - self.sl_buf_atr * a
+        R = ref - sl
+        if R <= 0 or R < self.min_r_atr * a or R > self.max_r_atr * a:
+            return None
+        return float(ref), float(sl), float("nan")
+
+    def _market_sell(self, zone, sweep_high, ref, a):
+        zl, zh = zone  # zl < zh
+        if not (np.isfinite(zl) and np.isfinite(zh)) or zh <= zl:
+            return None
+        sl = max(sweep_high, zh) + self.sl_buf_atr * a
+        R = sl - ref
+        if R <= 0 or R < self.min_r_atr * a or R > self.max_r_atr * a:
+            return None
+        return float(ref), float(sl), float("nan")
+
     def _tp(self, typ, entry, R, liq):
         if str(self.tp_mode).upper() == "LIQ" and np.isfinite(liq):
             if typ == "BUY" and liq > entry + 0.5 * R:
@@ -414,10 +443,20 @@ class SMCSweepChochStrategy(BaseStrategy):
     # Interface với bot/backtester
     # ------------------------------------------------------------------
     def check_signal(self, df: pd.DataFrame):
+        if self.entry_mode != "market" or len(df) < 3:
+            return None
+        sig = df.iloc[-2]
+        try:
+            if bool(sig.get("smc_sig_buy", False)) and np.isfinite(float(sig["smc_sl_buy"])):
+                return "BUY"
+            if bool(sig.get("smc_sig_sell", False)) and np.isfinite(float(sig["smc_sl_sell"])):
+                return "SELL"
+        except Exception:
+            return None
         return None
 
     def get_pending_setup(self, df: pd.DataFrame):
-        if len(df) < 3:
+        if self.entry_mode == "market" or len(df) < 3:
             return None
         sig = df.iloc[-2]
         try:
@@ -440,4 +479,20 @@ class SMCSweepChochStrategy(BaseStrategy):
         return None
 
     def get_sl_tp(self, df, entry_price, digits, order_type):
-        return None, None
+        if self.entry_mode != "market" or len(df) < 3:
+            return None, None
+        sig = df.iloc[-2]
+        try:
+            if order_type == "BUY":
+                sl = float(sig["smc_sl_buy"])
+                R = entry_price - sl
+                tp = entry_price + self.tp_r * R
+            else:
+                sl = float(sig["smc_sl_sell"])
+                R = sl - entry_price
+                tp = entry_price - self.tp_r * R
+        except Exception:
+            return None, None
+        if not all(np.isfinite((sl, tp))) or R <= 0:
+            return None, None
+        return round(sl, int(digits)), round(tp, int(digits))

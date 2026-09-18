@@ -72,9 +72,11 @@ AS_BE_AT_R       = 1.0      # Dời SL về hòa vốn khi +1R
 # Mô hình SMC đầy đủ:
 #   1. Trong killzone, giá QUÉT thanh khoản (PDH/PDL, biên Á, swing gần nhất).
 #   2. Chờ CHoCH trên M5 (đóng nến phá swing đối diện) + displacement.
-#   3. Xác định vùng vào lệnh: ưu tiên FVG, không có thì Order Block.
-#   4. Vào LIMIT tại CE (50% vùng); SL sau điểm quét; TP theo R hoặc thanh khoản.
-# Mặc định SMC_ENABLED = False — chỉ nghiên cứu, chưa bật cho bot live.
+#   3. Xác định vùng vào lệnh: FVG (bắt buộc) — nếu không có thì bỏ qua setup.
+#   4. Vào LIMIT tại CE (50% vùng); SL sau điểm quét; TP 3R.
+#   5. Chốt 50% khối lượng tại 1R, phần còn lại chạy tới TP.
+# CẤU HÌNH ĐÃ CHỐT (FINAL) — đã tích hợp bot live + backtest. Không đổi nếu
+# chưa kiểm chứng lại độ ổn định trên nhiều mẫu (xem research/smc_*_stability.py).
 # ============================================================
 SMC_ENABLED       = True     # Đã tích hợp vào hệ thống (chọn được ở UI / backtest)
 MAGIC_SMC         = 20260401
@@ -100,6 +102,7 @@ SMC_ZONE_LOOKBACK = 12       # Tìm FVG/OB trong bao nhiêu nến trước nến
 SMC_ENTRY_FRAC    = 0.5      # 0 = mép gần (proximal), 0.5 = CE (giữa vùng), 1 = mép xa
 SMC_REQUIRE_FVG   = True     # True = bắt buộc có FVG, bỏ qua setup chỉ có OB
                              # (đã kiểm chứng: bắt buộc FVG cho kết quả tốt và ổn định hơn)
+SMC_ENTRY_MODE    = "limit"  # "limit" = chờ hồi về CE (mặc định) | "market" = vào ngay khi CHoCH
 
 # --- Bias HTF & quản lý lệnh ---
 SMC_USE_BIAS      = False    # Lọc theo EMA H1 (BUY khi giá > EMA, SELL khi < EMA)
@@ -113,10 +116,14 @@ SMC_TP_R          = 3.0      # Dùng khi SMC_TP_MODE = "R"
 SMC_PEND_MIN      = 120      # Số PHÚT lệnh limit chờ khớp trước khi hủy (= 24 nến M5)
 SMC_ONE_PER_DAY   = True     # Tối đa 1 setup mỗi hướng mỗi ngày
 
-# --- Partial / BE (mặc định tắt cho SMC: giữ R:R thuần) ---
-SMC_PARTIAL_FRAC  = 0.0
-SMC_PARTIAL_AT_R  = 0.0
-SMC_BE_AT_R       = 0.0
+# --- Partial / BE / Trailing (đã kiểm chứng độ ổn định) ---
+# partial 50%@1R: PF ngang, DD giảm ~30-40%, win rate ~50% → mặc định cho SMC.
+# Cần lot >= 2×volume_min (XAUUSD: >= 0.02) mới chốt một phần được.
+SMC_PARTIAL_FRAC  = 0.5      # Chốt 50% khối lượng khi đạt 1R
+SMC_PARTIAL_AT_R  = 1.0
+SMC_BE_AT_R       = 0.0      # Dời SL hòa vốn (tắt: partial đã dời được SL sau khi chốt)
+SMC_TRAIL_AT_R    = 0.0      # Trailing stop (tắt: kém ổn định trong test)
+SMC_TRAIL_GAP_R   = 1.0
 
 # --- Lot Size Mode ---
 # "FIXED"  → always use FIXED_LOT

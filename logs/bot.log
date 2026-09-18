@@ -1472,3 +1472,24 @@ ValueError: list.index(x): x not in list
 2026-09-19 01:20:00  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
 2026-09-19 01:21:01  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
 2026-09-19 01:24:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 01:24
+2026-09-19 01:27:57  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-19 01:27:57  ERROR     copy_rates_from_pos failed for XAUUSD M5 → (-2, 'Terminal: Invalid params')
+2026-09-19 01:28:20  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-19 01:29:10  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-19 01:30:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 01:30
+2026-09-19 01:36:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 01:36
+2026-09-19 01:37:39  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-19 01:38:00  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-19 01:41:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 01:41
+2026-09-19 01:47:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 01:47
+2026-09-19 01:52:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 01:52
+2026-09-19 01:56:14  INFO      Connected  |  Account: 91454560  |  Balance: 206.48 USD  |  Broker: LiteFinance Global LLC
+2026-09-19 01:56:14  INFO      Bot Engine STARTED
+2026-09-19 01:56:48  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-19 01:57:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 01:57
+2026-09-19 01:57:02  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-19 02:02:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 13h57m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 02:02
+2026-09-19 02:08:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 13h51m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 02:08
+2026-09-19 02:13:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 13h46m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 02:13
+2026-09-19 02:19:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 13h41m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 02:19
+2026-09-19 02:24:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 13h35m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 02:24

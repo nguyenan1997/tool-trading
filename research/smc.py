@@ -24,7 +24,7 @@ from strategies.smc import SMCSweepChochStrategy
 SYMBOL = "XAUUSD"
 SPREAD = 0.22
 DIGITS = 2
-LOT = 0.01
+LOT = 0.02          # SMC mặc định dùng partial 50%@1R (cần lot >= 0.02)
 INITIAL = 1000.0
 GAP_HOURS = 4
 DATA_FILES = [

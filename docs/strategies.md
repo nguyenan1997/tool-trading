@@ -101,9 +101,18 @@ Chiến lược Smart Money Concept chạy trên **XAUUSD M5**, dùng lệnh **L
    **SL** sau điểm quét ± `SMC_SL_BUF_ATR`×ATR; **TP** = `SMC_TP_R`×R.
 5. Tối đa 1 setup mỗi hướng mỗi ngày; lệnh chờ hủy sau `SMC_PEND_MIN` phút.
 
-### Kết quả backtest tham khảo (XAUUSD M5, 0.01 lot, vốn , 2026-02→09)
-- 101 lệnh · Win rate **35.6%** · PF **2.10** · Expectancy **+.05/lệnh** · Max DD **6.0%**.
-- OOS (30% cuối) PF 2.16; walk-forward 4 fold PF 2.54 / 0.99 / 2.40 / 2.43.
+### Cách chốt lời (mặc định: partial 50%@1R)
+- Chốt **50% khối lượng tại 1R** (`SMC_PARTIAL_FRAC = 0.5`, `SMC_PARTIAL_AT_R = 1.0`),
+  phần còn lại chạy tới **TP 3R** (`SMC_TP_R = 3.0`). Không trailing, không dời BE.
+- Yêu cầu **lot ≥ 0.02** (XAUUSD volume_min 0.01) mới chia được khối lượng.
+- Đã kiểm chứng ổn định (3 mẫu × 4 fold):
+  partial 50%@1R cho PF ngang/cao hơn, **DD giảm ~30–40%**, **WR ~50%**;
+  trailing và TP-theo-thanh-khoản kém ổn định nên không dùng.
+
+### Kết quả backtest tham khảo (XAUUSD M5, vốn $1000, lot 0.02, partial 50%@1R, 2026-02→09)
+- 101 lệnh · Win rate **49.5%** · PF **2.17** · Expectancy **+$9.15/lệnh** · Max DD **6.1%**.
+- OOS (30% cuối) PF 2.18; walk-forward 4 fold: worst **1.04**, mean **2.20**.
+- So với TP 3R thuần: PF 2.10, DD 9.7%, net $1222 → partial đổi ~25% lãi lấy DD thấp và WR cao.
 
 ### Hệ thống backtest
 - **API**: `POST /api/backtest/run` (tham số `strategy=smc`) → trả về
@@ -120,3 +129,41 @@ Chiến lược Smart Money Concept chạy trên **XAUUSD M5**, dùng lệnh **L
   vị thế đang mở của chính nó.
 - Mẫu backtest còn nhỏ (~100 lệnh) và lợi nhuận phụ thuộc vài lệnh thắng lớn —
   nên forward-test trên demo trước khi tăng vốn.
+
+### Cách vào lệnh (`SMC_ENTRY_MODE`)
+`limit` (mặc định) = chờ hồi về CE của FVG/OB; `market` = vào ngay khi CHoCH.
+Đã kiểm chứng độ ổn định (3 mẫu × 4 fold):
+`market` nhiều lệnh hơn nhưng PF thấp hơn nhiều (~1.28 vs ~2.0) và drawdown
+gấp ~3 lần (~18–20% vs ~6%); `limit` vẫn tốt hơn rõ rệt nên GIỮ mặc định.
+
+---
+
+## 4. Cấu hình CHỐT (FINAL) — SMC Sweep→CHoCH→FVG
+
+| Tham số | Giá trị | Ghi chú |
+|---|---|---|
+| Khung / sản phẩm | M5 · XAUUSD | bot tự chọn M5 khi bật SMC |
+| Killzone | 07–11h, 12–16h (broker) | `SMC_KILLZONES` |
+| Swing K | 2 | `SMC_SWING_K` |
+| Quét tối thiểu | 0.3 × ATR(M5) | `SMC_MIN_SWEEP_ATR` |
+| Chờ CHoCH | 24 nến | `SMC_CHOCH_WAIT` |
+| Displacement | 0.4 × ATR | `SMC_DISP_ATR` |
+| Vùng vào lệnh | **FVG bắt buộc** | `SMC_REQUIRE_FVG = True` |
+| Tìm vùng | 12 nến | `SMC_ZONE_LOOKBACK` |
+| Cách vào | **LIMIT tại CE (0.5)** | `SMC_ENTRY_MODE = "limit"` |
+| Chờ khớp | 120 phút | `SMC_PEND_MIN` |
+| SL | sau điểm quét ± 0.2×ATR | `SMC_SL_BUF_ATR` |
+| R tối đa | 6 × ATR | `SMC_MAX_R_ATR` |
+| TP | 3R | `SMC_TP_MODE = "R"`, `SMC_TP_R = 3.0` |
+| Chốt lời | **50% @1R** + phần còn lại tới 3R | `SMC_PARTIAL_FRAC/AT_R` |
+| BE / Trailing | tắt | `SMC_BE_AT_R = 0`, `SMC_TRAIL_AT_R = 0` |
+| Số setup | 1/hướng/ngày | `SMC_ONE_PER_DAY` |
+
+**Kết quả chốt (XAUUSD M5, lot 0.02, vốn $1000):**
+- Full 2026-02→09 (101 lệnh): WR **49.5%**, PF **2.17**, Expectancy **+$9.15/lệnh**,
+  DD **6.1%**, OOS PF 2.18.
+- Mẫu 150k (90 lệnh): WR 51.1%, PF 2.05, DD 7.2%.
+- Walk-forward 4 fold: worst **1.04**, mean **2.20**.
+
+Trạng thái: đã tích hợp live (chọn được trên UI) + backtest API/UI/CLI. Chỉ đổi
+tham số sau khi kiểm chứng lại độ ổn định trên nhiều mẫu.

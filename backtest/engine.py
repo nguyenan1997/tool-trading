@@ -269,6 +269,17 @@ class Backtester:
             else:
                 pos["sl"] = round(min(pos["sl"], pos["entry"]), d)
 
+        # 3) Trailing stop: kéo SL theo giá khi đã đạt trail_at_r
+        trail_r = getattr(self.strategy, "trail_at_r", 0) or 0
+        trail_gap = getattr(self.strategy, "trail_gap_r", 1.0) or 0
+        if trail_r > 0 and trail_gap > 0 and hw >= trail_r:
+            if pos["type"] == "BUY":
+                new_sl = price - trail_gap * R
+                pos["sl"] = round(max(pos["sl"], new_sl), d)
+            else:
+                new_sl = price + trail_gap * R
+                pos["sl"] = round(min(pos["sl"], new_sl), d)
+
     def _close_position(self, exit_price, candle):
         """Đóng toàn bộ phần còn lại tại `exit_price` và ghi nhận lệnh."""
         pos = self.current_position
