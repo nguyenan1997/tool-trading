@@ -64,11 +64,21 @@ class BotEngine:
         utc_now = datetime.now(timezone.utc).replace(tzinfo=None)
         return int(round((server_wall - utc_now).total_seconds() / 3600.0))
 
+    def _active_timeframe(self) -> str:
+        """Khung thời gian của chiến lược đang chọn (SMC chạy M5, còn lại M1)."""
+        try:
+            return getattr(strategy_manager.get_current_strategy(), "timeframe", config.TIMEFRAME)
+        except Exception:
+            return config.TIMEFRAME
+
     def _session_window(self, strategy):
         """(start, end) giờ broker của PHIÊN VÀO LỆNH theo chiến lược đang chọn."""
         sess = getattr(strategy, "session", None)
         if sess:
             return sess
+        kzs = getattr(strategy, "killzones", None)
+        if kzs:
+            return (min(s for s, _ in kzs), max(e for _, e in kzs))
         kz_start = getattr(strategy, "kz_start", None)
         kz_end = getattr(strategy, "kz_end", None)
         if kz_start is not None and kz_end is not None:
@@ -137,7 +147,8 @@ class BotEngine:
         try:
             while self.is_running:
                 # 1. Chờ nến mới
-                tf_seconds = {"M1": 60, "M5": 300, "M15": 900, "H1": 3600}.get(config.TIMEFRAME, 60)
+                tf = self._active_timeframe()
+                tf_seconds = {"M1": 60, "M5": 300, "M15": 900, "H1": 3600}.get(tf, 60)
                 now_sec = datetime.now(timezone.utc).timestamp()
                 wait = tf_seconds - (now_sec % tf_seconds) + 0.5
                 
@@ -187,7 +198,8 @@ class BotEngine:
     def _process_strategy(self, strategy):
         magic = getattr(strategy, "magic", config.MAGIC_TM)
         count = getattr(strategy, "history_bars", 200)
-        df = mt5h.get_candles(config.SYMBOL, config.TIMEFRAME, count=count)
+        tf = getattr(strategy, "timeframe", config.TIMEFRAME)
+        df = mt5h.get_candles(config.SYMBOL, tf, count=count)
         if df is None or len(df) < 50:
             return
         df = strategy.calculate_indicators(df)

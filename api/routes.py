@@ -16,6 +16,7 @@ from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data
 from strategies.trend_momentum import TrendMomentumStrategy
 from strategies.asian_sweep import AsianSweepStrategy
+from strategies.smc import SMCSweepChochStrategy
 
 logger = logging.getLogger(__name__)
 
@@ -23,37 +24,64 @@ logger = logging.getLogger(__name__)
 _ACCESS_LOG_RE = re.compile(r'"\s*(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+\S+\s+HTTP/\d')
 
 
-def _build_strategy(data):
-    """Xây dựng chiến lược theo tham số từ UI ('trend_momentum' | 'asian_sweep')."""
-    def _num(key, default, cast=float):
-        val = data.get(key)
+def _num(data, key, default, cast=float):
+    val = data.get(key)
+    try:
         return cast(val) if val not in (None, "") else default
+    except (TypeError, ValueError):
+        return default
 
+
+def _flag(data, key, default=True):
+    val = data.get(key)
+    if val in (None, ""):
+        return default
+    return str(val).strip().lower() in ("1", "true", "yes", "on")
+
+
+def _build_strategy(data):
+    """Xây dựng chiến lược theo tham số từ UI ('trend_momentum' | 'asian_sweep' | 'smc')."""
     sid = (data.get("strategy") or "trend_momentum").strip().lower()
+
+    if sid == "smc":
+        return SMCSweepChochStrategy(
+            swing_k=_num(data, "smc_swing_k", config.SMC_SWING_K, int),
+            min_sweep_atr=_num(data, "smc_min_sweep_atr", config.SMC_MIN_SWEEP_ATR),
+            choch_wait=_num(data, "smc_choch_wait", config.SMC_CHOCH_WAIT, int),
+            disp_atr=_num(data, "smc_disp_atr", config.SMC_DISP_ATR),
+            zone_lookback=_num(data, "smc_zone_lookback", config.SMC_ZONE_LOOKBACK, int),
+            entry_frac=_num(data, "smc_entry_frac", config.SMC_ENTRY_FRAC),
+            require_fvg=_flag(data, "smc_require_fvg", config.SMC_REQUIRE_FVG),
+            use_bias=_flag(data, "smc_use_bias", config.SMC_USE_BIAS),
+            sl_buf_atr=_num(data, "smc_sl_buf_atr", config.SMC_SL_BUF_ATR),
+            tp_mode=(data.get("smc_tp_mode") or config.SMC_TP_MODE),
+            tp_r=_num(data, "smc_tp_r", config.SMC_TP_R),
+            pend_min=_num(data, "smc_pend_min", config.SMC_PEND_MIN, int),
+        ), "smc"
 
     if sid == "asian_sweep":
         s = AsianSweepStrategy()
-        s.range_start = _num("as_range_start", config.AS_RANGE_START, int)
-        s.range_end = _num("as_range_end", config.AS_RANGE_END, int)
-        s.kz_start = _num("as_kz_start", config.AS_KZ_START, int)
-        s.kz_end = _num("as_kz_end", config.AS_KZ_END, int)
-        s.retrace = _num("as_retrace", config.AS_RETRACE)
-        s.wait_min = _num("as_wait_min", config.AS_WAIT_MIN, int)
-        s.sl_buf_atr = _num("as_sl_buf_atr", config.AS_SL_BUF_ATR)
+        s.range_start = _num(data, "as_range_start", config.AS_RANGE_START, int)
+        s.range_end = _num(data, "as_range_end", config.AS_RANGE_END, int)
+        s.kz_start = _num(data, "as_kz_start", config.AS_KZ_START, int)
+        s.kz_end = _num(data, "as_kz_end", config.AS_KZ_END, int)
+        s.retrace = _num(data, "as_retrace", config.AS_RETRACE)
+        s.wait_min = _num(data, "as_wait_min", config.AS_WAIT_MIN, int)
+        s.sl_buf_atr = _num(data, "as_sl_buf_atr", config.AS_SL_BUF_ATR)
         return s, "asian_sweep"
 
     return TrendMomentumStrategy(
-        lookback=_num("tm_lookback", config.TM_LOOKBACK, int),
-        rsi_period=_num("tm_rsi_period", config.TM_RSI_PERIOD, int),
-        rsi_buy=_num("tm_rsi_buy", config.TM_RSI_BUY),
-        rsi_sell=_num("tm_rsi_sell", config.TM_RSI_SELL),
-        sl_atr=_num("tm_sl_atr", config.TM_SL_ATR),
-        tp_r=_num("tm_tp_r", config.TM_TP_R),
-        adx_thresh=_num("tm_adx_thresh", config.TM_ADX_THRESH),
+        lookback=_num(data, "tm_lookback", config.TM_LOOKBACK, int),
+        rsi_period=_num(data, "tm_rsi_period", config.TM_RSI_PERIOD, int),
+        rsi_buy=_num(data, "tm_rsi_buy", config.TM_RSI_BUY),
+        rsi_sell=_num(data, "tm_rsi_sell", config.TM_RSI_SELL),
+        sl_atr=_num(data, "tm_sl_atr", config.TM_SL_ATR),
+        tp_r=_num(data, "tm_tp_r", config.TM_TP_R),
+        adx_thresh=_num(data, "tm_adx_thresh", config.TM_ADX_THRESH),
         session=config.TM_SESSION,
         history_bars=config.TM_HISTORY_BARS,
         be_move_at_r=config.TM_BE_AT_R,
-        min_atr_pct=_num("tm_min_atr_pct", config.TM_MIN_ATR_PCT),
+        min_atr_pct=_num(data, "tm_min_atr_pct", config.TM_MIN_ATR_PCT),
     ), "trend_momentum"
 
 def register_routes(app):
@@ -94,14 +122,15 @@ def register_routes(app):
         except Exception as e:
             logger.warning(f"[Backtest] Không lấy được info từ MT5, dùng fallback: {e}")
         
+        # Khởi tạo chiến lược (SMC tự chạy khung M5; các PP khác theo UI)
+        strategy, sid = _build_strategy(data)
+        tf = getattr(strategy, "timeframe", tf)
+
         # Lấy dữ liệu
         df = get_historical_data(symbol, tf, count=count, start_date=start_date)
         if df is None or df.empty:
             return jsonify({"error": "Failed to get data for the specified range"}), 400
-            
-        # Khởi tạo chiến lược Trend Momentum
-        strategy, sid = _build_strategy(data)
-        
+
         # Chạy backtest với spread + digits thật từ broker
         tester = Backtester(strategy, initial_balance=balance, lot_size=lot, digits=digits, spread=spread)
         trades = tester.run(df)
@@ -116,20 +145,40 @@ def register_routes(app):
                 t_copy["exit_time"] = t_copy["exit_time"].strftime('%Y-%m-%d %H:%M')
             formatted_trades.append(t_copy)
 
-        # Tính toán một số chỉ số nhanh
-        wins = len([t for t in trades if t["result"] == "PROFIT"])
-        total = len(trades)
-        win_rate = (wins / total * 100) if total > 0 else 0
-        
+        # Tính toán chỉ số hiệu năng đầy đủ
+        pnls = [t["pnl"] for t in trades]
+        total = len(pnls)
+        wins = [p for p in pnls if p > 0]
+        losses = [p for p in pnls if p < 0]
+        gross_win = sum(wins)
+        gross_loss = -sum(losses)
+        if gross_loss > 1e-9:
+            pf = round(gross_win / gross_loss, 3)
+        else:
+            pf = None  # vô cực → trả None để JSON hợp lệ
+        equity = balance
+        peak = balance
+        max_dd = 0.0
+        for p in pnls:
+            equity += p
+            peak = max(peak, equity)
+            max_dd = max(max_dd, peak - equity)
+
         return jsonify({
             "summary": {
                 "total_trades": total,
-                "win_rate": round(win_rate, 2),
+                "win_rate": round((len(wins) / total * 100) if total else 0.0, 2),
                 "final_balance": round(tester.balance, 2),
                 "profit": round(tester.balance - balance, 2),
+                "profit_factor": pf,
+                "expectancy": round((sum(pnls) / total) if total else 0.0, 2),
+                "avg_win": round(gross_win / len(wins), 2) if wins else 0.0,
+                "avg_loss": round(gross_loss / len(losses), 2) if losses else 0.0,
+                "max_drawdown": round(max_dd, 2),
                 "spread_used": spread,   # Hiển thị spread đang dùng để verify
                 "digits": digits,
                 "strategy": sid,         # Chiến lược thực tế đã chạy
+                "timeframe": tf,
             },
             "trades": formatted_trades
         })

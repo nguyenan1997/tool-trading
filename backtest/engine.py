@@ -59,6 +59,18 @@ class Backtester:
         print(f"--- BẮT ĐẦU BACK-TEST: {self.strategy.name} ---")
         df = self.strategy.calculate_indicators(df)
 
+        # Số phút mỗi nến (để quy đổi thời gian chờ lệnh limit từ phút → nến)
+        self._bar_minutes = 1
+        try:
+            idx = pd.to_datetime(df.index)
+            diffs = pd.Series(idx).diff().dt.total_seconds().dropna()
+            if len(diffs):
+                med = float(diffs.median())
+                if med > 0:
+                    self._bar_minutes = max(1, int(round(med / 60.0)))
+        except Exception:
+            self._bar_minutes = 1
+
         # Bắt đầu từ khi đủ dữ liệu cho các chỉ báo (ví dụ EMA 200)
         start_idx = 100
         if len(df) <= start_idx:
@@ -90,12 +102,13 @@ class Backtester:
                 # Chiến lược dùng entry hồi giá → sinh lệnh chờ limit
                 setup = self.strategy.get_pending_setup(sub_df)
                 if setup:
+                    wait_bars = max(1, int(round(float(setup.get("wait_min", 60)) / self._bar_minutes)))
                     self.pending = {
                         "type": setup["type"],
                         "level": float(setup["level"]),
                         "sl": float(setup["sl"]),
                         "tp": float(setup["tp"]),
-                        "expire_bar": (k + 1) + int(setup.get("wait_min", 60)),
+                        "expire_bar": (k + 1) + wait_bars,
                     }
                 else:
                     signal = self.strategy.check_signal(sub_df)

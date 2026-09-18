@@ -1,7 +1,7 @@
 # Chiến lược giao dịch — Tài liệu chi tiết
 
-Trạng thái hiện tại của bot: **M1 XAUUSD**, 1 chiến lược (`trend_momentum`).
-Bot chạy `trend_momentum` mặc định; đổi tham số qua giao diện/API.
+Trạng thái hiện tại của bot: **XAUUSD**, 3 chiến lược (`trend_momentum`, `asian_sweep`, `smc`).
+Bot chạy chiến lược đang chọn trên UI/API (các PP loại trừ nhau); đổi tham số qua giao diện/API.
 
 ---
 
@@ -70,13 +70,53 @@ Toàn bộ chỉ báo dùng nến **ĐÃ ĐÓNG** (shift 1 trên mỗi khung), k
 
 ## 2. Cách bot thực thi chung (`core/bot_engine.py`)
 
-1. Bot chờ **nến M1 mới đóng** (loop theo `tf_seconds`, cộng 0.5s trễ).
-2. Nạp nến: `get_candles(SYMBOL, M1, count = strategy.history_bars)` (Trend Momentum dùng 20000).
+1. Bot chờ **nến mới đóng** của khung theo chiến lược đang chọn (`M1`; riêng SMC là `M5`).
+2. Nạp nến: `get_candles(SYMBOL, strategy.timeframe, count = strategy.history_bars)`.
 3. `strategy.calculate_indicators(df)` → nếu có vị thế đang mở: **BE-move** khi giá đạt 1R, chốt một phần khi đạt 1R (chỉ với strategy có `be_move_at_r`/`partial_at_r` > 0).
 4. Nếu **không có vị thế** và `check_signal(df)` trả `BUY`/`SELL` → mở lệnh tại giá tick hiện tại (Ask/Bid), SL/TP theo `get_sl_tp`.
+5. Với chiến lược dùng **lệnh chờ limit** (`get_pending_setup`), bot đặt mức chờ và khớp khi giá hồi tới `level`; thời gian chờ tính theo **phút** (`wait_min`).
 
 ### Quy ước giá
 - Dữ liệu nến = giá **BID**. Lệnh SELL chạm SL khi giá **Ask**(= bid + spread) tăng lên SL → trong backtest, check SL của SELL dùng `high + spread`.
 
 ### Giờ trong tài liệu
 - `TM_SESSION` viết theo **giờ broker** (cột `time` của nến MT5). LiteFinance demo dùng giờ server = UTC(+2/+3 theo DST). Khi so với giờ UTC máy bạn, nhớ cộng offset (vd session 12–21 server tương ứng ~10–19 UTC mùa hè).
+
+---
+
+## 3. Phương pháp SMC — Sweep → CHoCH → OB/FVG (`strategies/smc.py`)
+
+Chiến lược Smart Money Concept chạy trên **XAUUSD M5**, dùng lệnh **LIMIT**.
+
+### Quy trình
+1. **Quét thanh khoản** trong killzone (mặc định 07–11h và 12–16h giờ broker):
+   giá thâm nhập qua một mức — biên vùng Á hôm nay, PDH/PDL ngày trước, hoặc
+   swing low/high gần nhất — vượt ít nhất `SMC_MIN_SWEEP_ATR`×ATR(M5), rồi
+   **đóng cửa trở lại** trên mức (reclaim).
+2. **CHoCH**: trong tối đa `SMC_CHOCH_WAIT` nến, nến M5 đóng phá swing đối
+   diện kèm **displacement** (thân nến ≥ `SMC_DISP_ATR`×ATR).
+3. **Vùng vào lệnh**: **FVG** mới nhất trong `SMC_ZONE_LOOKBACK` nến trước
+   CHoCH; nếu không có (và `SMC_REQUIRE_FVG` = False) → **Order Block**.
+4. **Vào LIMIT** tại `SMC_ENTRY_FRAC` của vùng (0 = mép gần, 0.5 = CE);
+   **SL** sau điểm quét ± `SMC_SL_BUF_ATR`×ATR; **TP** = `SMC_TP_R`×R.
+5. Tối đa 1 setup mỗi hướng mỗi ngày; lệnh chờ hủy sau `SMC_PEND_MIN` phút.
+
+### Kết quả backtest tham khảo (XAUUSD M5, 0.01 lot, vốn , 2026-02→09)
+- 101 lệnh · Win rate **35.6%** · PF **2.10** · Expectancy **+.05/lệnh** · Max DD **6.0%**.
+- OOS (30% cuối) PF 2.16; walk-forward 4 fold PF 2.54 / 0.99 / 2.40 / 2.43.
+
+### Hệ thống backtest
+- **API**: `POST /api/backtest/run` (tham số `strategy=smc`) → trả về
+  `profit_factor`, `expectancy`, `max_drawdown`, `avg_win/avg_loss`,
+  `timeframe`… SMC tự ép chạy khung **M5**.
+- **UI**: trang `/backtest` có thẻ chọn SMC và khối tham số riêng.
+- **CLI**: `python run_backtest.py smc [count]`.
+- **Nghiên cứu chuyên sâu**: `python research/smc.py` (train/OOS + walk-forward
+  + tách đoạn dữ liệu liên tục).
+
+### Lưu ý
+- `SMC_ENABLED = True`: đã tích hợp vào hệ thống (chọn được trên UI/live).
+- Chỉ chạy trong killzone; ngoài phiên bot không vào lệnh mới nhưng vẫn quản lý
+  vị thế đang mở của chính nó.
+- Mẫu backtest còn nhỏ (~100 lệnh) và lợi nhuận phụ thuộc vài lệnh thắng lớn —
+  nên forward-test trên demo trước khi tăng vốn.
