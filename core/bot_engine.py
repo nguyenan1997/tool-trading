@@ -24,7 +24,7 @@ class BotEngine:
         self._partial_done = set()  # các ticket đã chốt một phần
         self._last_session_log = 0.0  # lần cuối ghi log phiên
         self._last_session_key = None # PP đã ghi log phiên lần cuối (đổi PP → log ngay)
-        self._pending = {}        # magic -> lệnh chờ limit {type, level, sl, tp, expire_ts}
+        self._pending = {}        # magic -> meta lệnh CHỜ LIMIT thật {ticket, expire_ts}
 
     def start(self):
         with self._lock:
@@ -64,11 +64,21 @@ class BotEngine:
         utc_now = datetime.now(timezone.utc).replace(tzinfo=None)
         return int(round((server_wall - utc_now).total_seconds() / 3600.0))
 
+    def _active_timeframe(self) -> str:
+        """Khung thời gian của chiến lược đang chọn (SMC chạy M5, còn lại M1)."""
+        try:
+            return getattr(strategy_manager.get_current_strategy(), "timeframe", config.TIMEFRAME)
+        except Exception:
+            return config.TIMEFRAME
+
     def _session_window(self, strategy):
         """(start, end) giờ broker của PHIÊN VÀO LỆNH theo chiến lược đang chọn."""
         sess = getattr(strategy, "session", None)
         if sess:
             return sess
+        kzs = getattr(strategy, "killzones", None)
+        if kzs:
+            return (min(s for s, _ in kzs), max(e for _, e in kzs))
         kz_start = getattr(strategy, "kz_start", None)
         kz_end = getattr(strategy, "kz_end", None)
         if kz_start is not None and kz_end is not None:
@@ -137,7 +147,8 @@ class BotEngine:
         try:
             while self.is_running:
                 # 1. Chờ nến mới
-                tf_seconds = {"M1": 60, "M5": 300, "M15": 900, "H1": 3600}.get(config.TIMEFRAME, 60)
+                tf = self._active_timeframe()
+                tf_seconds = {"M1": 60, "M5": 300, "M15": 900, "H1": 3600}.get(tf, 60)
                 now_sec = datetime.now(timezone.utc).timestamp()
                 wait = tf_seconds - (now_sec % tf_seconds) + 0.5
                 
@@ -165,6 +176,7 @@ class BotEngine:
                 logger.error(f"Error in strategy {getattr(strategy, 'name', '?')}: {e}")
 
         # Vẫn quản lý vị thế đang mở của PP không còn chạy (BE/partial), KHÔNG vào lệnh mới.
+        # Đồng thời HỦY mọi lệnh chờ limit còn treo của PP không còn chạy.
         for strategy in strategy_manager.get_all_strategy_objects():
             if strategy.magic in active_magics:
                 continue
@@ -172,6 +184,9 @@ class BotEngine:
                 position = mt5h.get_open_position(config.SYMBOL, strategy.magic)
                 if position is not None:
                     self._manage_position(strategy, strategy.magic, position)
+                for order in mt5h.get_pending_orders(config.SYMBOL, strategy.magic):
+                    mt5h.cancel_pending_order(order.ticket)
+                self._pending.pop(strategy.magic, None)
             except Exception as e:
                 logger.error(f"Error managing leftover {getattr(strategy, 'name', '?')}: {e}")
 
@@ -187,7 +202,8 @@ class BotEngine:
     def _process_strategy(self, strategy):
         magic = getattr(strategy, "magic", config.MAGIC_TM)
         count = getattr(strategy, "history_bars", 200)
-        df = mt5h.get_candles(config.SYMBOL, config.TIMEFRAME, count=count)
+        tf = getattr(strategy, "timeframe", config.TIMEFRAME)
+        df = mt5h.get_candles(config.SYMBOL, tf, count=count)
         if df is None or len(df) < 50:
             return
         df = strategy.calculate_indicators(df)
@@ -201,8 +217,8 @@ class BotEngine:
             # 2) Lệnh chờ limit (entry hồi giá) — nếu chiến lược dùng
             self._process_pending(strategy, magic, df)
 
-        # 3) Vào lệnh market cho chiến lược dùng tín hiệu thường
-        if position is None and magic not in self._pending:
+        # 3) Vào lệnh market cho chiến lược dùng tín hiệu thường (khi KHÔNG có lệnh chờ treo)
+        if position is None and not mt5h.get_pending_orders(config.SYMBOL, magic):
             signal = strategy.check_signal(df)
             if signal:
                 info = mt5h.get_symbol_info(config.SYMBOL)
@@ -272,62 +288,65 @@ class BotEngine:
                 )
 
     def _process_pending(self, strategy, magic, df):
-        p = self._pending.get(magic)
+        """Quản lý lệnh CHỜ LIMIT THẬT đặt trên MT5.
 
-        if p is not None:
-            # Hủy nếu hết hạn (thời gian chờ) hoặc vượt killzone
+        - Nếu đang có lệnh chờ trên sàn: chỉ hủy khi hết hạn hoặc quá killzone.
+        - Nếu không còn lệnh chờ: hỏi chiến lược setup mới rồi ĐẶT LỆNH LIMIT thật.
+        Sàn tự khớp trong nến → khớp đúng như backtest, không cần bot chờ giá.
+        """
+        orders = mt5h.get_pending_orders(config.SYMBOL, magic)
+
+        # --- Đang có lệnh chờ thật trên sàn ---
+        if orders:
+            meta = self._pending.get(magic)
             kz_end = getattr(strategy, "kz_end", None)
             broker_hour = self._server_now().hour
-            expired = time.time() > p["expire_ts"]
+            expired = bool(meta and time.time() > meta.get("expire_ts", 0))
             if kz_end is not None and broker_hour >= (kz_end + 1) % 24:
                 expired = True
             if expired:
-                logger.info(f"⏹️ HỦY LỆNH CHỜ | {strategy.name} | hết hạn")
+                for o in orders:
+                    mt5h.cancel_pending_order(o.ticket)
                 self._pending.pop(magic, None)
-                return
-
-            tick = mt5h.get_tick(config.SYMBOL)
-            if tick is None:
-                return
-            typ, lvl, sl, tp = p["type"], p["level"], p["sl"], p["tp"]
-
-            if typ == "BUY":
-                if tick.bid <= sl:   # setup hỏng trước khi khớp
-                    logger.info(f"⏹️ HỦY LỆNH CHỜ | {strategy.name} | giá chạm SL trước khi khớp")
-                    self._pending.pop(magic, None)
-                    return
-                if tick.bid <= lvl:
-                    lot = getattr(strategy, "lot", config.FIXED_LOT)
-                    comment = getattr(strategy, "comment", config.ORDER_COMMENT)
-                    logger.info(f"🎯 LIMIT KHỚP BUY | {strategy.name} | level={lvl:.2f} | ask={tick.ask:.2f}")
-                    if mt5h.open_position(config.SYMBOL, "BUY", lot, sl, tp, magic, comment):
-                        self._pending.pop(magic, None)
-            else:
-                if tick.ask >= sl:
-                    logger.info(f"⏹️ HỦY LỆNH CHỜ | {strategy.name} | giá chạm SL trước khi khớp")
-                    self._pending.pop(magic, None)
-                    return
-                if tick.bid >= lvl:
-                    lot = getattr(strategy, "lot", config.FIXED_LOT)
-                    comment = getattr(strategy, "comment", config.ORDER_COMMENT)
-                    logger.info(f"🎯 LIMIT KHỚP SELL | {strategy.name} | level={lvl:.2f} | bid={tick.bid:.2f}")
-                    if mt5h.open_position(config.SYMBOL, "SELL", lot, sl, tp, magic, comment):
-                        self._pending.pop(magic, None)
+                logger.info(f"⏹️ HỦY LỆNH CHỜ | {strategy.name} | hết hạn / quá killzone")
             return
 
-        # Chưa có lệnh chờ → hỏi chiến lược có setup mới không
+        # --- Không còn lệnh chờ: setup cũ đã khớp hoặc bị hủy ---
+        self._pending.pop(magic, None)
+
         setup = strategy.get_pending_setup(df)
-        if setup:
+        if not setup:
+            return
+
+        info = mt5h.get_symbol_info(config.SYMBOL)
+        tick = mt5h.get_tick(config.SYMBOL)
+        if not info or not tick:
+            return
+
+        typ = setup["type"]
+        level = float(setup["level"])
+        sl = float(setup["sl"])
+        tp = float(setup["tp"])
+        wait_min = float(setup.get("wait_min", 60))
+
+        # Khớp đúng như backtest: BUY limit tại level+spread (ask), SELL tại level (bid)
+        spread = round(tick.ask - tick.bid, info.digits)
+        price = round(level + spread, info.digits) if typ == "BUY" else round(level, info.digits)
+
+        lot = getattr(strategy, "lot", config.FIXED_LOT)
+        comment = getattr(strategy, "comment", config.ORDER_COMMENT)
+        ticket = mt5h.place_limit_order(
+            config.SYMBOL, typ, lot, price, sl, tp, magic, comment,
+            expire_minutes=int(wait_min),
+        )
+        if ticket:
             self._pending[magic] = {
-                "type": setup["type"],
-                "level": float(setup["level"]),
-                "sl": float(setup["sl"]),
-                "tp": float(setup["tp"]),
-                "expire_ts": time.time() + float(setup.get("wait_min", 60)) * 60.0,
+                "ticket": ticket,
+                "expire_ts": time.time() + wait_min * 60.0,
             }
             logger.info(
-                f"📌 LỆNH CHỜ {setup['type']} | {strategy.name} | "
-                f"level={setup['level']:.2f} | SL={setup['sl']:.2f} | TP={setup['tp']:.2f}"
+                f"📌 LỆNH CHỜ {typ} | {strategy.name} | "
+                f"level={price:.2f} | SL={sl:.2f} | TP={tp:.2f} | ticket={ticket}"
             )
 
 bot_engine = BotEngine()

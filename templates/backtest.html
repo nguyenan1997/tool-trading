@@ -288,6 +288,12 @@
                         <span><span class="tag tag-mtf">M1 · M15</span></span>
                         <p>Quét biên vùng Á (04–07h broker) → reclaim trong killzone 10–11h → vào LIMIT hồi 50%. Chạy NGOÀI khung Trend Momentum.</p>
                     </label>
+                    <label class="strat-card" onclick="selectStrategy('smc', this)">
+                        <input type="radio" name="strategy" value="smc">
+                        <b>SMC Sweep → CHoCH → FVG</b>
+                        <span><span class="tag tag-mtf">M5 · H1</span></span>
+                        <p>Quét thanh khoản (PDH/PDL, vùng Á, swing) → CHoCH + displacement → vào LIMIT tại FVG/OB. Chỉ chạy khung M5.</p>
+                    </label>
                 </div>
 
                 <div class="section">
@@ -317,6 +323,48 @@
                                 <div><label>SL (× ATR M15)</label><input type="number" id="tm_sl_atr" step="0.1" value="1.5" min="0.5"></div>
                                 <div><label>TP (× khoảng SL)</label><input type="number" id="tm_tp_r" step="0.1" value="2.0" min="0.5"></div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div id="params-smc" style="display:none;">
+                        <div class="param-block">
+                            <div class="label">Cấu trúc / thanh khoản</div>
+                            <div class="col2">
+                                <div><label>Swing K (fractal)</label><input type="number" id="smc_swing_k" value="2" min="1" max="5"></div>
+                                <div><label>Độ sâu quét (× ATR)</label><input type="number" id="smc_min_sweep_atr" step="0.05" value="0.3" min="0"></div>
+                                <div><label>Chờ CHoCH tối đa (nến)</label><input type="number" id="smc_choch_wait" value="24" min="1"></div>
+                                <div><label>Displacement (× ATR)</label><input type="number" id="smc_disp_atr" step="0.1" value="0.4" min="0"></div>
+                            </div>
+                        </div>
+                        <div class="param-block">
+                            <div class="label">Vùng vào lệnh (FVG/OB)</div>
+                            <div class="col2">
+                                <div><label>Tìm vùng trong (nến)</label><input type="number" id="smc_zone_lookback" value="12" min="2"></div>
+                                <div><label>Vào tại (0=mép gần, 0.5=CE)</label><input type="number" id="smc_entry_frac" step="0.05" value="0.5" min="0" max="1"></div>
+                                <div><label>SL buffer (× ATR)</label><input type="number" id="smc_sl_buf_atr" step="0.05" value="0.2" min="0"></div>
+                                <div><label>Chờ khớp (phút)</label><input type="number" id="smc_pend_min" value="120" min="5"></div>
+                                <div><label>Cách vào lệnh</label>
+                                    <select id="smc_entry_mode" style="width:100%;">
+                                        <option value="limit" selected>Limit tại CE (khuyến nghị)</option>
+                                        <option value="market">Market ngay khi CHoCH</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="param-block">
+                            <div class="label">Thoát lệnh &amp; bộ lọc</div>
+                            <div class="col2">
+                                <div><label>TP (× khoảng SL)</label><input type="number" id="smc_tp_r" step="0.5" value="3.0" min="0.5"></div>
+                                <div><label>Chế độ TP</label>
+                                    <select id="smc_tp_mode" style="width:100%;">
+                                        <option value="R">Bội số R</option>
+                                        <option value="liq">Thanh khoản đối diện</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <label style="display:flex; gap:0.5rem; align-items:center; margin-top:0.6rem;">
+                                <input type="checkbox" id="smc_require_fvg" checked style="width:auto;"> Bắt buộc có FVG
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -375,6 +423,15 @@
             document.querySelectorAll('.strat-card').forEach(c => c.classList.remove('selected'));
             cardEl.classList.add('selected');
             cardEl.querySelector('input').checked = true;
+            // Hiện đúng khối tham số của chiến lược
+            document.querySelectorAll('[id^="params-"]').forEach(b => b.style.display = 'none');
+            const block = document.getElementById('params-' + key);
+            if (block) block.style.display = 'block';
+            // SMC chỉ chạy M5; các PP còn lại chạy M1
+            const tfSel = document.getElementById('timeframe');
+            if (key === 'smc') { tfSel.value = 'M5'; }
+            else { tfSel.value = 'M1'; }
+            updateCountHint();
         }
 
         /* ── Khoảng thời gian ── */
@@ -423,6 +480,18 @@
                 tm_sl_atr: document.getElementById('tm_sl_atr').value,
                 tm_tp_r: document.getElementById('tm_tp_r').value,
                 tm_adx_thresh: document.getElementById('tm_adx_thresh').value,
+                smc_swing_k: document.getElementById('smc_swing_k').value,
+                smc_min_sweep_atr: document.getElementById('smc_min_sweep_atr').value,
+                smc_choch_wait: document.getElementById('smc_choch_wait').value,
+                smc_disp_atr: document.getElementById('smc_disp_atr').value,
+                smc_zone_lookback: document.getElementById('smc_zone_lookback').value,
+                smc_entry_frac: document.getElementById('smc_entry_frac').value,
+                smc_sl_buf_atr: document.getElementById('smc_sl_buf_atr').value,
+                smc_pend_min: document.getElementById('smc_pend_min').value,
+                smc_tp_r: document.getElementById('smc_tp_r').value,
+                smc_tp_mode: document.getElementById('smc_tp_mode').value,
+                smc_require_fvg: document.getElementById('smc_require_fvg').checked ? 1 : 0,
+                smc_entry_mode: document.getElementById('smc_entry_mode').value,
             };
 
             try {
@@ -447,7 +516,7 @@
             }
         }
 
-        const strategyNames = { 'trend_momentum': 'Trend Momentum', 'asian_sweep': 'Asian Sweep (ICT)' };
+        const strategyNames = { 'trend_momentum': 'Trend Momentum', 'asian_sweep': 'Asian Sweep (ICT)', 'smc': 'SMC Sweep→CHoCH→FVG' };
 
         /* ── Tính thêm chỉ số từ danh sách lệnh ── */
         function computeStats(data) {

@@ -5,12 +5,14 @@ Quản lý việc lựa chọn và truy xuất chiến lược.
 
 from .trend_momentum import TrendMomentumStrategy
 from .asian_sweep import AsianSweepStrategy
+from .smc import SMCSweepChochStrategy
 
 class StrategyManager:
     def __init__(self):
         self._strategies = {
             "trend_momentum": TrendMomentumStrategy(),
             "asian_sweep": AsianSweepStrategy(),
+            "smc": SMCSweepChochStrategy(),
         }
         self._current_key = "trend_momentum" # Mặc định khi khởi động
         # Chọn PP nào thì CHỈ chạy PP đó (loại trừ nhau).

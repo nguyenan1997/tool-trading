@@ -12,6 +12,7 @@ Quy ước giá (khớp MetaTrader5 / bot thật):
     dùng high/low.
 """
 import math
+import numpy as np
 import pandas as pd
 import logging
 from datetime import datetime
@@ -28,12 +29,22 @@ class Backtester:
         self.balance = initial_balance
         self.lot_size = lot_size
         self.digits = digits
-        self.spread = spread  # Spread thật từ broker (đơn vị: price, ví dụ 0.22 cho XAUUSD)
+        self.spread = spread  # Spread dự phòng (price) nếu nến không có cột 'spread'
         self.volume_min = volume_min
         self.volume_step = volume_step
         self.trades = []
         self.current_position = None  # None | {"type": "BUY/SELL", "entry": float, "sl": float, "tp": float, "time": datetime}
         self.pending = None           # lệnh chờ limit: {"type","level","sl","tp","expire_bar"}
+
+    def _bar_spread(self, candle) -> float:
+        """Spread THẬT của nến (price) nếu dữ liệu có cột 'spread' (points), ngược lại dùng spread cố định."""
+        try:
+            s = candle.get("spread") if hasattr(candle, "get") else None
+            if s is not None and np.isfinite(s) and s >= 0:
+                return float(s) * (10.0 ** -self.digits)
+        except Exception:
+            pass
+        return self.spread
 
     def _effective_partial_frac(self) -> float:
         """Tỷ lệ khối lượng chốt sớm thực tế (làm tròn theo volume_step).
@@ -58,6 +69,18 @@ class Backtester:
         """
         print(f"--- BẮT ĐẦU BACK-TEST: {self.strategy.name} ---")
         df = self.strategy.calculate_indicators(df)
+
+        # Số phút mỗi nến (để quy đổi thời gian chờ lệnh limit từ phút → nến)
+        self._bar_minutes = 1
+        try:
+            idx = pd.to_datetime(df.index)
+            diffs = pd.Series(idx).diff().dt.total_seconds().dropna()
+            if len(diffs):
+                med = float(diffs.median())
+                if med > 0:
+                    self._bar_minutes = max(1, int(round(med / 60.0)))
+        except Exception:
+            self._bar_minutes = 1
 
         # Bắt đầu từ khi đủ dữ liệu cho các chỉ báo (ví dụ EMA 200)
         start_idx = 100
@@ -90,12 +113,13 @@ class Backtester:
                 # Chiến lược dùng entry hồi giá → sinh lệnh chờ limit
                 setup = self.strategy.get_pending_setup(sub_df)
                 if setup:
+                    wait_bars = max(1, int(round(float(setup.get("wait_min", 60)) / self._bar_minutes)))
                     self.pending = {
                         "type": setup["type"],
                         "level": float(setup["level"]),
                         "sl": float(setup["sl"]),
                         "tp": float(setup["tp"]),
-                        "expire_bar": (k + 1) + int(setup.get("wait_min", 60)),
+                        "expire_bar": (k + 1) + wait_bars,
                     }
                 else:
                     signal = self.strategy.check_signal(sub_df)
@@ -103,9 +127,10 @@ class Backtester:
                     if signal:
                         next_candle = df.iloc[k + 1]
                         open_price = next_candle["open"]
+                        sp = self._bar_spread(next_candle)
                         # BUY khớp tại ASK = open + spread; SELL khớp tại BID = open
                         if signal == "BUY":
-                            entry_price = round(open_price + self.spread, self.digits)
+                            entry_price = round(open_price + sp, self.digits)
                         else:
                             entry_price = round(open_price, self.digits)
 
@@ -141,14 +166,15 @@ class Backtester:
 
         bid_high = candle["high"]
         bid_low = candle["low"]
-        ask_high = candle["high"] + self.spread
+        sp = self._bar_spread(candle)
+        ask_high = candle["high"] + sp
 
         if p["type"] == "BUY":
             if bid_low <= p["sl"]:          # hỏng setup trước khi khớp
                 self.pending = None
                 return
             if bid_low <= p["level"]:
-                entry = round(p["level"] + self.spread, self.digits)
+                entry = round(p["level"] + sp, self.digits)
                 sl = round(p["sl"], self.digits)
                 tp = round(p["tp"], self.digits)
                 self.pending = None
@@ -191,9 +217,10 @@ class Backtester:
         bid_open = candle["open"]
         bid_high = candle["high"]
         bid_low = candle["low"]
-        ask_open = candle["open"] + self.spread
-        ask_high = candle["high"] + self.spread
-        ask_low = candle["low"] + self.spread
+        sp = self._bar_spread(candle)
+        ask_open = candle["open"] + sp
+        ask_high = candle["high"] + sp
+        ask_low = candle["low"] + sp
 
         if pos["type"] == "BUY":
             # BUY đóng ở BID: SL khi bid <= sl, TP khi bid >= tp
@@ -225,7 +252,7 @@ class Backtester:
         if pos["type"] == "BUY":
             price = candle["close"]
         else:
-            price = candle["close"] + self.spread
+            price = candle["close"] + self._bar_spread(candle)
 
         R = pos.get("R", 0)
         if R <= 0:
@@ -255,6 +282,17 @@ class Backtester:
                 pos["sl"] = round(max(pos["sl"], pos["entry"]), d)
             else:
                 pos["sl"] = round(min(pos["sl"], pos["entry"]), d)
+
+        # 3) Trailing stop: kéo SL theo giá khi đã đạt trail_at_r
+        trail_r = getattr(self.strategy, "trail_at_r", 0) or 0
+        trail_gap = getattr(self.strategy, "trail_gap_r", 1.0) or 0
+        if trail_r > 0 and trail_gap > 0 and hw >= trail_r:
+            if pos["type"] == "BUY":
+                new_sl = price - trail_gap * R
+                pos["sl"] = round(max(pos["sl"], new_sl), d)
+            else:
+                new_sl = price + trail_gap * R
+                pos["sl"] = round(min(pos["sl"], new_sl), d)
 
     def _close_position(self, exit_price, candle):
         """Đóng toàn bộ phần còn lại tại `exit_price` và ghi nhận lệnh."""

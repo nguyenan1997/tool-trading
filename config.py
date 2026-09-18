@@ -66,6 +66,63 @@ AS_PARTIAL_FRAC  = 0.5      # Chốt một phần (như TM)
 AS_PARTIAL_AT_R  = 1.0
 AS_BE_AT_R       = 1.0      # Dời SL về hòa vốn khi +1R
 
+# ============================================================
+#  SMC — SWEEP → CHoCH → OB/FVG (HỆ THỐNG 3, XAUUSD M5)
+# ------------------------------------------------------------
+# Mô hình SMC đầy đủ:
+#   1. Trong killzone, giá QUÉT thanh khoản (PDH/PDL, biên Á, swing gần nhất).
+#   2. Chờ CHoCH trên M5 (đóng nến phá swing đối diện) + displacement.
+#   3. Xác định vùng vào lệnh: FVG (bắt buộc) — nếu không có thì bỏ qua setup.
+#   4. Vào LIMIT tại CE (50% vùng); SL sau điểm quét; TP 3R.
+#   5. Chốt 50% khối lượng tại 1R, phần còn lại chạy tới TP.
+# CẤU HÌNH ĐÃ CHỐT (FINAL) — đã tích hợp bot live + backtest. Không đổi nếu
+# chưa kiểm chứng lại độ ổn định trên nhiều mẫu (xem research/smc_*_stability.py).
+# ============================================================
+SMC_ENABLED       = True     # Đã tích hợp vào hệ thống (chọn được ở UI / backtest)
+MAGIC_SMC         = 20260401
+SMC_COMMENT       = "SMC_Sweep_Choch"
+SMC_TF            = "M5"     # Chiến lược chạy trên khung M5 (bot tự đổi TF theo chiến lược)
+SMC_LOT           = 0.02
+SMC_HISTORY_BARS  = 5000
+
+# --- Cấu trúc / thanh khoản ---
+SMC_SWING_K       = 2        # Bán kính fractal xác định swing high/low (nến hai bên)
+SMC_KILLZONES     = [(7, 11), (12, 16)]  # Giờ (cột time dữ liệu) được phép vào lệnh
+SMC_ASIA          = (0, 6)   # Vùng Á hôm nay (0–5:59) làm mức thanh khoản
+SMC_USE_ASIA_LIQ  = True     # Dùng biên vùng Á làm mức quét
+SMC_USE_PDHPDL    = True     # Dùng đỉnh/đáy ngày hôm trước làm mức quét
+SMC_USE_SWING_LIQ = True     # Dùng swing low/high gần nhất làm mức quét
+SMC_MIN_SWEEP_ATR = 0.3      # Phải quét vượt mức ít nhất bội ATR(M5) này rồi reclaim
+                             # (đã kiểm chứng: 0.3 cho kết quả bền vững hơn 0.15)
+SMC_CHOCH_WAIT    = 24       # Chờ tối đa bao nhiêu nến M5 để có CHoCH sau khi quét
+SMC_DISP_ATR      = 0.4      # Thân nến CHoCH tối thiểu (bội ATR) để xác nhận displacement
+
+# --- Vùng vào lệnh (OB / FVG) ---
+SMC_ZONE_LOOKBACK = 12       # Tìm FVG/OB trong bao nhiêu nến trước nến CHoCH
+SMC_ENTRY_FRAC    = 0.5      # 0 = mép gần (proximal), 0.5 = CE (giữa vùng), 1 = mép xa
+SMC_REQUIRE_FVG   = True     # True = bắt buộc có FVG, bỏ qua setup chỉ có OB
+                             # (đã kiểm chứng: bắt buộc FVG cho kết quả tốt và ổn định hơn)
+SMC_ENTRY_MODE    = "limit"  # "limit" = chờ hồi về CE (mặc định) | "market" = vào ngay khi CHoCH
+
+# --- Quản lý lệnh ---
+SMC_SL_BUF_ATR    = 0.2      # SL = điểm quét ± bội ATR(M5)
+SMC_MIN_R_ATR     = 0.0      # Bỏ setup nếu SL quá hẹp (< bội ATR). 0 = tắt
+SMC_MAX_R_ATR     = 6.0      # Bỏ setup nếu SL quá rộng (> bội ATR) — chặn vùng FVG dị thường.
+                             # Lưu ý: R được đo theo ATR lúc CHoCH nên vẫn co giãn theo biến động.
+SMC_TP_MODE       = "R"      # "R" = bội số R | "liq" = thanh khoản đối diện (PDH/PDL)
+SMC_TP_R          = 3.0      # Dùng khi SMC_TP_MODE = "R"
+SMC_PEND_MIN      = 120      # Số PHÚT lệnh limit chờ khớp trước khi hủy (= 24 nến M5)
+SMC_ONE_PER_DAY   = True     # Tối đa 1 setup mỗi hướng mỗi ngày
+
+# --- Partial / BE / Trailing (đã kiểm chứng độ ổn định) ---
+# partial 50%@1R: PF ngang, DD giảm ~30-40%, win rate ~50% → mặc định cho SMC.
+# Cần lot >= 2×volume_min (XAUUSD: >= 0.02) mới chốt một phần được.
+SMC_PARTIAL_FRAC  = 0.5      # Chốt 50% khối lượng khi đạt 1R
+SMC_PARTIAL_AT_R  = 1.0
+SMC_BE_AT_R       = 0.0      # Dời SL hòa vốn (tắt: partial đã dời được SL sau khi chốt)
+SMC_TRAIL_AT_R    = 0.0      # Trailing stop (tắt: kém ổn định trong test)
+SMC_TRAIL_GAP_R   = 1.0
+
 # --- Lot Size Mode ---
 # "FIXED"  → always use FIXED_LOT
 # "RISK"   → calculate lot based on RISK_PERCENT of balance
