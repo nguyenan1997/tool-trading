@@ -3,7 +3,6 @@ strategy_manager.py
 Quản lý việc lựa chọn và truy xuất chiến lược.
 """
 
-import config
 from .trend_momentum import TrendMomentumStrategy
 from .asian_sweep import AsianSweepStrategy
 
@@ -13,17 +12,22 @@ class StrategyManager:
             "trend_momentum": TrendMomentumStrategy(),
             "asian_sweep": AsianSweepStrategy(),
         }
-        # Hai hệ thống độc lập, chạy song song; asian_sweep có thể tắt qua config.
-        self._enabled = {"trend_momentum": True, "asian_sweep": bool(config.AS_ENABLED)}
         self._current_key = "trend_momentum" # Mặc định khi khởi động
+        # Chọn PP nào thì CHỈ chạy PP đó (loại trừ nhau).
+        self._enabled = {k: (k == self._current_key) for k in self._strategies}
 
     def get_active_strategies(self):
-        """Danh sách các chiến lược đang bật (bot chạy tất cả, mỗi cái magic riêng)."""
-        return [v for k, v in self._strategies.items() if self._enabled.get(k, False)]
+        """Chỉ trả về chiến lược đang được chọn trên UI."""
+        if self._enabled.get(self._current_key, False):
+            return [self._strategies[self._current_key]]
+        return []
 
     def set_strategy(self, key: str):
         if key in self._strategies:
             self._current_key = key
+            # Bật đúng PP vừa chọn, tắt các PP còn lại.
+            for k in self._enabled:
+                self._enabled[k] = (k == key)
             return True
         return False
 
@@ -35,6 +39,9 @@ class StrategyManager:
 
     def get_all_strategies(self):
         return [{"id": k, "name": v.name, "magic": v.magic} for k, v in self._strategies.items()]
+
+    def get_all_strategy_objects(self):
+        return list(self._strategies.values())
 
     def get_magics(self):
         return [v.magic for v in self._strategies.values()]

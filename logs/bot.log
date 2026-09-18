@@ -1091,3 +1091,333 @@ ValueError: list.index(x): x not in list
 2026-09-17 16:40:18  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
 2026-09-17 16:40:32  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
 2026-09-17 16:41:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 16:41
+2026-09-17 16:42:36  INFO      Connected  |  Account: 91105889  |  Balance: 200.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-17 16:42:36  INFO      Bot Engine STARTED
+2026-09-17 16:43:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 16:43
+2026-09-17 16:47:46  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-17 16:49:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 16:49
+2026-09-17 16:55:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 16:55
+2026-09-17 17:00:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 17:00
+2026-09-17 17:06:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 17:06
+2026-09-17 17:07:18  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-17 17:10:42  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-17 17:10:52  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-17 17:11:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 17:11
+2026-09-17 17:16:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 17:16
+2026-09-17 17:21:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 17:21
+2026-09-17 17:26:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 17:26
+2026-09-17 17:32:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 17:32
+2026-09-17 17:38:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 17:38
+2026-09-17 17:43:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 17:43
+2026-09-17 17:49:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 17:49
+2026-09-17 17:55:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 17:55
+2026-09-17 18:00:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 18:00
+2026-09-17 18:06:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 18:06
+2026-09-17 18:11:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 18:11
+2026-09-17 18:14:01  INFO      Connected  |  Account: 91105889  |  Balance: 200.35 USD  |  Broker: LiteFinance Global LLC
+2026-09-17 18:14:01  INFO      Bot Engine STARTED
+2026-09-17 18:15:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 18:15
+2026-09-17 18:20:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 18:20
+2026-09-17 18:26:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 18:26
+2026-09-17 18:32:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 18:32
+2026-09-17 18:37:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 18:37
+2026-09-17 18:42:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 18:42
+2026-09-17 18:47:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 18:47
+2026-09-17 18:53:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 18:53
+2026-09-17 18:58:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 18:58
+2026-09-17 19:04:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 19:04
+2026-09-17 19:10:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 19:10
+2026-09-17 19:16:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 19:16
+2026-09-17 19:22:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 19:22
+2026-09-17 19:27:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 19:27
+2026-09-17 19:32:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 19:32
+2026-09-17 19:38:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 19:38
+2026-09-17 19:44:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 19:44
+2026-09-17 19:50:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 19:50
+2026-09-17 19:55:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 19:55
+2026-09-17 20:01:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 20:01
+2026-09-17 20:06:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 20:06
+2026-09-17 20:12:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 20:12
+2026-09-17 20:18:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 20:18
+2026-09-17 20:24:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 20:24
+2026-09-17 20:30:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 20:30
+2026-09-17 20:36:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 20:36
+2026-09-17 20:41:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 20:41
+2026-09-17 20:46:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 20:46
+2026-09-17 20:52:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 20:52
+2026-09-17 20:58:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 20:58
+2026-09-17 21:04:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 21:04
+2026-09-17 21:08:00  INFO      ⚡ EXECUTE BUY | Strategy: Trend Momentum | Price: 4375.33 | SL: 4355.9 | TP: 4414.19
+2026-09-17 21:08:00  INFO      🟢 BUY OPENED  |  Ticket=342965298  |  Fill=4374.99000  |  Yêu cầu=4375.33000  |  SL=4355.90000  |  TP=4414.19000  |  Lot=0.02  |  trượt=34pts
+2026-09-17 21:09:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 21:09
+2026-09-17 21:15:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 21:15
+2026-09-17 21:20:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 21:20
+2026-09-17 21:26:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 21:26
+2026-09-17 21:32:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 21:32
+2026-09-17 21:38:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 21:38
+2026-09-17 21:44:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 21:44
+2026-09-17 21:50:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 21:50
+2026-09-17 21:55:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 21:55
+2026-09-17 22:00:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 22:00
+2026-09-17 22:05:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 22:05
+2026-09-17 22:11:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 22:11
+2026-09-17 22:15:00  INFO      ⚡ EXECUTE BUY | Strategy: Trend Momentum | Price: 4361.93 | SL: 4343.32 | TP: 4399.16
+2026-09-17 22:15:00  INFO      🟢 BUY OPENED  |  Ticket=343020059  |  Fill=4361.92000  |  Yêu cầu=4361.93000  |  SL=4343.32000  |  TP=4399.16000  |  Lot=0.02  |  trượt=1pts
+2026-09-17 22:16:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 22:16
+2026-09-17 22:22:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 22:22
+2026-09-17 22:27:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 22:27
+2026-09-17 22:33:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 22:33
+2026-09-17 22:39:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 22:39
+2026-09-17 22:45:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 22:45
+2026-09-17 22:50:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 22:50
+2026-09-17 22:56:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 22:56
+2026-09-17 23:02:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 23:02
+2026-09-17 23:07:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 23:07
+2026-09-17 23:12:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 23:12
+2026-09-17 23:18:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 23:18
+2026-09-17 23:24:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 23:24
+2026-09-17 23:29:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 23:29
+2026-09-17 23:34:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 23:34
+2026-09-17 23:40:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 23:40
+2026-09-17 23:45:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 23:45
+2026-09-17 23:51:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 23:51
+2026-09-17 23:56:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 23:56
+2026-09-18 00:02:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 00:02
+2026-09-18 00:08:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 00:08
+2026-09-18 00:14:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 00:14
+2026-09-18 00:20:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 00:20
+2026-09-18 00:25:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 00:25
+2026-09-18 00:30:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 00:30
+2026-09-18 00:36:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 00:36
+2026-09-18 00:41:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 00:41
+2026-09-18 00:47:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 00:47
+2026-09-18 00:52:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 00:52
+2026-09-18 00:58:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 00:58
+2026-09-18 01:03:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:03
+2026-09-18 01:09:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:09
+2026-09-18 01:15:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:15
+2026-09-18 01:21:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:21
+2026-09-18 01:27:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:27
+2026-09-18 01:32:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:32
+2026-09-18 01:38:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:38
+2026-09-18 01:43:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:43
+2026-09-18 01:48:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:48
+2026-09-18 01:54:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:54
+2026-09-18 01:59:00  INFO      ⏳ PHIÊN  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ broker 01:59
+2026-09-18 02:05:00  INFO      ⏳ PHIÊN  |  Còn 13h55m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:05
+2026-09-18 02:11:00  INFO      ⏳ PHIÊN  |  Còn 13h49m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:11
+2026-09-18 02:16:00  INFO      ⏳ PHIÊN  |  Còn 13h44m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:16
+2026-09-18 02:21:00  INFO      ⏳ PHIÊN  |  Còn 13h39m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:21
+2026-09-18 02:27:00  INFO      ⏳ PHIÊN  |  Còn 13h33m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:27
+2026-09-18 02:32:00  INFO      ⏳ PHIÊN  |  Còn 13h28m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:32
+2026-09-18 02:38:00  INFO      ⏳ PHIÊN  |  Còn 13h22m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:38
+2026-09-18 02:43:00  INFO      ⏳ PHIÊN  |  Còn 13h17m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:43
+2026-09-18 02:49:00  INFO      ⏳ PHIÊN  |  Còn 13h11m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:49
+2026-09-18 02:55:00  INFO      ⏳ PHIÊN  |  Còn 13h05m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 02:55
+2026-09-18 03:00:00  INFO      ⏳ PHIÊN  |  Còn 13h00m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 03:00
+2026-09-18 03:06:00  INFO      ⏳ PHIÊN  |  Còn 12h54m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 03:06
+2026-09-18 03:11:00  INFO      ⏳ PHIÊN  |  Còn 12h49m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 03:11
+2026-09-18 03:17:00  INFO      ⏳ PHIÊN  |  Còn 12h43m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 03:17
+2026-09-18 03:22:00  INFO      ⏳ PHIÊN  |  Còn 12h38m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 03:22
+2026-09-18 03:28:00  INFO      ⏳ PHIÊN  |  Còn 12h32m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 03:28
+2026-09-18 03:34:00  INFO      ⏳ PHIÊN  |  Còn 12h26m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 03:34
+2026-09-18 03:39:00  INFO      ⏳ PHIÊN  |  Còn 12h21m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 03:39
+2026-09-18 03:45:00  INFO      ⏳ PHIÊN  |  Còn 12h15m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 03:45
+2026-09-18 03:51:00  INFO      ⏳ PHIÊN  |  Còn 12h09m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 03:51
+2026-09-18 03:56:00  INFO      ⏳ PHIÊN  |  Còn 12h04m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 03:56
+2026-09-18 04:02:00  INFO      ⏳ PHIÊN  |  Còn 12h01m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 04:02
+2026-09-18 04:08:00  INFO      ⏳ PHIÊN  |  Còn 12h01m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 04:08
+2026-09-18 04:13:00  INFO      ⏳ PHIÊN  |  Còn 12h01m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 04:13
+2026-09-18 04:18:00  INFO      ⏳ PHIÊN  |  Còn 12h01m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 04:18
+2026-09-18 04:23:00  INFO      ⏳ PHIÊN  |  Còn 12h01m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 04:23
+2026-09-18 04:29:00  INFO      ⏳ PHIÊN  |  Còn 12h01m nữa tới phiên vào lệnh (17:00 giờ Việt Nam)  |  giờ broker 04:29
+2026-09-18 04:34:00  INFO      ⏳ PHIÊN  |  Còn 12h01m nữa tới phiên vào lệnh (17:00 giờ Việt Nam)  |  giờ broker 04:34
+2026-09-18 04:40:00  INFO      ⏳ PHIÊN  |  Còn 12h01m nữa tới phiên vào lệnh (17:00 giờ Việt Nam)  |  giờ broker 04:40
+2026-09-18 04:45:00  INFO      ⏳ PHIÊN  |  Còn 12h01m nữa tới phiên vào lệnh (17:00 giờ Việt Nam)  |  giờ broker 04:45
+2026-09-18 04:51:00  INFO      ⏳ PHIÊN  |  Còn 12h01m nữa tới phiên vào lệnh (17:00 giờ Việt Nam)  |  giờ broker 04:51
+2026-09-18 04:57:00  INFO      ⏳ PHIÊN  |  Còn 12h01m nữa tới phiên vào lệnh (17:00 giờ Việt Nam)  |  giờ broker 04:57
+2026-09-18 05:03:00  INFO      ⏳ PHIÊN  |  Còn 10h57m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 05:03
+2026-09-18 05:09:00  INFO      ⏳ PHIÊN  |  Còn 10h51m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 05:09
+2026-09-18 05:14:00  INFO      ⏳ PHIÊN  |  Còn 10h46m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 05:14
+2026-09-18 05:19:00  INFO      ⏳ PHIÊN  |  Còn 10h41m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 05:19
+2026-09-18 05:25:00  INFO      ⏳ PHIÊN  |  Còn 10h35m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 05:25
+2026-09-18 05:31:00  INFO      ⏳ PHIÊN  |  Còn 10h29m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 05:31
+2026-09-18 05:37:00  INFO      ⏳ PHIÊN  |  Còn 10h23m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 05:37
+2026-09-18 05:43:00  INFO      ⏳ PHIÊN  |  Còn 10h17m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 05:43
+2026-09-18 05:48:00  INFO      ⏳ PHIÊN  |  Còn 10h12m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 05:48
+2026-09-18 05:54:00  INFO      ⏳ PHIÊN  |  Còn 10h06m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 05:54
+2026-09-18 05:59:00  INFO      ⏳ PHIÊN  |  Còn 10h01m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 05:59
+2026-09-18 06:04:00  INFO      ⏳ PHIÊN  |  Còn 9h56m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 06:04
+2026-09-18 06:09:00  INFO      ⏳ PHIÊN  |  Còn 9h51m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 06:09
+2026-09-18 06:15:00  INFO      ⏳ PHIÊN  |  Còn 9h45m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 06:15
+2026-09-18 06:20:00  INFO      ⏳ PHIÊN  |  Còn 9h40m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 06:20
+2026-09-18 06:26:00  INFO      ⏳ PHIÊN  |  Còn 9h34m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 06:26
+2026-09-18 06:32:00  INFO      ⏳ PHIÊN  |  Còn 9h28m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 06:32
+2026-09-18 06:38:00  INFO      ⏳ PHIÊN  |  Còn 9h22m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 06:38
+2026-09-18 06:43:00  INFO      ⏳ PHIÊN  |  Còn 9h17m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 06:43
+2026-09-18 06:49:00  INFO      ⏳ PHIÊN  |  Còn 9h11m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 06:49
+2026-09-18 06:54:00  INFO      ⏳ PHIÊN  |  Còn 9h06m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 06:54
+2026-09-18 07:00:00  INFO      ⏳ PHIÊN  |  Còn 9h00m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 07:00
+2026-09-18 07:05:00  INFO      ⏳ PHIÊN  |  Còn 8h55m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 07:05
+2026-09-18 07:10:00  INFO      ⏳ PHIÊN  |  Còn 8h50m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 07:10
+2026-09-18 07:16:00  INFO      ⏳ PHIÊN  |  Còn 8h44m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 07:16
+2026-09-18 07:21:00  INFO      ⏳ PHIÊN  |  Còn 8h39m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 07:21
+2026-09-18 07:27:00  INFO      ⏳ PHIÊN  |  Còn 8h33m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 07:27
+2026-09-18 07:33:00  INFO      ⏳ PHIÊN  |  Còn 8h27m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 07:33
+2026-09-18 07:38:00  INFO      ⏳ PHIÊN  |  Còn 8h22m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 07:38
+2026-09-18 07:44:00  INFO      ⏳ PHIÊN  |  Còn 8h16m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 07:44
+2026-09-18 07:49:00  INFO      ⏳ PHIÊN  |  Còn 8h11m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 07:49
+2026-09-18 07:54:00  INFO      ⏳ PHIÊN  |  Còn 8h06m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 07:54
+2026-09-18 08:00:00  INFO      ⏳ PHIÊN  |  Còn 8h00m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 08:00
+2026-09-18 08:06:00  INFO      ⏳ PHIÊN  |  Còn 7h54m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 08:06
+2026-09-18 08:11:00  INFO      ⏳ PHIÊN  |  Còn 7h49m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 08:11
+2026-09-18 08:16:00  INFO      ⏳ PHIÊN  |  Còn 7h44m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 08:16
+2026-09-18 08:21:00  INFO      ⏳ PHIÊN  |  Còn 7h39m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 08:21
+2026-09-18 08:27:00  INFO      ⏳ PHIÊN  |  Còn 7h33m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 08:27
+2026-09-18 08:33:00  INFO      ⏳ PHIÊN  |  Còn 7h27m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 08:33
+2026-09-18 08:38:00  INFO      ⏳ PHIÊN  |  Còn 7h22m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 08:38
+2026-09-18 08:43:32  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-18 08:44:00  INFO      ⏳ PHIÊN  |  Còn 7h16m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 08:44
+2026-09-18 08:49:00  INFO      ⏳ PHIÊN  |  Còn 7h11m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 08:49
+2026-09-18 08:55:00  INFO      ⏳ PHIÊN  |  Còn 7h05m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 08:55
+2026-09-18 09:00:00  INFO      ⏳ PHIÊN  |  Còn 7h00m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 09:00
+2026-09-18 09:00:02  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-18 09:00:20  INFO      MT5 disconnected.
+2026-09-18 09:00:20  INFO      Bot Engine STOPPED
+2026-09-18 09:00:20  INFO      Connected  |  Account: 91105889  |  Balance: 124.49 USD  |  Broker: LiteFinance Global LLC
+2026-09-18 09:00:22  INFO      Bot Engine STARTED
+2026-09-18 09:03:26  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-18 09:04:51  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-18 09:05:00  INFO      ⏳ PHIÊN  |  Còn 6h55m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 09:05
+2026-09-18 09:06:12  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-18 09:11:00  INFO      ⏳ PHIÊN  |  Còn 6h49m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 09:11
+2026-09-18 09:16:00  INFO      ⏳ PHIÊN  |  Còn 6h44m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 09:16
+2026-09-18 09:22:00  INFO      ⏳ PHIÊN  |  Còn 6h38m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 09:22
+2026-09-18 09:23:54  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-18 09:27:00  INFO      ⏳ PHIÊN  |  Còn 6h33m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 09:27
+2026-09-18 09:32:00  INFO      ⏳ PHIÊN  |  Còn 6h28m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 09:32
+2026-09-18 09:38:00  INFO      ⏳ PHIÊN  |  Còn 6h22m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 09:38
+2026-09-18 09:43:00  INFO      ⏳ PHIÊN  |  Còn 6h17m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 09:43
+2026-09-18 09:49:00  INFO      ⏳ PHIÊN  |  Còn 6h11m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 09:49
+2026-09-18 09:54:00  INFO      ⏳ PHIÊN  |  Còn 6h06m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 09:54
+2026-09-18 09:59:00  INFO      ⏳ PHIÊN  |  Còn 6h01m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 09:59
+2026-09-18 10:04:00  INFO      ⏳ PHIÊN  |  Còn 5h56m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 10:04
+2026-09-18 10:09:00  INFO      ⏳ PHIÊN  |  Còn 5h51m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 10:09
+2026-09-18 10:11:00  INFO      MT5 disconnected.
+2026-09-18 10:11:00  INFO      Bot Engine STOPPED
+2026-09-18 10:11:00  INFO      Connected  |  Account: 91105889  |  Balance: 124.49 USD  |  Broker: LiteFinance Global LLC
+2026-09-18 10:11:00  INFO      Bot Engine STARTED
+2026-09-18 10:15:00  INFO      ⏳ PHIÊN  |  Còn 5h45m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 10:15
+2026-09-18 10:21:00  INFO      ⏳ PHIÊN  |  Còn 5h39m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 10:21
+2026-09-18 10:26:00  INFO      ⏳ PHIÊN  |  Còn 5h34m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 10:26
+2026-09-18 10:32:00  INFO      ⏳ PHIÊN  |  Còn 5h28m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 10:32
+2026-09-18 10:37:00  INFO      ⏳ PHIÊN  |  Còn 5h23m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 10:37
+2026-09-18 10:42:00  INFO      ⏳ PHIÊN  |  Còn 5h18m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 10:42
+2026-09-18 10:48:00  INFO      ⏳ PHIÊN  |  Còn 5h12m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 10:48
+2026-09-18 10:54:00  INFO      ⏳ PHIÊN  |  Còn 5h06m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 10:54
+2026-09-18 11:00:00  INFO      ⏳ PHIÊN  |  Còn 5h00m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 11:00
+2026-09-18 11:05:00  INFO      ⏳ PHIÊN  |  Còn 4h55m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 11:05
+2026-09-18 11:11:00  INFO      ⏳ PHIÊN  |  Còn 4h49m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 11:11
+2026-09-18 11:16:00  INFO      ⏳ PHIÊN  |  Còn 4h44m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 11:16
+2026-09-18 11:21:00  INFO      ⏳ PHIÊN  |  Còn 4h39m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 11:21
+2026-09-18 11:27:00  INFO      ⏳ PHIÊN  |  Còn 4h33m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 11:27
+2026-09-18 11:32:00  INFO      ⏳ PHIÊN  |  Còn 4h28m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 11:32
+2026-09-18 11:38:00  INFO      ⏳ PHIÊN  |  Còn 4h22m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 11:38
+2026-09-18 11:44:00  INFO      ⏳ PHIÊN  |  Còn 4h16m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 11:44
+2026-09-18 11:50:00  INFO      ⏳ PHIÊN  |  Còn 4h10m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 11:50
+2026-09-18 11:56:00  INFO      ⏳ PHIÊN  |  Còn 4h04m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 11:56
+2026-09-18 12:02:00  INFO      ⏳ PHIÊN  |  Còn 3h58m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 12:02
+2026-09-18 12:08:00  INFO      ⏳ PHIÊN  |  Còn 3h52m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 12:08
+2026-09-18 12:13:00  INFO      ⏳ PHIÊN  |  Còn 3h47m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 12:13
+2026-09-18 12:18:00  INFO      ⏳ PHIÊN  |  Còn 3h42m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 12:18
+2026-09-18 12:24:00  INFO      ⏳ PHIÊN  |  Còn 3h36m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ broker 12:24
+2026-09-18 12:26:03  INFO      Connected  |  Account: 91105889  |  Balance: 124.49 USD  |  Broker: LiteFinance Global LLC
+2026-09-18 12:26:03  INFO      Bot Engine STARTED
+2026-09-18 12:26:38  INFO      MT5 disconnected.
+2026-09-18 12:26:38  INFO      Bot Engine STOPPED
+2026-09-18 12:26:38  INFO      Connected  |  Account: 91105889  |  Balance: 124.49 USD  |  Broker: LiteFinance Global LLC
+2026-09-18 12:26:38  INFO      Bot Engine STARTED
+2026-09-18 12:27:00  INFO      ⏳ PHIÊN  |  Asian Sweep (ICT)  |  Còn 0h33m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 12:27
+2026-09-18 12:33:00  INFO      ⏳ PHIÊN  |  Asian Sweep (ICT)  |  Còn 0h27m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 12:33
+2026-09-18 12:39:00  INFO      ⏳ PHIÊN  |  Asian Sweep (ICT)  |  Còn 0h21m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 12:39
+2026-09-18 12:44:00  INFO      ⏳ PHIÊN  |  Asian Sweep (ICT)  |  Còn 0h16m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 12:44
+2026-09-18 12:50:00  INFO      ⏳ PHIÊN  |  Asian Sweep (ICT)  |  Còn 0h10m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 12:50
+2026-09-18 12:55:00  INFO      ⏳ PHIÊN  |  Asian Sweep (ICT)  |  Còn 0h05m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 12:55
+2026-09-18 12:56:05  INFO      MT5 disconnected.
+2026-09-18 12:56:05  INFO      Bot Engine STOPPED
+2026-09-18 12:56:05  INFO      Connected  |  Account: 91105889  |  Balance: 124.49 USD  |  Broker: LiteFinance Global LLC
+2026-09-18 12:56:09  INFO      Bot Engine STARTED
+2026-09-18 12:57:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 3h03m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 12:57
+2026-09-18 13:02:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 2h58m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 13:02
+2026-09-18 13:08:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 2h52m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 13:08
+2026-09-18 13:14:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 2h46m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 13:14
+2026-09-18 13:19:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 2h41m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 13:19
+2026-09-18 13:24:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 2h36m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 13:24
+2026-09-18 13:30:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 2h30m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 13:30
+2026-09-18 13:35:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 2h25m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 13:35
+2026-09-18 13:41:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 2h19m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 13:41
+2026-09-18 13:47:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 2h13m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 13:47
+2026-09-18 13:52:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 2h08m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 13:52
+2026-09-18 13:58:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 2h02m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 13:58
+2026-09-18 14:03:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 1h57m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 14:03
+2026-09-18 14:09:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 1h51m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 14:09
+2026-09-18 14:14:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 1h46m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 14:14
+2026-09-18 14:20:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 1h40m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 14:20
+2026-09-18 14:25:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 1h35m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 14:25
+2026-09-18 14:31:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 1h29m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 14:31
+2026-09-18 14:36:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 1h24m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 14:36
+2026-09-18 14:42:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 1h18m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 14:42
+2026-09-18 14:47:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 1h13m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 14:47
+2026-09-18 14:52:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 1h08m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 14:52
+2026-09-18 14:58:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 1h02m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 14:58
+2026-09-18 15:03:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 0h57m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 15:03
+2026-09-18 15:08:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 0h52m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 15:08
+2026-09-18 15:14:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 0h46m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 15:14
+2026-09-18 15:20:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 0h40m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 15:20
+2026-09-18 15:25:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 0h35m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 15:25
+2026-09-18 15:30:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 0h30m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 15:30
+2026-09-18 15:35:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 0h25m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 15:35
+2026-09-18 15:41:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 0h19m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 15:41
+2026-09-18 15:46:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 0h14m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 15:46
+2026-09-18 15:51:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 0h09m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 15:51
+2026-09-18 15:56:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 0h04m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 15:56
+2026-09-18 16:02:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 16:02
+2026-09-18 16:07:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 16:07
+2026-09-18 16:12:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 16:12
+2026-09-18 16:18:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 16:18
+2026-09-18 16:23:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 16:23
+2026-09-18 16:29:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 16:29
+2026-09-18 16:34:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 16:34
+2026-09-18 16:39:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 16:39
+2026-09-18 16:45:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 16:45
+2026-09-18 16:50:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 16:50
+2026-09-18 16:56:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 16:56
+2026-09-18 17:02:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 17:02
+2026-09-18 17:08:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 17:08
+2026-09-18 17:14:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 17:14
+2026-09-18 17:20:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 17:20
+2026-09-18 17:25:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 17:25
+2026-09-18 17:31:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 17:31
+2026-09-18 17:37:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 17:37
+2026-09-18 17:43:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 17:43
+2026-09-18 17:48:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 17:48
+2026-09-18 17:54:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 17:54
+2026-09-18 17:59:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 17:59
+2026-09-18 18:05:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 18:05
+2026-09-18 18:11:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 18:11
+2026-09-18 18:17:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 18:17
+2026-09-18 18:23:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 18:23
+2026-09-18 18:25:40  INFO      MT5 disconnected.
+2026-09-18 18:25:40  INFO      Bot Engine STOPPED
+2026-09-18 18:25:40  INFO      Connected  |  Account: 91105889  |  Balance: 124.49 USD  |  Broker: LiteFinance Global LLC
+2026-09-18 18:25:46  INFO      Bot Engine STARTED
+2026-09-18 18:26:00  INFO      ⏳ PHIÊN  |  Asian Sweep (ICT)  |  Còn 18h34m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 18:26
+2026-09-18 18:26:05  INFO      MT5 disconnected.
+2026-09-18 18:26:05  INFO      Bot Engine STOPPED
+2026-09-18 18:26:05  INFO      Connected  |  Account: 91105889  |  Balance: 124.49 USD  |  Broker: LiteFinance Global LLC
+2026-09-18 18:26:08  INFO      Bot Engine STARTED
+2026-09-18 18:27:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 18:27
+2026-09-18 18:32:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 18:32
+2026-09-18 18:38:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 18:38
+2026-09-18 18:44:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 18:44
+2026-09-18 18:50:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Đang trong phiên vào lệnh (16:00–02:00 giờ Việt Nam)  |  giờ VN 18:50

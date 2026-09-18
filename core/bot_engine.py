@@ -23,6 +23,7 @@ class BotEngine:
         self._pos_r = {}          # ticket -> R ban đầu (khoảng cách entry→SL)
         self._partial_done = set()  # các ticket đã chốt một phần
         self._last_session_log = 0.0  # lần cuối ghi log phiên
+        self._last_session_key = None # PP đã ghi log phiên lần cuối (đổi PP → log ngay)
         self._pending = {}        # magic -> lệnh chờ limit {type, level, sl, tp, expire_ts}
 
     def start(self):
@@ -63,10 +64,23 @@ class BotEngine:
         utc_now = datetime.now(timezone.utc).replace(tzinfo=None)
         return int(round((server_wall - utc_now).total_seconds() / 3600.0))
 
+    def _session_window(self, strategy):
+        """(start, end) giờ broker của PHIÊN VÀO LỆNH theo chiến lược đang chọn."""
+        sess = getattr(strategy, "session", None)
+        if sess:
+            return sess
+        kz_start = getattr(strategy, "kz_start", None)
+        kz_end = getattr(strategy, "kz_end", None)
+        if kz_start is not None and kz_end is not None:
+            return (kz_start, kz_end)
+        return getattr(config, "TM_SESSION", (12, 21))
+
     def get_session_status(self) -> dict:
         """Trạng thái phiên + đếm ngược, hiển thị theo GIỜ VIỆT NAM (UTC+7).
-        Phiên (TM_SESSION) vẫn định nghĩa theo giờ broker; ở đây chỉ quy đổi để hiển thị."""
-        start, end = getattr(config, "TM_SESSION", (12, 21))
+        Phiên định nghĩa theo giờ broker của CHIẾN LƯỢC ĐANG CHỌN; ở đây quy đổi để hiển thị."""
+        strategy = strategy_manager.get_current_strategy()
+        start, end = self._session_window(strategy)
+        sname = getattr(strategy, "name", "?")
         server_now = self._server_now()                      # giờ broker (naive)
         off = self._broker_offset()                          # broker so với UTC
         vn_off = int(getattr(config, "VN_UTC_OFFSET", 7))
@@ -83,6 +97,7 @@ class BotEngine:
             return {
                 "in_session": True, "now": vn_now.strftime("%H:%M"),
                 "session": label_range, "seconds_to_open": 0, "open_at": None,
+                "strategy": sname,
                 "label": f"Đang trong phiên vào lệnh ({label_range} giờ Việt Nam)",
             }
         target = server_now.replace(hour=start, minute=0, second=0, microsecond=0)
@@ -95,17 +110,21 @@ class BotEngine:
             "in_session": False, "now": vn_now.strftime("%H:%M"),
             "session": label_range, "seconds_to_open": secs,
             "open_at": target_vn.strftime("%H:%M"),
+            "strategy": sname,
             "label": f"Còn {hh}h{mm:02d}m nữa tới phiên vào lệnh ({vn_start:02d}:00 giờ Việt Nam)",
         }
 
     def _maybe_log_session(self, interval_sec: int = 300):
-        """Ghi log trạng thái phiên định kỳ (mặc định mỗi 5 phút)."""
-        if time.time() - self._last_session_log < interval_sec:
+        """Ghi log trạng thái phiên định kỳ (mặc định mỗi 5 phút).
+        Ghi ngay lập tức khi người dùng đổi PP để log khớp với PP đang chạy."""
+        cur_key = strategy_manager.get_current_key()
+        if cur_key == self._last_session_key and time.time() - self._last_session_log < interval_sec:
             return
         self._last_session_log = time.time()
+        self._last_session_key = cur_key
         try:
             s = self.get_session_status()
-            logger.info(f"⏳ PHIÊN  |  {s['label']}  |  giờ broker {s['now']}")
+            logger.info(f"⏳ PHIÊN  |  {s['strategy']}  |  {s['label']}  |  giờ VN {s['now']}")
         except Exception as e:
             logger.error(f"session log error: {e}")
 
@@ -136,12 +155,25 @@ class BotEngine:
             mt5h.disconnect()
 
     def _on_candle_tick(self):
-        # Chạy TẤT CẢ hệ thống đang bật — độc lập nhau (mỗi cái magic/trạng thái riêng)
-        for strategy in strategy_manager.get_active_strategies():
+        # Chỉ CHẠY chiến lược đang được chọn trên UI (các PP loại trừ nhau).
+        active = strategy_manager.get_active_strategies()
+        active_magics = {s.magic for s in active}
+        for strategy in active:
             try:
                 self._process_strategy(strategy)
             except Exception as e:
                 logger.error(f"Error in strategy {getattr(strategy, 'name', '?')}: {e}")
+
+        # Vẫn quản lý vị thế đang mở của PP không còn chạy (BE/partial), KHÔNG vào lệnh mới.
+        for strategy in strategy_manager.get_all_strategy_objects():
+            if strategy.magic in active_magics:
+                continue
+            try:
+                position = mt5h.get_open_position(config.SYMBOL, strategy.magic)
+                if position is not None:
+                    self._manage_position(strategy, strategy.magic, position)
+            except Exception as e:
+                logger.error(f"Error managing leftover {getattr(strategy, 'name', '?')}: {e}")
 
         # Dọn bộ nhớ theo dõi các ticket đã đóng
         open_tickets = {
