@@ -1493,3 +1493,7 @@ ValueError: list.index(x): x not in list
 2026-09-19 02:13:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 13h46m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 02:13
 2026-09-19 02:19:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 13h41m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 02:19
 2026-09-19 02:24:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 13h35m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 02:24
+2026-09-19 02:24:43  INFO      Connected  |  Account: 91454560  |  Balance: 206.48 USD  |  Broker: LiteFinance Global LLC
+2026-09-19 02:24:43  INFO      Bot Engine STARTED
+2026-09-19 02:24:52  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-19 02:25:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 13h35m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 02:25
