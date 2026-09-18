@@ -31,14 +31,18 @@ INITIAL = 1000.0
 def load_m1():
     d = pd.read_csv(M1_FILE)
     d["time"] = pd.to_datetime(d["time"])
-    d = d[["time", "open", "high", "low", "close"]].drop_duplicates("time")
+    cols = ["time", "open", "high", "low", "close"]
+    if "spread" in d.columns:
+        cols.append("spread")
+    d = d[cols].drop_duplicates("time")
     return d.sort_values("time").set_index("time")
 
 
 def to_m5(m1):
-    m5 = m1.resample("5min").agg(
-        {"open": "first", "high": "max", "low": "min", "close": "last"}
-    ).dropna()
+    agg = {"open": "first", "high": "max", "low": "min", "close": "last"}
+    if "spread" in m1.columns:
+        agg["spread"] = "mean"
+    m5 = m1.resample("5min").agg(agg).dropna()
     m5.index.name = "time"
     return m5
 

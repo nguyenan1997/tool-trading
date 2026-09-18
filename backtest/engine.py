@@ -12,6 +12,7 @@ Quy ước giá (khớp MetaTrader5 / bot thật):
     dùng high/low.
 """
 import math
+import numpy as np
 import pandas as pd
 import logging
 from datetime import datetime
@@ -28,12 +29,22 @@ class Backtester:
         self.balance = initial_balance
         self.lot_size = lot_size
         self.digits = digits
-        self.spread = spread  # Spread thật từ broker (đơn vị: price, ví dụ 0.22 cho XAUUSD)
+        self.spread = spread  # Spread dự phòng (price) nếu nến không có cột 'spread'
         self.volume_min = volume_min
         self.volume_step = volume_step
         self.trades = []
         self.current_position = None  # None | {"type": "BUY/SELL", "entry": float, "sl": float, "tp": float, "time": datetime}
         self.pending = None           # lệnh chờ limit: {"type","level","sl","tp","expire_bar"}
+
+    def _bar_spread(self, candle) -> float:
+        """Spread THẬT của nến (price) nếu dữ liệu có cột 'spread' (points), ngược lại dùng spread cố định."""
+        try:
+            s = candle.get("spread") if hasattr(candle, "get") else None
+            if s is not None and np.isfinite(s) and s >= 0:
+                return float(s) * (10.0 ** -self.digits)
+        except Exception:
+            pass
+        return self.spread
 
     def _effective_partial_frac(self) -> float:
         """Tỷ lệ khối lượng chốt sớm thực tế (làm tròn theo volume_step).
@@ -116,9 +127,10 @@ class Backtester:
                     if signal:
                         next_candle = df.iloc[k + 1]
                         open_price = next_candle["open"]
+                        sp = self._bar_spread(next_candle)
                         # BUY khớp tại ASK = open + spread; SELL khớp tại BID = open
                         if signal == "BUY":
-                            entry_price = round(open_price + self.spread, self.digits)
+                            entry_price = round(open_price + sp, self.digits)
                         else:
                             entry_price = round(open_price, self.digits)
 
@@ -154,14 +166,15 @@ class Backtester:
 
         bid_high = candle["high"]
         bid_low = candle["low"]
-        ask_high = candle["high"] + self.spread
+        sp = self._bar_spread(candle)
+        ask_high = candle["high"] + sp
 
         if p["type"] == "BUY":
             if bid_low <= p["sl"]:          # hỏng setup trước khi khớp
                 self.pending = None
                 return
             if bid_low <= p["level"]:
-                entry = round(p["level"] + self.spread, self.digits)
+                entry = round(p["level"] + sp, self.digits)
                 sl = round(p["sl"], self.digits)
                 tp = round(p["tp"], self.digits)
                 self.pending = None
@@ -204,9 +217,10 @@ class Backtester:
         bid_open = candle["open"]
         bid_high = candle["high"]
         bid_low = candle["low"]
-        ask_open = candle["open"] + self.spread
-        ask_high = candle["high"] + self.spread
-        ask_low = candle["low"] + self.spread
+        sp = self._bar_spread(candle)
+        ask_open = candle["open"] + sp
+        ask_high = candle["high"] + sp
+        ask_low = candle["low"] + sp
 
         if pos["type"] == "BUY":
             # BUY đóng ở BID: SL khi bid <= sl, TP khi bid >= tp
@@ -238,7 +252,7 @@ class Backtester:
         if pos["type"] == "BUY":
             price = candle["close"]
         else:
-            price = candle["close"] + self.spread
+            price = candle["close"] + self._bar_spread(candle)
 
         R = pos.get("R", 0)
         if R <= 0:

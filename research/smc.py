@@ -46,7 +46,10 @@ def load_m5():
             print(f"  (bỏ qua {os.path.basename(fp)}: thiếu cột time)")
             continue
         d["time"] = pd.to_datetime(d["time"])
-        frames.append(d[["time", "open", "high", "low", "close"]])
+        cols = ["time", "open", "high", "low", "close"]
+        if "spread" in d.columns:
+            cols.append("spread")
+        frames.append(d[cols])
     if not frames:
         raise RuntimeError("Không tìm thấy file M1 cache nào!")
     m1 = (
@@ -56,11 +59,10 @@ def load_m5():
         .reset_index(drop=True)
     )
     m1 = m1.set_index("time")
-    m5 = (
-        m1.resample("5min")
-        .agg({"open": "first", "high": "max", "low": "min", "close": "last"})
-        .dropna()
-    )
+    agg = {"open": "first", "high": "max", "low": "min", "close": "last"}
+    if "spread" in m1.columns:
+        agg["spread"] = "mean"   # spread trung bình của các nến M1 trong nến M5
+    m5 = m1.resample("5min").agg(agg).dropna()
     m5.index.name = "time"
     return m5
 
