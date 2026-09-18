@@ -196,7 +196,7 @@ def register_routes(app):
             "bot_status": bot_engine.status,
             "current_strategy": strategy_manager.get_current_key(),
             "symbol": config.SYMBOL,
-            "timeframe": config.TIMEFRAME,
+            "timeframe": getattr(strategy_manager.get_current_strategy(), "timeframe", config.TIMEFRAME),
             "session": session
         })
 
