@@ -104,9 +104,7 @@ SMC_REQUIRE_FVG   = True     # True = bắt buộc có FVG, bỏ qua setup chỉ
                              # (đã kiểm chứng: bắt buộc FVG cho kết quả tốt và ổn định hơn)
 SMC_ENTRY_MODE    = "limit"  # "limit" = chờ hồi về CE (mặc định) | "market" = vào ngay khi CHoCH
 
-# --- Bias HTF & quản lý lệnh ---
-SMC_USE_BIAS      = False    # Lọc theo EMA H1 (BUY khi giá > EMA, SELL khi < EMA)
-SMC_BIAS_EMA      = 200
+# --- Quản lý lệnh ---
 SMC_SL_BUF_ATR    = 0.2      # SL = điểm quét ± bội ATR(M5)
 SMC_MIN_R_ATR     = 0.0      # Bỏ setup nếu SL quá hẹp (< bội ATR). 0 = tắt
 SMC_MAX_R_ATR     = 6.0      # Bỏ setup nếu SL quá rộng (> bội ATR) — chặn vùng FVG dị thường.

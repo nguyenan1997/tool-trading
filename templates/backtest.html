@@ -365,9 +365,6 @@
                             <label style="display:flex; gap:0.5rem; align-items:center; margin-top:0.6rem;">
                                 <input type="checkbox" id="smc_require_fvg" checked style="width:auto;"> Bắt buộc có FVG
                             </label>
-                            <label style="display:flex; gap:0.5rem; align-items:center; margin-top:0.3rem;">
-                                <input type="checkbox" id="smc_use_bias" style="width:auto;"> Lọc bias EMA200 H1
-                            </label>
                         </div>
                     </div>
                 </div>
@@ -494,7 +491,6 @@
                 smc_tp_r: document.getElementById('smc_tp_r').value,
                 smc_tp_mode: document.getElementById('smc_tp_mode').value,
                 smc_require_fvg: document.getElementById('smc_require_fvg').checked ? 1 : 0,
-                smc_use_bias: document.getElementById('smc_use_bias').checked ? 1 : 0,
                 smc_entry_mode: document.getElementById('smc_entry_mode').value,
             };
 

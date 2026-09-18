@@ -49,8 +49,6 @@ class SMCSweepChochStrategy(BaseStrategy):
         entry_frac=config.SMC_ENTRY_FRAC,
         require_fvg=config.SMC_REQUIRE_FVG,
         entry_mode=config.SMC_ENTRY_MODE,
-        use_bias=config.SMC_USE_BIAS,
-        bias_ema=config.SMC_BIAS_EMA,
         sl_buf_atr=config.SMC_SL_BUF_ATR,
         min_r_atr=config.SMC_MIN_R_ATR,
         max_r_atr=config.SMC_MAX_R_ATR,
@@ -80,8 +78,6 @@ class SMCSweepChochStrategy(BaseStrategy):
         self.entry_frac = entry_frac
         self.require_fvg = require_fvg
         self.entry_mode = str(entry_mode).lower()
-        self.use_bias = use_bias
-        self.bias_ema = bias_ema
         self.sl_buf_atr = sl_buf_atr
         self.min_r_atr = min_r_atr
         self.max_r_atr = max_r_atr
@@ -122,24 +118,6 @@ class SMCSweepChochStrategy(BaseStrategy):
         base["atr"] = _atr(base, 14).to_numpy()
         base["hour"] = base["ts"].dt.hour
         base["date"] = base["ts"].dt.date
-
-        # Bias H1 (EMA) — nến H1 đã đóng
-        if self.use_bias:
-            h1 = (
-                base.set_index("ts")
-                .resample("1h")
-                .agg({"open": "first", "high": "max", "low": "min", "close": "last"})
-                .dropna()
-            )
-            h1["bias_ema"] = h1["close"].ewm(span=self.bias_ema, adjust=False).mean().shift(1)
-            base = pd.merge_asof(
-                base,
-                h1.reset_index()[["ts", "bias_ema"]],
-                on="ts",
-                direction="backward",
-            )
-        else:
-            base["bias_ema"] = np.nan
 
         # PDH/PDL ngày hôm trước
         day = base.groupby("date").agg(day_hi=("high", "max"), day_lo=("low", "min"))
@@ -197,7 +175,6 @@ class SMCSweepChochStrategy(BaseStrategy):
         pdl = base["pdl"].to_numpy()
         asia_hi = base["asia_hi"].to_numpy()
         asia_lo = base["asia_lo"].to_numpy()
-        bias_ema = base["bias_ema"].to_numpy()
 
         sig_buy = np.zeros(n, dtype=bool)
         sig_sell = np.zeros(n, dtype=bool)
@@ -282,15 +259,6 @@ class SMCSweepChochStrategy(BaseStrategy):
                         sweep_high = high[i]
                         ref_low = last_sl[i]
                         start_s = i
-
-            # Bias HTF (tùy chọn) — loại tín hiệu ngược xu hướng lớn
-            if self.use_bias and np.isfinite(bias_ema[i]):
-                if sig_buy[i] and not (close[i] > bias_ema[i]):
-                    sig_buy[i] = False
-                    done_buy = False
-                if sig_sell[i] and not (close[i] < bias_ema[i]):
-                    sig_sell[i] = False
-                    done_sell = False
 
         for col, arr in (
             ("smc_sig_buy", sig_buy), ("smc_sig_sell", sig_sell),

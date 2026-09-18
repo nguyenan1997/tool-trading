@@ -53,7 +53,6 @@ def _build_strategy(data):
             entry_frac=_num(data, "smc_entry_frac", config.SMC_ENTRY_FRAC),
             require_fvg=_flag(data, "smc_require_fvg", config.SMC_REQUIRE_FVG),
             entry_mode=(data.get("smc_entry_mode") or config.SMC_ENTRY_MODE),
-            use_bias=_flag(data, "smc_use_bias", config.SMC_USE_BIAS),
             sl_buf_atr=_num(data, "smc_sl_buf_atr", config.SMC_SL_BUF_ATR),
             tp_mode=(data.get("smc_tp_mode") or config.SMC_TP_MODE),
             tp_r=_num(data, "smc_tp_r", config.SMC_TP_R),

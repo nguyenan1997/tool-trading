@@ -180,8 +180,6 @@ def main():
              min_r_atr=0.8, max_r_atr=2.5, swing_k=2),
         dict(name="FVG+sw.3 R.8-2.5 sw4", require_fvg=True, min_sweep_atr=0.3, tp_r=3.0,
              min_r_atr=0.8, max_r_atr=2.5, swing_k=4),
-        dict(name="FVG+sw.3 R.8-2.5 bias", require_fvg=True, min_sweep_atr=0.3, tp_r=3.0,
-             min_r_atr=0.8, max_r_atr=2.5, use_bias=True),
         dict(name="FVG+sw.15 R.8-2.5", require_fvg=True, min_sweep_atr=0.15, tp_r=3.0,
              min_r_atr=0.8, max_r_atr=2.5),
         dict(name="sw.3 R.8-2.5 (no FVG)", min_sweep_atr=0.3, tp_r=3.0,

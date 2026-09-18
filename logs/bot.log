@@ -1497,3 +1497,23 @@ ValueError: list.index(x): x not in list
 2026-09-19 02:24:43  INFO      Bot Engine STARTED
 2026-09-19 02:24:52  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
 2026-09-19 02:25:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 13h35m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 02:25
+2026-09-19 02:29:47  INFO      Connected  |  Account: 91454560  |  Balance: 206.48 USD  |  Broker: LiteFinance Global LLC
+2026-09-19 02:29:47  INFO      Bot Engine STARTED
+2026-09-19 02:29:57  INFO      MT5 disconnected.
+2026-09-19 02:29:57  INFO      Bot Engine STOPPED
+2026-09-19 02:29:57  INFO      Connected  |  Account: 91454560  |  Balance: 206.48 USD  |  Broker: LiteFinance Global LLC
+2026-09-19 02:29:58  INFO      Bot Engine STARTED
+2026-09-19 02:30:00  INFO      ⏳ PHIÊN  |  SMC Sweep→CHoCH→OB/FVG  |  Còn 8h29m nữa tới phiên vào lệnh (11:00 giờ Việt Nam)  |  giờ VN 02:30
+2026-09-19 02:31:40  INFO      MT5 disconnected.
+2026-09-19 02:31:40  INFO      Bot Engine STOPPED
+2026-09-19 02:31:40  INFO      Connected  |  Account: 91454560  |  Balance: 206.48 USD  |  Broker: LiteFinance Global LLC
+2026-09-19 02:31:41  INFO      Bot Engine STARTED
+2026-09-19 02:32:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 13h27m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 02:32
+2026-09-19 02:33:05  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-19 02:33:48  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-19 02:35:22  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-19 02:35:58  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-19 02:36:13  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-19 02:38:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 13h22m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 02:38
+2026-09-19 02:40:02  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-19 02:44:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 13h15m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 02:44
