@@ -74,7 +74,10 @@ Toàn bộ chỉ báo dùng nến **ĐÃ ĐÓNG** (shift 1 trên mỗi khung), k
 2. Nạp nến: `get_candles(SYMBOL, strategy.timeframe, count = strategy.history_bars)`.
 3. `strategy.calculate_indicators(df)` → nếu có vị thế đang mở: **BE-move** khi giá đạt 1R, chốt một phần khi đạt 1R (chỉ với strategy có `be_move_at_r`/`partial_at_r` > 0).
 4. Nếu **không có vị thế** và `check_signal(df)` trả `BUY`/`SELL` → mở lệnh tại giá tick hiện tại (Ask/Bid), SL/TP theo `get_sl_tp`.
-5. Với chiến lược dùng **lệnh chờ limit** (`get_pending_setup`), bot đặt mức chờ và khớp khi giá hồi tới `level`; thời gian chờ tính theo **phút** (`wait_min`).
+5. Với chiến lược dùng lệnh chờ (`get_pending_setup`), bot đặt **lệnh LIMIT THẬT trên MT5**
+   (`buy_limit`/`sell_limit`) tại mức CE, kèm SL/TP và thời gian hết hạn → sàn tự khớp
+   trong nến (khớp đúng như backtest). BUY đặt tại `level + spread` (khớp theo ask),
+   SELL đặt tại `level` (khớp theo bid). Lệnh quá hạn/killzone bị hủy (broker + bot).
 
 ### Quy ước giá
 - Dữ liệu nến = giá **BID**. Lệnh SELL chạm SL khi giá **Ask**(= bid + spread) tăng lên SL → trong backtest, check SL của SELL dùng `high + spread`.
