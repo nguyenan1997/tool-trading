@@ -2156,3 +2156,21 @@ ValueError: list.index(x): x not in list
 2026-09-23 12:00:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 4h00m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 12:00
 2026-09-23 12:05:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 3h55m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 12:05
 2026-09-23 12:11:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 3h49m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 12:11
+2026-09-23 12:12:02  INFO      Connected  |  Account: 91105889  |  Balance: 99.96 USD  |  Broker: LiteFinance Global LLC
+2026-09-23 12:12:02  INFO      Bot Engine STARTED
+2026-09-23 12:12:11  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-23 12:13:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 3h47m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 12:13
+2026-09-23 12:13:08  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-23 12:18:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 3h42m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 12:18
+2026-09-23 12:23:49  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-23 12:24:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 3h36m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 12:24
+2026-09-23 12:25:09  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-23 12:25:40  INFO      MT5 disconnected.
+2026-09-23 12:25:40  INFO      Bot Engine STOPPED
+2026-09-23 12:25:40  INFO      Connected  |  Account: 91105889  |  Balance: 99.96 USD  |  Broker: LiteFinance Global LLC
+2026-09-23 13:36:53  INFO      Bot Engine STARTED
+2026-09-23 13:40:00  INFO      ⏳ PHIÊN  |  SMC Sweep→CHoCH→OB/FVG  |  Đang trong phiên vào lệnh (11:00–21:00 giờ Việt Nam)  |  giờ VN 13:40
+2026-09-23 13:45:00  INFO      ⏳ PHIÊN  |  SMC Sweep→CHoCH→OB/FVG  |  Đang trong phiên vào lệnh (11:00–21:00 giờ Việt Nam)  |  giờ VN 13:45
+2026-09-23 13:46:23  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-23 13:46:41  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
+2026-09-23 13:47:12  INFO      [Backtest] XAUUSD: spread=0.22 (22 pts × 0.01), digits=2
