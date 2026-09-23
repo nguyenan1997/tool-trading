@@ -14,7 +14,7 @@ import logging
 import pandas as pd
 
 from backtest.engine import Backtester
-from backtest.data_loader import get_historical_data
+from backtest.data_loader import get_historical_data, get_with_warmup
 from strategies.trend_momentum import TrendMomentumStrategy
 from strategies.asian_sweep import AsianSweepStrategy
 from strategies.smc import SMCSweepChochStrategy
@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.INFO)
 
 # key -> (class, timeframe, số nến mặc định)
 REGISTRY = {
-    "trend_momentum": (TrendMomentumStrategy, "M1", 20000),
+    "trend_momentum": (TrendMomentumStrategy, "M1", 100000),
     "asian_sweep": (AsianSweepStrategy, "M1", 20000),
     "smc": (SMCSweepChochStrategy, "M5", 20000),
 }
@@ -45,14 +45,17 @@ def main():
     symbol = config.SYMBOL
     initial_balance = 200.0
 
-    df = get_historical_data(symbol, timeframe, count=count, use_cache=True)
+    strategy = cls()
+
+    # Nạp dữ liệu kèm warmup để chỉ báo hội tụ (engine bỏ qua phần warmup).
+    warmup = int(getattr(strategy, "warmup_bars", 0) or 0)
+    df = get_with_warmup(symbol, timeframe, count=count, start_date=None, warmup_bars=warmup)
     if df is None or df.empty:
         print(f"❌ KHÔNG THỂ lấy dữ liệu cho {symbol} ({timeframe}).")
         return
 
     print(f"📅 Dữ liệu từ: {df.index[0]} đến {df.index[-1]}  ({len(df):,} nến {timeframe})")
 
-    strategy = cls()
     tester = Backtester(
         strategy=strategy,
         initial_balance=initial_balance,

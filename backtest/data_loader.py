@@ -6,7 +6,7 @@ Cache được tự động làm mới khi dữ liệu đã cũ (nến cuối c�
 import pandas as pd
 import os
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from core import mt5_handler as mt5h
 import config
 import logging
@@ -14,6 +14,34 @@ import logging
 logger = logging.getLogger(__name__)
 
 DATA_DIR = "backtest/data"
+
+# Số phút mỗi nến, để quy đổi warmup (số nến) sang thời gian khi nạp theo ngày.
+_BAR_MINUTES = {"M1": 1, "M5": 5, "M15": 15, "M30": 30, "H1": 60, "H4": 240, "D1": 1440}
+
+
+def get_with_warmup(symbol: str, timeframe: str, count: int, start_date: str, warmup_bars: int):
+    """Nạp dữ liệu kèm phần WARMUP phía trước vùng giao dịch để chỉ báo hội tụ.
+
+    - Chế độ count: nạp thêm `warmup_bars` nến, engine sẽ bỏ qua phần đầu này →
+      người dùng vẫn giao dịch đủ `count` nến.
+    - Chế độ ngày: lùi ngày bắt đầu thêm một khoảng bù cho warmup (dư 1.5× do
+      cuối tuần không có nến).
+    """
+    warmup_bars = int(warmup_bars or 0)
+    if warmup_bars <= 0:
+        return get_historical_data(symbol, timeframe, count=count, start_date=start_date)
+
+    bar_min = _BAR_MINUTES.get(str(timeframe).upper(), 1)
+    if start_date:
+        days = int(warmup_bars * bar_min / 1440 * 1.5) + 1
+        try:
+            d0 = datetime.strptime(start_date, "%Y-%m-%d") - timedelta(days=days)
+            start_date = d0.strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+        return get_historical_data(symbol, timeframe, count=count, start_date=start_date)
+    return get_historical_data(symbol, timeframe, count=count + warmup_bars)
+
 
 
 def _cache_is_fresh(df: pd.DataFrame, symbol: str, max_age_hours: float) -> bool:

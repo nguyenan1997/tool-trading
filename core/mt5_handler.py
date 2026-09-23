@@ -5,6 +5,7 @@ Wrapper cho MetaTrader5 API: connect, lấy dữ liệu, đặt lệnh, đóng l
 
 import MetaTrader5 as mt5
 import pandas as pd
+import numpy as np
 import logging
 import math
 from datetime import datetime, timedelta
@@ -61,16 +62,33 @@ def get_candles(symbol: str, timeframe_str: str, count: int = 300) -> pd.DataFra
     # Đảm bảo luôn kết nối trước khi lấy dữ liệu
     if not connect():
         return None
-        
+
     tf = _TF_MAP.get(timeframe_str.upper())
     if tf is None:
         logger.error(f"Unknown timeframe: {timeframe_str}")
         return None
 
-    rates = mt5.copy_rates_from_pos(symbol, tf, 0, count)
-    if rates is None or len(rates) == 0:
+    # MT5 giới hạn số nến mỗi lần gọi → lấy theo từng chunk rồi ghép lại.
+    chunk = 50000
+    parts = []
+    got = 0
+    start = 0
+    while got < count:
+        n = min(chunk, count - got)
+        rates = mt5.copy_rates_from_pos(symbol, tf, start, n)
+        if rates is None or len(rates) == 0:
+            break
+        parts.append(rates)
+        got += len(rates)
+        start += len(rates)
+        if len(rates) < n:
+            break  # đã hết dữ liệu lịch sử
+    if not parts:
         logger.error(f"copy_rates_from_pos failed for {symbol} {timeframe_str} → {mt5.last_error()}")
         return None
+
+    # parts[0] là chunk MỚI NHẤT → đảo lại để có thứ tự thời gian tăng dần
+    rates = np.concatenate(parts[::-1]) if len(parts) > 1 else parts[0]
 
     df = pd.DataFrame(rates)
     df["time"] = pd.to_datetime(df["time"], unit="s")

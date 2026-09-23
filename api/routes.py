@@ -13,7 +13,7 @@ import re
 from core.bot_engine import bot_engine
 from strategies.manager import strategy_manager
 from backtest.engine import Backtester
-from backtest.data_loader import get_historical_data
+from backtest.data_loader import get_historical_data, get_with_warmup
 from strategies.trend_momentum import TrendMomentumStrategy
 from strategies.asian_sweep import AsianSweepStrategy
 from strategies.smc import SMCSweepChochStrategy
@@ -126,8 +126,9 @@ def register_routes(app):
         strategy, sid = _build_strategy(data)
         tf = getattr(strategy, "timeframe", tf)
 
-        # Lấy dữ liệu
-        df = get_historical_data(symbol, tf, count=count, start_date=start_date)
+        # Lấy dữ liệu (kèm warmup để chỉ báo hội tụ; engine sẽ bỏ qua phần warmup)
+        warmup = int(getattr(strategy, "warmup_bars", 0) or 0)
+        df = get_with_warmup(symbol, tf, count=count, start_date=start_date, warmup_bars=warmup)
         if df is None or df.empty:
             return jsonify({"error": "Failed to get data for the specified range"}), 400
 

@@ -18,11 +18,18 @@ TM_SL_ATR       = 1.5       # SL = TM_SL_ATR × ATR(M15)
 TM_TP_R         = 2.0       # TP = TM_TP_R × SL distance (2R)
 TM_ADX_THRESH   = 22        # Chỉ trade khi ADX H1 ≥ ngưỡng
 TM_SESSION      = (12, 21)  # (Giờ bắt đầu, giờ kết thúc) UTC — London + New York
-TM_HISTORY_BARS = 20000     # Số nến M1 cần nạp để tính chỉ báo H1/M15
+TM_HISTORY_BARS = 60000      # Nến M1 nạp cho LIVE (đủ để EMA200 H1 hội tụ, sai số < 1 cent)
 TM_BE_AT_R      = 1.0       # Dời SL về hòa vốn khi giá thuận lợi đạt R lần này
 TM_MIN_ATR_PCT  = 0.5       # Chỉ trade khi ATR(M15) nằm ở nửa trên của 24h gần nhất
                             # (0 = tắt lọc biến động). Thử nghiệm: lọc bỏ vùng biến động thấp giúp
                             # +lợi nhuận, tăng win rate, giảm drawdown.
+
+# --- Warmup (bỏ qua N nến đầu khi back-test để chỉ báo hội tụ) ---
+# Đặt BẰNG số nến live nạp (TM_HISTORY_BARS / AS_HISTORY_BARS) để real và
+# back-test dùng cùng lượng lịch sử → chỉ báo trùng khớp (< 1 cent).
+TM_WARMUP_BARS  = 60000      # EMA200 H1 cần ~45 ngày nến M1 để hội tụ
+AS_WARMUP_BARS  = 60000      # EMA H4(50) cần lịch sử tương đương
+SMC_WARMUP_BARS = 600       # Chỉ báo ATR(EWM14) hội tụ nhanh; cần ~2 ngày nến M5 cho PDH/PDL + vùng Á
 
 # --- Partial Take-Profit (chốt lời từng phần) ---
 # Khi giá đạt TM_PARTIAL_AT_R lần khoảng cách SL, chốt TM_PARTIAL_FRAC khối lượng.
@@ -60,7 +67,7 @@ AS_MIN_SWEEP_ATR = 0.2      # Yêu cầu quét vượt biên Á ít nhất bội
                             # Giúp winrate 44%→65%, PF 2.44→3.44, chuỗi thua 6→3.
 AS_ATR_LO        = 0.0      # Lọc biến động: chỉ trade khi ATR rank >= mức này (0 = tắt)
 AS_ATR_HI        = 1.0      #                          ATR rank <= mức này (1 = tắt)
-AS_HISTORY_BARS  = 5000     # Số nến M1 nạp cho chiến lược này
+AS_HISTORY_BARS  = 60000     # Nến M1 nạp cho LIVE (đủ để EMA H4(50) hội tụ)
 
 AS_PARTIAL_FRAC  = 0.5      # Chốt một phần (như TM)
 AS_PARTIAL_AT_R  = 1.0

@@ -67,6 +67,7 @@ class AsianSweepStrategy(BaseStrategy):
         self.partial_frac = partial_frac
         self.partial_at_r = partial_at_r
         self.be_move_at_r = be_move_at_r
+        self.warmup_bars = config.AS_WARMUP_BARS
         self.lot = config.AS_LOT
         self.comment = config.AS_COMMENT
 

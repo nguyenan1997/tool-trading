@@ -448,7 +448,7 @@
             const div = DAYS_EST[tf] || 24;
             const days = (count / div).toFixed(1);
             document.getElementById('count-hint').innerText =
-                count > 0 ? `≈ ${days} ngày giao dịch gần nhất (${tf}). Trend Momentum cần ≥ 20.000 nến M1.` : '';
+                count > 0 ? `≈ ${days} ngày giao dịch (${tf}). Warmup tự động nạp thêm để chỉ báo hội tụ.` : '';
         }
         document.getElementById('count').addEventListener('input', updateCountHint);
         document.getElementById('timeframe').addEventListener('change', updateCountHint);

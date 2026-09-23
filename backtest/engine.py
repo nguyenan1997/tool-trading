@@ -82,11 +82,20 @@ class Backtester:
         except Exception:
             self._bar_minutes = 1
 
-        # Bắt đầu từ khi đủ dữ liệu cho các chỉ báo (ví dụ EMA 200)
-        start_idx = 100
-        if len(df) <= start_idx:
-            print("Dữ liệu quá ngắn để Back-test")
+        # Bắt đầu SAU giai đoạn warmup để chỉ báo (EMA/ADX/ATR…) hội tụ.
+        # Nhờ đó kết quả ở cùng một mốc thời gian không phụ thuộc số nến đã nạp.
+        warmup = int(getattr(self.strategy, "warmup_bars", 100) or 100)
+        start_idx = max(100, warmup)
+        if len(df) <= start_idx + 1:
+            print(
+                f"Dữ liệu quá ngắn để Back-test (cần > {start_idx + 1} nến warmup, "
+                f"đang có {len(df)})"
+            )
             return []
+        print(
+            f"Warmup: bỏ qua {start_idx} nến đầu  |  "
+            f"giao dịch từ {df.index[start_idx]}"
+        )
 
         n = len(df)
         for k in range(start_idx, n):
