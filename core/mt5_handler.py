@@ -267,7 +267,8 @@ def open_position(
     magic: int,
     comment: str,
     max_slippage_points: int = None,
-) -> bool:
+    deviation: int = None,
+) -> int:
     info = get_symbol_info(symbol)
     if info is None:
         return False
@@ -304,8 +305,10 @@ def open_position(
         "type_time":   mt5.ORDER_TIME_GTC,
         "type_filling": mt5.ORDER_FILLING_IOC,
     }
-    if max_slippage_points > 0:
-        request["deviation"] = max_slippage_points  # giới hạn trượt giá (points)
+    # `deviation` (nếu truyền) ưu tiên; ngược lại dùng max_slippage_points (legacy).
+    eff_dev = deviation if deviation is not None else max_slippage_points
+    if eff_dev and eff_dev > 0:
+        request["deviation"] = int(eff_dev)  # giới hạn trượt giá (points)
 
     result = _order_send(request, info)
     if result is None or result.retcode != mt5.TRADE_RETCODE_DONE:

@@ -8,15 +8,19 @@ from .asian_sweep import AsianSweepStrategy
 from .smc import SMCSweepChochStrategy
 from .hedging import HedgingStrategy
 
+import config
+
 class StrategyManager:
     def __init__(self):
         self._strategies = {
+            "hedging": HedgingStrategy(),
             "trend_momentum": TrendMomentumStrategy(),
             "asian_sweep": AsianSweepStrategy(),
             "smc": SMCSweepChochStrategy(),
-            "hedging": HedgingStrategy(),
         }
-        self._current_key = "trend_momentum" # Mặc định khi khởi động
+        # PP chạy mặc định khi khởi động (config.DEFAULT_STRATEGY).
+        default = getattr(config, "DEFAULT_STRATEGY", "hedging")
+        self._current_key = default if default in self._strategies else "trend_momentum"
         # Chọn PP nào thì CHỈ chạy PP đó (loại trừ nhau).
         self._enabled = {k: (k == self._current_key) for k in self._strategies}
 

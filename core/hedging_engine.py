@@ -12,6 +12,7 @@ Trạng thái lưu trong bộ nhớ; reset() mỗi khi bot khởi động để 
 đúng tập vị thế đang mở (bỏ qua các TP xảy ra lúc bot tắt).
 """
 import logging
+import time
 import threading
 
 import config
@@ -110,47 +111,68 @@ class HedgingEngine:
         """Mở 1 BUY + 1 SELL tại giá hiện tại, mỗi lệnh TP cách giá vào tp_distance.
         Trả về số lệnh mở thành công (0, 1, hoặc 2).
 
-        TP được neo vào GIÁ KHỚP THỰC TẾ (`position.price_open`), không phải giá
-        tick đọc trước đó, để khoảng TP luôn đúng bằng tp_distance dù có trượt giá.
+        - Gửi BUY và SELL LIỀN NHAU (không chen bước chỉnh TP ở giữa) để 2 chân
+          sát thời điểm nhất.
+        - Có `deviation` giới hạn trượt; nếu sàn từ chối (giá chạy quá ngưỡng)
+          thì thử lại chân còn thiếu vài lần.
+        - Sau khi khớp mới neo TP vào GIÁ KHỚP THỰC TẾ (`position.price_open`).
         """
-        info = mt5h.get_symbol_info(config.SYMBOL)
-        tick = mt5h.get_tick(config.SYMBOL)
-        if info is None or tick is None:
-            logger.error("[HEDGE] Không lấy được symbol info / tick")
-            return 0
-
-        d = info.digits
         dist = float(getattr(strategy, "tp_distance", config.HEDGE_TP_USD))
         lot = float(getattr(strategy, "lot", config.HEDGE_LOT))
         magic = getattr(strategy, "magic", config.MAGIC_HEDGE)
         comment = getattr(strategy, "comment", config.HEDGE_COMMENT)
+        dev = int(getattr(config, "HEDGE_MAX_DEVIATION_PTS", 0) or 0)
+        retries = max(1, int(getattr(config, "HEDGE_OPEN_RETRIES", 1) or 1))
 
-        ok = 0
-        for typ in ("BUY", "SELL"):
-            # TP tạm tính từ tick (để lệnh luôn có TP ngay khi khớp).
-            prov_tp = round(tick.ask + dist if typ == "BUY" else tick.bid - dist, d)
-            # max_slippage_points=0: tắt hủy-do-trượt để đảm bảo đủ 2 chân
-            ticket = mt5h.open_position(config.SYMBOL, typ, lot, 0.0, prov_tp,
-                                        magic, comment, max_slippage_points=0)
-            if not ticket:
-                continue
-            ok += 1
-
-            # Sửa TP theo đúng giá khớp thực tế -> khoảng TP = chính xác dist.
-            pos = mt5h.get_position_by_ticket(ticket)
-            if pos is not None and pos.price_open:
-                exact_tp = round(
-                    pos.price_open + dist if typ == "BUY" else pos.price_open - dist, d
+        # --- Pha 1: mở 2 chân liền nhau (chân nào bị từ chối sẽ thử lại) ---
+        opened = []          # [(typ, ticket), ...]
+        pending = {"BUY": True, "SELL": True}
+        for attempt in range(retries):
+            for typ in ("BUY", "SELL"):
+                if not pending[typ]:
+                    continue
+                info = mt5h.get_symbol_info(config.SYMBOL)
+                tick = mt5h.get_tick(config.SYMBOL)
+                if info is None or tick is None:
+                    continue
+                d = info.digits
+                prov_tp = round(tick.ask + dist if typ == "BUY" else tick.bid - dist, d)
+                # max_slippage_points=0: không tự hủy lệnh; giới hạn trượt qua `deviation`
+                ticket = mt5h.open_position(
+                    config.SYMBOL, typ, lot, 0.0, prov_tp, magic, comment,
+                    max_slippage_points=0, deviation=dev,
                 )
-                if abs(exact_tp - prov_tp) > 1e-9:
-                    mt5h.modify_position(config.SYMBOL, ticket, sl=0.0, tp=exact_tp)
+                if ticket:
+                    opened.append((typ, ticket))
+                    pending[typ] = False
+            if not (pending["BUY"] or pending["SELL"]):
+                break
+            if attempt < retries - 1:
+                time.sleep(0.3)  # chờ chút rồi đọc tick mới, thử lại
+
+        # --- Pha 2: neo TP theo giá khớp thực tế ---
+        for typ, ticket in opened:
+            info = mt5h.get_symbol_info(config.SYMBOL)
+            d = info.digits if info is not None else 2
+            pos = mt5h.get_position_by_ticket(ticket)
+            if pos is None or not pos.price_open:
+                continue
+            exact_tp = round(
+                pos.price_open + dist if typ == "BUY" else pos.price_open - dist, d
+            )
+            if abs((pos.tp or 0.0) - exact_tp) > 1e-9:
+                if mt5h.modify_position(config.SYMBOL, ticket, sl=0.0, tp=exact_tp):
                     logger.info(
-                        f"[HEDGE] Chỉnh TP {typ} ticket={ticket}: {prov_tp} → {exact_tp} "
+                        f"[HEDGE] Chỉnh TP {typ} ticket={ticket}: {pos.tp} → {exact_tp} "
                         f"(giá khớp {pos.price_open})"
                     )
 
+        ok = len(opened)
         if ok < 2:
-            logger.warning(f"[HEDGE] Chỉ mở được {ok}/2 chân của cặp")
+            logger.warning(
+                f"[HEDGE] Chỉ mở được {ok}/2 chân của cặp (dev={dev}pts, "
+                f"thử {retries} lần)"
+            )
         return ok
 
 
