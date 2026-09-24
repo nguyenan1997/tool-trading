@@ -1618,3 +1618,10 @@ ValueError: list.index(x): x not in list
 2026-09-24 19:47:45  INFO      ✅ MODIFIED  |  ticket=346432779  |  SL=0.0  |  TP=4275.6
 2026-09-24 19:47:45  INFO      ✅ MODIFIED  |  ticket=346432790  |  SL=0.0  |  TP=4269.4
 2026-09-24 19:47:45  INFO      [HEDGE] Chuẩn hóa TP cho 6 vị thế cũ (dist=3.0)
+2026-09-24 19:48:29  INFO      [HEDGE] 1 lệnh chạm TP → mở 1 cặp BUY+SELL mới
+2026-09-24 19:48:29  INFO      🟢 BUY OPENED  |  Ticket=346437670  |  Fill=4275.07000  |  Yêu cầu=4275.00000  |  SL=0.00000  |  TP=4278.00000  |  Lot=0.01  |  trượt=7pts
+2026-09-24 19:48:30  INFO      ✅ MODIFIED  |  ticket=346437670  |  SL=0.0  |  TP=4278.07
+2026-09-24 19:48:30  INFO      [HEDGE] Chỉnh TP BUY ticket=346437670: 4278.0 → 4278.07 (giá khớp 4275.07)
+2026-09-24 19:48:30  INFO      🔴 SELL OPENED  |  Ticket=346437684  |  Fill=4274.82000  |  Yêu cầu=4274.74000  |  SL=0.00000  |  TP=4271.78000  |  Lot=0.01  |  trượt=8pts
+2026-09-24 19:48:30  INFO      ✅ MODIFIED  |  ticket=346437684  |  SL=0.0  |  TP=4271.82
+2026-09-24 19:48:30  INFO      [HEDGE] Chỉnh TP SELL ticket=346437684: 4271.78 → 4271.82 (giá khớp 4274.82)

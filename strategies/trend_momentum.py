@@ -80,6 +80,7 @@ class TrendMomentumStrategy(BaseStrategy):
         self.partial_frac = partial_frac
         self.partial_at_r = partial_at_r
         self.min_atr_pct = min_atr_pct
+        self.warmup_bars = config.TM_WARMUP_BARS
 
     def calculate_indicators(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()

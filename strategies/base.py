@@ -6,6 +6,10 @@ from abc import ABC, abstractmethod
 import pandas as pd
 
 class BaseStrategy(ABC):
+    # Số nến đầu bỏ qua khi back-test để chỉ báo hội tụ (warmup).
+    # Các chiến lược nên ghi đè giá trị này cho phù hợp (xem config.*_WARMUP_BARS).
+    warmup_bars = 100
+
     def __init__(self, name="Base", magic=0):
         self.name = name
         self.magic = magic

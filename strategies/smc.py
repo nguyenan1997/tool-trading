@@ -94,6 +94,7 @@ class SMCSweepChochStrategy(BaseStrategy):
         self.lot = config.SMC_LOT
         self.comment = config.SMC_COMMENT
         self.timeframe = "M5"
+        self.warmup_bars = config.SMC_WARMUP_BARS
 
     # ------------------------------------------------------------------
     # Chỉ báo
