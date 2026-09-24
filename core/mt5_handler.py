@@ -154,6 +154,16 @@ def get_open_positions(symbol: str, magics) -> list:
     return [p for p in positions if p.magic in magics]
 
 
+def get_position_by_ticket(ticket: int):
+    """Trả về Position theo ticket, hoặc None nếu không còn mở."""
+    if not connect():
+        return None
+    positions = mt5.positions_get(ticket=ticket)
+    if positions:
+        return positions[0]
+    return None
+
+
 # ────────────────────────────────────────────────
 #  Lot Size Calculation
 # ────────────────────────────────────────────────
@@ -298,7 +308,7 @@ def open_position(
             f"⚠️ TRƯỢT GIÁ {slip_points:.0f} points (> {max_slippage_points})  |  "
             f"yêu cầu {price:.{digits}f} -> khớp {fill:.{digits}f}  |  ĐÓNG LỆNH, coi như không vào"
         )
-        pos = get_open_position(symbol, magic)
+        pos = get_position_by_ticket(result.order)
         if pos is not None:
             close_position(pos, magic, "slippage cancel")
         return False
@@ -308,7 +318,7 @@ def open_position(
         f"Ticket={result.order}  |  Fill={fill:.5f}  |  Yêu cầu={price:.5f}  |  "
         f"SL={sl:.5f}  |  TP={tp:.5f}  |  Lot={lot}  |  trượt={slip_points:.0f}pts"
     )
-    return True
+    return result.order
 
 
 def close_position(position, magic: int, comment: str = "close") -> bool:

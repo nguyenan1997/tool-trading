@@ -1538,3 +1538,83 @@ ValueError: list.index(x): x not in list
 2026-09-19 03:08:54  INFO      MT5 disconnected.
 2026-09-19 03:08:54  INFO      Bot Engine STOPPED
 2026-09-19 03:08:54  INFO      Connected  |  Account: 91454560  |  Balance: 206.48 USD  |  Broker: LiteFinance Global LLC
+2026-09-19 03:10:58  INFO      Connected  |  Account: 91454560  |  Balance: 206.48 USD  |  Broker: LiteFinance Global LLC
+2026-09-19 03:10:58  INFO      Bot Engine STARTED
+2026-09-19 03:11:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h49m nữa tới phiên vào lệnh (16:00 giờ Việt Nam)  |  giờ VN 03:11
+2026-09-20 23:02:50  INFO      Bot Engine STARTED
+2026-09-20 23:02:50  INFO      Connected  |  Account: 91454560  |  Balance: 206.48 USD  |  Broker: LiteFinance Global LLC
+2026-09-20 23:03:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (11:00 giờ Việt Nam)  |  giờ VN 23:03
+2026-09-20 23:08:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (11:00 giờ Việt Nam)  |  giờ VN 23:08
+2026-09-20 23:13:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (11:00 giờ Việt Nam)  |  giờ VN 23:13
+2026-09-20 23:18:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (11:00 giờ Việt Nam)  |  giờ VN 23:18
+2026-09-20 23:24:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (11:00 giờ Việt Nam)  |  giờ VN 23:24
+2026-09-20 23:30:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (12:00 giờ Việt Nam)  |  giờ VN 23:30
+2026-09-20 23:36:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (12:00 giờ Việt Nam)  |  giờ VN 23:36
+2026-09-20 23:41:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (12:00 giờ Việt Nam)  |  giờ VN 23:41
+2026-09-20 23:47:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (12:00 giờ Việt Nam)  |  giờ VN 23:47
+2026-09-20 23:53:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (12:00 giờ Việt Nam)  |  giờ VN 23:53
+2026-09-20 23:59:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (12:00 giờ Việt Nam)  |  giờ VN 23:59
+2026-09-21 00:05:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (12:00 giờ Việt Nam)  |  giờ VN 00:05
+2026-09-21 00:10:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (12:00 giờ Việt Nam)  |  giờ VN 00:10
+2026-09-21 00:16:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (12:00 giờ Việt Nam)  |  giờ VN 00:16
+2026-09-21 00:22:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (12:00 giờ Việt Nam)  |  giờ VN 00:22
+2026-09-21 00:28:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (12:00 giờ Việt Nam)  |  giờ VN 00:28
+2026-09-21 00:33:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 00:33
+2026-09-21 00:39:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 00:39
+2026-09-21 00:45:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 00:45
+2026-09-21 00:51:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 00:51
+2026-09-21 00:57:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 00:57
+2026-09-21 01:02:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 01:02
+2026-09-21 01:08:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 01:08
+2026-09-21 01:14:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 01:14
+2026-09-21 01:19:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 01:19
+2026-09-21 01:24:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (13:00 giờ Việt Nam)  |  giờ VN 01:24
+2026-09-21 01:30:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (14:00 giờ Việt Nam)  |  giờ VN 01:30
+2026-09-21 01:35:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (14:00 giờ Việt Nam)  |  giờ VN 01:35
+2026-09-21 01:41:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (14:00 giờ Việt Nam)  |  giờ VN 01:41
+2026-09-21 01:46:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (14:00 giờ Việt Nam)  |  giờ VN 01:46
+2026-09-21 01:52:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (14:00 giờ Việt Nam)  |  giờ VN 01:52
+2026-09-21 01:57:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (14:00 giờ Việt Nam)  |  giờ VN 01:57
+2026-09-21 02:03:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (14:00 giờ Việt Nam)  |  giờ VN 02:03
+2026-09-21 02:09:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (14:00 giờ Việt Nam)  |  giờ VN 02:09
+2026-09-21 02:14:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (14:00 giờ Việt Nam)  |  giờ VN 02:14
+2026-09-21 02:19:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (14:00 giờ Việt Nam)  |  giờ VN 02:19
+2026-09-21 02:25:00  INFO      ⏳ PHIÊN  |  Trend Momentum  |  Còn 12h01m nữa tới phiên vào lệnh (14:00 giờ Việt Nam)  |  giờ VN 02:25
+2026-09-24 19:37:07  INFO      Bot Engine STARTED
+2026-09-24 19:37:07  INFO      Connected  |  Account: 91454560  |  Balance: 176.74 USD  |  Broker: LiteFinance Global LLC
+2026-09-24 19:37:32  INFO      MT5 disconnected.
+2026-09-24 19:37:32  INFO      Bot Engine STOPPED
+2026-09-24 19:37:32  INFO      Connected  |  Account: 91454560  |  Balance: 176.74 USD  |  Broker: LiteFinance Global LLC
+2026-09-24 19:37:32  INFO      Bot Engine STARTED
+2026-09-24 19:37:32  INFO      ⏳ PHIÊN  |  Hedging Grid  |  Hedging chạy liên tục 24/7 (không giới hạn phiên)  |  giờ VN 19:37
+2026-09-24 19:37:32  INFO      🟢 BUY OPENED  |  Ticket=346430618  |  Fill=4268.76000  |  Yêu cầu=4268.73000  |  SL=0.00000  |  TP=4271.73000  |  Lot=0.01  |  trượt=3pts
+2026-09-24 19:37:32  INFO      🔴 SELL OPENED  |  Ticket=346430624  |  Fill=4268.54000  |  Yêu cầu=4268.54000  |  SL=0.00000  |  TP=4265.51000  |  Lot=0.01  |  trượt=0pts
+2026-09-24 19:37:32  INFO      [HEDGE] Đã mở cặp BUY+SELL đầu tiên
+2026-09-24 19:38:11  INFO      [HEDGE] 1 lệnh chạm TP → mở 1 cặp BUY+SELL mới
+2026-09-24 19:38:12  INFO      🟢 BUY OPENED  |  Ticket=346430971  |  Fill=4265.66000  |  Yêu cầu=4265.51000  |  SL=0.00000  |  TP=4268.51000  |  Lot=0.01  |  trượt=15pts
+2026-09-24 19:38:12  INFO      🔴 SELL OPENED  |  Ticket=346430979  |  Fill=4265.64000  |  Yêu cầu=4265.44000  |  SL=0.00000  |  TP=4262.29000  |  Lot=0.01  |  trượt=20pts
+2026-09-24 19:39:48  INFO      [HEDGE] 1 lệnh chạm TP → mở 1 cặp BUY+SELL mới
+2026-09-24 19:39:49  INFO      🟢 BUY OPENED  |  Ticket=346431589  |  Fill=4268.57000  |  Yêu cầu=4268.57000  |  SL=0.00000  |  TP=4271.57000  |  Lot=0.01  |  trượt=0pts
+2026-09-24 19:39:49  INFO      🔴 SELL OPENED  |  Ticket=346431590  |  Fill=4268.39000  |  Yêu cầu=4268.38000  |  SL=0.00000  |  TP=4265.35000  |  Lot=0.01  |  trượt=1pts
+2026-09-24 19:41:14  INFO      [HEDGE] 1 lệnh chạm TP → mở 1 cặp BUY+SELL mới
+2026-09-24 19:41:15  INFO      🟢 BUY OPENED  |  Ticket=346432558  |  Fill=4271.77000  |  Yêu cầu=4271.79000  |  SL=0.00000  |  TP=4274.79000  |  Lot=0.01  |  trượt=2pts
+2026-09-24 19:41:15  INFO      🔴 SELL OPENED  |  Ticket=346432564  |  Fill=4271.55000  |  Yêu cầu=4271.55000  |  SL=0.00000  |  TP=4268.57000  |  Lot=0.01  |  trượt=0pts
+2026-09-24 19:41:26  INFO      [HEDGE] 1 lệnh chạm TP → mở 1 cặp BUY+SELL mới
+2026-09-24 19:41:26  INFO      🟢 BUY OPENED  |  Ticket=346432779  |  Fill=4272.60000  |  Yêu cầu=4272.53000  |  SL=0.00000  |  TP=4275.53000  |  Lot=0.01  |  trượt=7pts
+2026-09-24 19:41:26  INFO      🔴 SELL OPENED  |  Ticket=346432790  |  Fill=4272.40000  |  Yêu cầu=4272.39000  |  SL=0.00000  |  TP=4269.31000  |  Lot=0.01  |  trượt=1pts
+2026-09-24 19:42:33  INFO      ⏳ PHIÊN  |  Hedging Grid  |  Hedging chạy liên tục 24/7 (không giới hạn phiên)  |  giờ VN 19:42
+2026-09-24 19:47:07  INFO      Connected  |  Account: 91454560  |  Balance: 187.89 USD  |  Broker: LiteFinance Global LLC
+2026-09-24 19:47:07  INFO      Bot Engine STARTED
+2026-09-24 19:47:42  INFO      MT5 disconnected.
+2026-09-24 19:47:42  INFO      Bot Engine STOPPED
+2026-09-24 19:47:43  INFO      Connected  |  Account: 91454560  |  Balance: 187.89 USD  |  Broker: LiteFinance Global LLC
+2026-09-24 19:47:43  INFO      ⏳ PHIÊN  |  Hedging Grid  |  Hedging chạy liên tục 24/7 (không giới hạn phiên)  |  giờ VN 19:47
+2026-09-24 19:47:43  INFO      Bot Engine STARTED
+2026-09-24 19:47:43  INFO      [HEDGE] Tiếp quản 6 vị thế đang mở (magic=20260601)
+2026-09-24 19:47:43  INFO      ✅ MODIFIED  |  ticket=346430979  |  SL=0.0  |  TP=4262.64
+2026-09-24 19:47:44  INFO      ✅ MODIFIED  |  ticket=346431590  |  SL=0.0  |  TP=4265.39
+2026-09-24 19:47:44  INFO      ✅ MODIFIED  |  ticket=346432558  |  SL=0.0  |  TP=4274.77
+2026-09-24 19:47:44  INFO      ✅ MODIFIED  |  ticket=346432564  |  SL=0.0  |  TP=4268.55
+2026-09-24 19:47:45  INFO      ✅ MODIFIED  |  ticket=346432779  |  SL=0.0  |  TP=4275.6
+2026-09-24 19:47:45  INFO      ✅ MODIFIED  |  ticket=346432790  |  SL=0.0  |  TP=4269.4
+2026-09-24 19:47:45  INFO      [HEDGE] Chuẩn hóa TP cho 6 vị thế cũ (dist=3.0)

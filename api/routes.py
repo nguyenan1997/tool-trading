@@ -17,6 +17,7 @@ from backtest.data_loader import get_historical_data
 from strategies.trend_momentum import TrendMomentumStrategy
 from strategies.asian_sweep import AsianSweepStrategy
 from strategies.smc import SMCSweepChochStrategy
+from strategies.hedging import HedgingStrategy
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,14 @@ def _flag(data, key, default=True):
 def _build_strategy(data):
     """Xây dựng chiến lược theo tham số từ UI ('trend_momentum' | 'asian_sweep' | 'smc')."""
     sid = (data.get("strategy") or "trend_momentum").strip().lower()
+
+    if sid == "hedging":
+        # Hedging Grid không mô phỏng được bằng Backtester hiện tại (nhiều vị thế
+        # 2 chiều, không SL) — chỉ chạy live. Trả object để nhận diện chiến lược.
+        return HedgingStrategy(
+            tp_usd=_num(data, "hedge_tp_usd", config.HEDGE_TP_USD),
+            lot=_num(data, "hedge_lot", config.HEDGE_LOT),
+        ), "hedging"
 
     if sid == "smc":
         return SMCSweepChochStrategy(

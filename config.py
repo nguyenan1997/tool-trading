@@ -123,6 +123,25 @@ SMC_BE_AT_R       = 0.0      # Dời SL hòa vốn (tắt: partial đã dời đ
 SMC_TRAIL_AT_R    = 0.0      # Trailing stop (tắt: kém ổn định trong test)
 SMC_TRAIL_GAP_R   = 1.0
 
+# ============================================================
+#  HEDGING GRID (HỆ THỐNG 4, XAUUSD) — CHẠY LIÊN TỤC 24/7
+# ------------------------------------------------------------
+# Luật:
+#   1. Mở đồng thời 1 BUY + 1 SELL. Mỗi lệnh đặt TP cách giá vào HEDGE_TP_USD.
+#   2. Khi giá chạm TP của lệnh nào → broker tự đóng lệnh đó (lệnh đối diện
+#      vẫn "gồng"), ĐỒNG THỜI bot mở ngay 1 cặp BUY+SELL mới tại giá hiện tại.
+#   3. Mỗi lần có 1 lệnh chạm TP → mở thêm 1 cặp. Số vị thế mở tăng dần.
+# KHÔNG SL (đúng mô tả): lệnh chỉ đóng khi chạm TP của chính nó → rủi ro lỗ
+#   không giới hạn khi giá đi một chiều. Cân nhắc lot nhỏ.
+# Bot chỉ chạy khi chiến lược đang chọn trên UI là "hedging".
+# ============================================================
+HEDGE_ENABLED    = True
+MAGIC_HEDGE      = 20260601
+HEDGE_COMMENT    = "HedgeGrid_Bot"
+HEDGE_LOT        = 0.01     # Khối lượng mỗi lệnh (0.01 = nhỏ nhất)
+HEDGE_TP_USD     = 3.0      # TP cách giá vào = 3.0 USD ≈ 30 pip (1 pip XAUUSD = 0.1)
+HEDGE_POLL_SEC   = 1        # Chu kỳ bot kiểm tra TP/mở cặp mới (giây)
+
 # --- Lot Size Mode ---
 # "FIXED"  → always use FIXED_LOT
 # "RISK"   → calculate lot based on RISK_PERCENT of balance

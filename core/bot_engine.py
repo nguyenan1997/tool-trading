@@ -9,6 +9,7 @@ from datetime import datetime, timezone, timedelta
 
 import config
 from . import mt5_handler as mt5h
+from .hedging_engine import hedging_engine
 from strategies.manager import strategy_manager
 
 logger = logging.getLogger(__name__)
@@ -25,6 +26,7 @@ class BotEngine:
         self._last_session_log = 0.0  # lần cuối ghi log phiên
         self._last_session_key = None # PP đã ghi log phiên lần cuối (đổi PP → log ngay)
         self._pending = {}        # magic -> meta lệnh CHỜ LIMIT thật {ticket, expire_ts}
+        self._hedge_cleared_key = None  # đã dọn lệnh chờ của PP khác khi vào hedging chưa
 
     def start(self):
         with self._lock:
@@ -35,6 +37,7 @@ class BotEngine:
                 return
             self.is_running = True
             self.status = "Running"
+            hedging_engine.reset()   # chạy lại -> tiếp quản vị thế hiện có
             self._thread = threading.Thread(target=self._run_loop, daemon=True)
             self._thread.start()
             logger.info("Bot Engine STARTED")
@@ -89,6 +92,15 @@ class BotEngine:
         """Trạng thái phiên + đếm ngược, hiển thị theo GIỜ VIỆT NAM (UTC+7).
         Phiên định nghĩa theo giờ broker của CHIẾN LƯỢC ĐANG CHỌN; ở đây quy đổi để hiển thị."""
         strategy = strategy_manager.get_current_strategy()
+        if getattr(strategy, "is_hedging", False):
+            vn_off = int(getattr(config, "VN_UTC_OFFSET", 7))
+            vn_now = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=vn_off)
+            return {
+                "in_session": True, "now": vn_now.strftime("%H:%M"),
+                "session": "24/7", "seconds_to_open": 0, "open_at": None,
+                "strategy": getattr(strategy, "name", "?"),
+                "label": "Hedging chạy liên tục 24/7 (không giới hạn phiên)",
+            }
         start, end = self._session_window(strategy)
         sname = getattr(strategy, "name", "?")
         server_now = self._server_now()                      # giờ broker (naive)
@@ -146,6 +158,21 @@ class BotEngine:
 
         try:
             while self.is_running:
+                # Chiến lược Hedging chạy vòng lặp riêng, poll liên tục theo giây
+                if getattr(strategy_manager.get_current_strategy(), "is_hedging", False):
+                    try:
+                        cur_key = strategy_manager.get_current_key()
+                        if self._hedge_cleared_key != cur_key:
+                            self._hedge_cleared_key = cur_key
+                            self._cancel_other_pending()
+                        self._maybe_log_session()
+                        hedging_engine.process(strategy_manager.get_current_strategy())
+                    except Exception as e:
+                        logger.error(f"Error in hedging: {e}")
+                        time.sleep(5)
+                    time.sleep(max(1, int(getattr(config, "HEDGE_POLL_SEC", 1))))
+                    continue
+
                 # 1. Chờ nến mới
                 tf = self._active_timeframe()
                 tf_seconds = {"M1": 60, "M5": 300, "M15": 900, "H1": 3600}.get(tf, 60)
@@ -164,6 +191,17 @@ class BotEngine:
 
         finally:
             mt5h.disconnect()
+
+    def _cancel_other_pending(self):
+        """Hủy mọi lệnh CHỜ của các chiến lược KHÁC khi vào hedging."""
+        for s in strategy_manager.get_all_strategy_objects():
+            if getattr(s, "is_hedging", False):
+                continue
+            try:
+                for order in mt5h.get_pending_orders(config.SYMBOL, s.magic):
+                    mt5h.cancel_pending_order(order.ticket)
+            except Exception as e:
+                logger.error(f"cancel pending {getattr(s, 'name', '?')}: {e}")
 
     def _on_candle_tick(self):
         # Chỉ CHẠY chiến lược đang được chọn trên UI (các PP loại trừ nhau).
