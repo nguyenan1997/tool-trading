@@ -14,6 +14,7 @@ Trạng thái lưu trong bộ nhớ; reset() mỗi khi bot khởi động để 
 import logging
 import time
 import threading
+from datetime import datetime, timezone, timedelta
 
 import config
 from . import mt5_handler as mt5h
@@ -29,6 +30,12 @@ class HedgingEngine:
         self._fresh = True    # True = cần khởi tạo/tiếp quản ở lần xử lý kế tiếp
         self._no_money = False  # lần mở gần nhất thất bại vì hết margin
         self._last_balance_log = 0.0  # lần cuối ghi log tỷ lệ BUY/SELL
+        self._last_close_key = None   # (ngày, giờ) lần cuối đóng cuối phiên
+
+    def _vn_now(self):
+        """Giờ Việt Nam hiện tại (naive) = UTC + VN_UTC_OFFSET."""
+        off = int(getattr(config, "VN_UTC_OFFSET", 7))
+        return datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=off)
 
     def reset(self):
         """Xóa trạng thái để lần chạy tới tiếp quản vị thế hiện có."""
@@ -53,6 +60,38 @@ class HedgingEngine:
 
             positions = mt5h.get_open_positions(config.SYMBOL, [magic])
             current = {p.ticket for p in positions}
+
+            # --- Giới hạn giờ giao dịch (giờ VN) ---
+            if getattr(config, "HEDGE_TRADING_HOURS_ENABLED", True):
+                vn = self._vn_now()
+                h = vn.hour
+                skip = getattr(config, "HEDGE_SKIP_HOURS_VN", []) or []
+                before = max(1, int(getattr(config, "HEDGE_CLOSE_BEFORE_HOURS", 1) or 1))
+                in_skip = any(a <= h < b for a, b in skip)
+                in_close = any((a - before) <= h < a for a, b in skip)
+
+                if in_skip:
+                    # Đã tới hạn mà còn lệnh -> CẮT TOÀN BỘ (dù chưa cân bằng)
+                    if current:
+                        self._close_all(strategy, "hết giờ theo dõi (chưa cân bằng)")
+                    else:
+                        self._known = set()
+                        self._fresh = True
+                    self._maybe_log_balance(strategy)
+                    return
+
+                if in_close:
+                    # Cửa sổ theo dõi: đóng toàn bộ khi BUY = SELL; chưa cân bằng thì chờ
+                    if current:
+                        nb = sum(1 for p in positions if p.type == 0)
+                        ns = sum(1 for p in positions if p.type == 1)
+                        if nb == ns:
+                            self._close_all(strategy, f"đã cân bằng {nb}BUY/{ns}SELL")
+                    else:
+                        self._known = set()
+                        self._fresh = True
+                    self._maybe_log_balance(strategy)
+                    return
 
             # --- Lần đầu của magic này: mở cặp đầu HOẶC tiếp quản ---
             if self._fresh:
@@ -120,6 +159,29 @@ class HedgingEngine:
             f"[HEDGE] ⚖️ {side}: BUY={nb} ({vol_b:.2f} lot) | SELL={ns} ({vol_s:.2f} lot) "
             f"| tỷ lệ B/S={ratio:.2f} | net={net:+.2f} lot | lỗ nổi={floating:+.2f}$ | equity={eq:.2f}$"
         )
+
+    # ------------------------------------------------------------------
+    def _close_all(self, strategy, reason="đóng toàn bộ"):
+        """Đóng toàn bộ vị thế hedging (dùng cho cuối phiên / hết giờ theo dõi)."""
+        magic = getattr(strategy, "magic", config.MAGIC_HEDGE)
+        total = len(mt5h.get_open_positions(config.SYMBOL, [magic]))
+        if total == 0:
+            self._magic = None
+            self._known = set()
+            self._fresh = True
+            return
+        logger.warning(f"[HEDGE] ⏹️ {reason} → đóng toàn bộ {total} vị thế")
+        for _ in range(60):
+            rest = mt5h.get_open_positions(config.SYMBOL, [magic])
+            if not rest:
+                break
+            for p in rest:
+                mt5h.close_position(p, magic, "close all")
+            time.sleep(0.2)
+        self._magic = None
+        self._known = set()
+        self._fresh = True
+        logger.info("[HEDGE] ✅ Đã đóng sạch; chờ phiên giao dịch mới")
 
     # ------------------------------------------------------------------
     def _reset_cycle(self, strategy):

@@ -152,6 +152,13 @@ HEDGE_MAX_DEVIATION_PTS = 30  # Giới hạn trượt mỗi lệnh (points). 0 =
 HEDGE_OPEN_RETRIES = 3        # Số lần thử lại mỗi chân nếu sàn từ chối do trượt
 HEDGE_RESET_ON_NO_MARGIN = True  # Hết margin (không mở thêm được) -> đóng toàn bộ, mở chu kỳ mới
 HEDGE_LOG_BALANCE_SEC    = 0     # 0 = chỉ log khi có lệnh thoát; >0 = thêm log định kỳ mỗi N giây
+# --- Khung giờ giao dịch (GIỜ VIỆT NAM, UTC+7) ---
+# Trong các khoảng skip: không mở lệnh mới.
+# Trước đó HEDGE_CLOSE_BEFORE_HOURS giờ là "cửa sổ theo dõi": đóng toàn bộ khi
+# BUY=SELL; hết cửa sổ mà vẫn chưa cân bằng thì CẮT TOÀN BỘ.
+HEDGE_SKIP_HOURS_VN      = [(19, 22), (5, 7)]
+HEDGE_CLOSE_BEFORE_HOURS = 1
+HEDGE_TRADING_HOURS_ENABLED = True
 
 # Chiến lược chạy mặc định khi khởi động chương trình.
 # "hedging" | "trend_momentum" | "asian_sweep" | "smc"
