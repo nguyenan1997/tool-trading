@@ -127,6 +127,29 @@ def get_account_balance() -> float:
     return acc.balance if acc else 0.0
 
 
+def get_account_info():
+    """Trả về account_info (balance, equity, margin_free, margin_level...) hoặc None."""
+    if not connect():
+        return None
+    return mt5.account_info()
+
+
+def get_margin_required(symbol: str, lots: float, order_type: str = "BUY", price: float = None):
+    """Margin cần cho 1 lệnh (dùng cho việc kiểm tra còn đủ tiền mở không)."""
+    if not connect():
+        return None
+    if price is None:
+        tick = get_tick(symbol)
+        if tick is None:
+            return None
+        price = tick.ask if order_type == "BUY" else tick.bid
+    mt5_type = mt5.ORDER_TYPE_BUY if order_type == "BUY" else mt5.ORDER_TYPE_SELL
+    try:
+        return mt5.order_calc_margin(mt5_type, symbol, lots, price)
+    except Exception:
+        return None
+
+
 def get_symbol_info(symbol: str):
     if not connect():
         return None
@@ -258,6 +281,14 @@ def _order_send(request: dict, info=None):
 # ────────────────────────────────────────────────
 #  Open / Close Orders
 # ────────────────────────────────────────────────
+_LAST_RETCODE = None   # retcode của lần open_position gần nhất (None nếu không lỗi)
+
+
+def get_last_retcode():
+    """Retcode của lần open_position gần nhất (để nhận diện lỗi hết margin)."""
+    return _LAST_RETCODE
+
+
 def open_position(
     symbol: str,
     order_type: str,   # "BUY" or "SELL"
@@ -269,6 +300,7 @@ def open_position(
     max_slippage_points: int = None,
     deviation: int = None,
 ) -> int:
+    global _LAST_RETCODE
     info = get_symbol_info(symbol)
     if info is None:
         return False
@@ -312,6 +344,7 @@ def open_position(
 
     result = _order_send(request, info)
     if result is None or result.retcode != mt5.TRADE_RETCODE_DONE:
+        _LAST_RETCODE = result.retcode if result else None
         code = result.retcode if result else "None"
         msg = result.comment if result else "order_send returned None"
         if code in _SLIPPAGE_RETCODES:
@@ -319,6 +352,8 @@ def open_position(
         else:
             logger.error(f"open_position FAILED  |  retcode={code}  |  {msg}")
         return False
+
+    _LAST_RETCODE = None
 
     fill = float(getattr(result, "price", 0) or price)
     slip_points = abs(fill - price) / info.point

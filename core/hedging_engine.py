@@ -23,10 +23,11 @@ logger = logging.getLogger(__name__)
 
 class HedgingEngine:
     def __init__(self):
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self._magic = None
         self._known = set()   # các ticket đang được theo dõi
         self._fresh = True    # True = cần khởi tạo/tiếp quản ở lần xử lý kế tiếp
+        self._no_money = False  # lần mở gần nhất thất bại vì hết margin
 
     def reset(self):
         """Xóa trạng thái để lần chạy tới tiếp quản vị thế hiện có."""
@@ -43,6 +44,7 @@ class HedgingEngine:
             return
 
         with self._lock:
+            self._no_money = False
             if self._magic != magic:
                 self._magic = magic
                 self._known = set()
@@ -80,7 +82,47 @@ class HedgingEngine:
 
             self._known = set(current)
 
+            # --- Hết margin: đóng toàn bộ và bắt đầu chu kỳ mới ---
+            if self._no_money and getattr(config, "HEDGE_RESET_ON_NO_MARGIN", True):
+                self._reset_cycle(strategy)
+
     # ------------------------------------------------------------------
+    def _reset_cycle(self, strategy):
+        """Đóng toàn bộ vị thế hedging rồi reset để mở chu kỳ mới."""
+        magic = getattr(strategy, "magic", config.MAGIC_HEDGE)
+        positions = mt5h.get_open_positions(config.SYMBOL, [magic])
+        if not positions:
+            self._fresh = True
+            return
+        logger.warning(
+            f"[HEDGE] ⛔ HẾT MARGIN → ĐÓNG TOÀN BỘ {len(positions)} vị thế, "
+            f"bắt đầu chu kỳ giao dịch mới"
+        )
+        for _ in range(30):  # đóng lặp tới khi sạch (tối đa 30 vòng)
+            positions = mt5h.get_open_positions(config.SYMBOL, [magic])
+            if not positions:
+                break
+            for p in positions:
+                mt5h.close_position(p, magic, "hedge cycle reset")
+            time.sleep(0.2)
+        self._magic = None
+        self._known = set()
+        self._fresh = True
+        logger.info("[HEDGE] ✅ Đã đóng hết, chu kỳ mới sẽ bắt đầu ở vòng sau")
+
+    # ------------------------------------------------------------------
+    def _is_no_money(self, strategy) -> bool:
+        """True nếu free margin không đủ mở thêm 1 chân (0.01 lot)."""
+        acct = mt5h.get_account_info()
+        if acct is None:
+            return False
+        lot = float(getattr(strategy, "lot", config.HEDGE_LOT))
+        need = mt5h.get_margin_required(config.SYMBOL, lot, "BUY")
+        if need is None:
+            tick = mt5h.get_tick(config.SYMBOL)
+            need = (tick.ask / 1000.0) if tick is not None else 0.0
+        return acct.margin_free < (need or 0.0) + 0.01
+
     def _tickets(self, magic) -> set:
         positions = mt5h.get_open_positions(config.SYMBOL, [magic])
         return {p.ticket for p in positions}
@@ -173,6 +215,7 @@ class HedgingEngine:
                 f"[HEDGE] Chỉ mở được {ok}/2 chân của cặp (dev={dev}pts, "
                 f"thử {retries} lần)"
             )
+            self._no_money = self._is_no_money(strategy)
         return ok
 
 
