@@ -82,11 +82,20 @@ class Backtester:
         except Exception:
             self._bar_minutes = 1
 
-        # Bắt đầu từ khi đủ dữ liệu cho các chỉ báo (ví dụ EMA 200)
-        start_idx = 100
-        if len(df) <= start_idx:
-            print("Dữ liệu quá ngắn để Back-test")
+        # Bắt đầu SAU giai đoạn warmup để chỉ báo (EMA/ADX/ATR…) hội tụ.
+        # Nhờ đó kết quả ở cùng một mốc thời gian không phụ thuộc số nến đã nạp.
+        warmup = int(getattr(self.strategy, "warmup_bars", 100) or 100)
+        start_idx = max(100, warmup)
+        if len(df) <= start_idx + 1:
+            print(
+                f"Dữ liệu quá ngắn để Back-test (cần > {start_idx + 1} nến warmup, "
+                f"đang có {len(df)})"
+            )
             return []
+        print(
+            f"Warmup: bỏ qua {start_idx} nến đầu  |  "
+            f"giao dịch từ {df.index[start_idx]}"
+        )
 
         n = len(df)
         for k in range(start_idx, n):
@@ -156,7 +165,9 @@ class Backtester:
     def _try_fill_pending(self, candle, k):
         """Mô phỏng lệnh chờ limit: khớp khi giá hồi tới `level` trong nến k.
         BUY khớp tại ASK (= level + spread); SELL khớp tại BID (= level).
-        Hủy nếu giá chạm SL trước, hết hạn, hoặc vượt killzone."""
+        Hủy khi hết hạn. Không hủy vì chạm SL: với lệnh LIMIT, giá luôn chạm
+        mức vào TRƯỚC khi chạm SL (SL nằm xa hơn về phía bất lợi), nên nếu
+        trong nến giá tới mức vào thì lệnh phải khớp (giống sàn thật)."""
         p = self.pending
         if p is None:
             return
@@ -167,12 +178,8 @@ class Backtester:
         bid_high = candle["high"]
         bid_low = candle["low"]
         sp = self._bar_spread(candle)
-        ask_high = candle["high"] + sp
 
         if p["type"] == "BUY":
-            if bid_low <= p["sl"]:          # hỏng setup trước khi khớp
-                self.pending = None
-                return
             if bid_low <= p["level"]:
                 entry = round(p["level"] + sp, self.digits)
                 sl = round(p["sl"], self.digits)
@@ -181,9 +188,6 @@ class Backtester:
                 if entry - sl > 0:
                     self._open_from_pending("BUY", entry, sl, tp, candle)
         else:
-            if ask_high >= p["sl"]:
-                self.pending = None
-                return
             if bid_high >= p["level"]:
                 entry = round(p["level"], self.digits)
                 sl = round(p["sl"], self.digits)
