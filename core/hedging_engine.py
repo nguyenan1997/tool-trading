@@ -28,6 +28,7 @@ class HedgingEngine:
         self._known = set()   # các ticket đang được theo dõi
         self._fresh = True    # True = cần khởi tạo/tiếp quản ở lần xử lý kế tiếp
         self._no_money = False  # lần mở gần nhất thất bại vì hết margin
+        self._last_balance_log = 0.0  # lần cuối ghi log tỷ lệ BUY/SELL
 
     def reset(self):
         """Xóa trạng thái để lần chạy tới tiếp quản vị thế hiện có."""
@@ -68,6 +69,7 @@ class HedgingEngine:
                         self._fresh = False
                         logger.info("[HEDGE] Đã mở cặp BUY+SELL đầu tiên")
                     # nếu thất bại: giữ _fresh=True để thử lại vòng sau
+                self._maybe_log_balance(strategy)
                 return
 
             # --- Các vòng sau: ticket biến mất = đã chạm TP ---
@@ -85,6 +87,39 @@ class HedgingEngine:
             # --- Hết margin: đóng toàn bộ và bắt đầu chu kỳ mới ---
             if self._no_money and getattr(config, "HEDGE_RESET_ON_NO_MARGIN", True):
                 self._reset_cycle(strategy)
+
+            # Có lệnh thoát -> log lại tỷ lệ BUY/SELL ngay
+            self._maybe_log_balance(strategy, force=bool(closed))
+
+    # ------------------------------------------------------------------
+    def _maybe_log_balance(self, strategy, force=False):
+        """Ghi log tỷ lệ BUY/SELL. `force=True` để log ngay khi có lệnh thoát."""
+        sec = int(getattr(config, "HEDGE_LOG_BALANCE_SEC", 0) or 0)
+        if not force:
+            if sec <= 0:
+                return
+            now = time.time()
+            if now - self._last_balance_log < sec:
+                return
+        self._last_balance_log = time.time()
+
+        magic = getattr(strategy, "magic", config.MAGIC_HEDGE)
+        positions = mt5h.get_open_positions(config.SYMBOL, [magic])
+        buys = [p for p in positions if p.type == 0]
+        sells = [p for p in positions if p.type == 1]
+        nb, ns = len(buys), len(sells)
+        vol_b = sum(p.volume for p in buys)
+        vol_s = sum(p.volume for p in sells)
+        net = vol_b - vol_s
+        floating = sum(p.profit for p in positions)
+        ratio = (nb / ns) if ns else float("inf")
+        acct = mt5h.get_account_info()
+        eq = acct.equity if acct is not None else 0.0
+        side = "CÂN BẰNG" if abs(net) < 1e-9 else ("LỆCH BUY" if net > 0 else "LỆCH SELL")
+        logger.info(
+            f"[HEDGE] ⚖️ {side}: BUY={nb} ({vol_b:.2f} lot) | SELL={ns} ({vol_s:.2f} lot) "
+            f"| tỷ lệ B/S={ratio:.2f} | net={net:+.2f} lot | lỗ nổi={floating:+.2f}$ | equity={eq:.2f}$"
+        )
 
     # ------------------------------------------------------------------
     def _reset_cycle(self, strategy):

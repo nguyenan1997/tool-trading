@@ -151,6 +151,7 @@ HEDGE_POLL_SEC   = 1        # Chu kỳ bot kiểm tra TP/mở cặp mới (giây
 HEDGE_MAX_DEVIATION_PTS = 30  # Giới hạn trượt mỗi lệnh (points). 0 = tắt (không giới hạn)
 HEDGE_OPEN_RETRIES = 3        # Số lần thử lại mỗi chân nếu sàn từ chối do trượt
 HEDGE_RESET_ON_NO_MARGIN = True  # Hết margin (không mở thêm được) -> đóng toàn bộ, mở chu kỳ mới
+HEDGE_LOG_BALANCE_SEC    = 0     # 0 = chỉ log khi có lệnh thoát; >0 = thêm log định kỳ mỗi N giây
 
 # Chiến lược chạy mặc định khi khởi động chương trình.
 # "hedging" | "trend_momentum" | "asian_sweep" | "smc"
