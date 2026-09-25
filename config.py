@@ -156,8 +156,8 @@ HEDGE_LOG_BALANCE_SEC    = 0     # 0 = chỉ log khi có lệnh thoát; >0 = th�
 # Trong các khoảng skip: không mở lệnh mới.
 # Trước đó HEDGE_CLOSE_BEFORE_HOURS giờ là "cửa sổ theo dõi": đóng toàn bộ khi
 # BUY=SELL; hết cửa sổ mà vẫn chưa cân bằng thì CẮT TOÀN BỘ.
-HEDGE_SKIP_HOURS_VN      = [(19, 22), (5, 7)]
-HEDGE_CLOSE_BEFORE_HOURS = 1
+HEDGE_SKIP_HOURS_VN      = [(4, 6)]
+HEDGE_CLOSE_BEFORE_HOURS = 2
 HEDGE_TRADING_HOURS_ENABLED = True
 
 # Chiến lược chạy mặc định khi khởi động chương trình.
