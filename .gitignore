@@ -9,6 +9,7 @@ venv/
 
 # Trading Bot
 logs/*.log
+logs/*.json
 bot.log
 backtest/data/
 .DS_Store

@@ -11,7 +11,9 @@ Nhiệm vụ (gọi mỗi HEDGE_POLL_SEC từ BotEngine khi chiến lược "hed
 Trạng thái lưu trong bộ nhớ; reset() mỗi khi bot khởi động để "tiếp quản"
 đúng tập vị thế đang mở (bỏ qua các TP xảy ra lúc bot tắt).
 """
+import json
 import logging
+import os
 import time
 import threading
 from datetime import datetime, timezone, timedelta
@@ -31,6 +33,80 @@ class HedgingEngine:
         self._no_money = False  # lần mở gần nhất thất bại vì hết margin
         self._last_balance_log = 0.0  # lần cuối ghi log tỷ lệ BUY/SELL
         self._last_close_key = None   # (ngày, giờ) lần cuối đóng cuối phiên
+        self._session_start_equity = None  # equity đầu phiên (mốc tính lãi)
+        self._session_start_balance = None # balance đầu phiên (để đối chiếu)
+        self._session_start_time = None    # thời điểm bắt đầu phiên (giờ VN)
+        self.stop_requested = False   # engine yêu cầu dừng bot (HEDGE_STOP_AFTER_TARGET)
+
+    # ---- Lưu/đọc mốc phiên (để khởi động lại tiếp tục) ----
+    def _state_path(self):
+        p = getattr(config, "HEDGE_STATE_FILE", "logs/hedge_session.json")
+        if not os.path.isabs(p):
+            base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            p = os.path.join(base, p)
+        return p
+
+    def _save_state(self):
+        try:
+            path = self._state_path()
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            data = {
+                "session_start_time_vn": self._session_start_time.isoformat()
+                if self._session_start_time else None,
+                "session_start_equity": self._session_start_equity,
+                "session_start_balance": self._session_start_balance,
+                "target_usd": float(getattr(config, "HEDGE_TAKE_PROFIT_USD", 0) or 0),
+                "magic": self._magic,
+                "saved_at_utc": datetime.now(timezone.utc).isoformat(),
+            }
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            logger.error(f"[HEDGE] Không ghi được state phiên: {e}")
+
+    def _load_state(self) -> bool:
+        try:
+            path = self._state_path()
+            if not os.path.exists(path):
+                return False
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+            eq = data.get("session_start_equity")
+            if eq is None:
+                return False
+            self._session_start_equity = float(eq)
+            self._session_start_balance = data.get("session_start_balance")
+            t = data.get("session_start_time_vn")
+            self._session_start_time = datetime.fromisoformat(t) if t else None
+            logger.info(
+                f"[HEDGE] ♻️ Tiếp tục phiên cũ: bắt đầu "
+                f"{self._session_start_time.strftime('%Y-%m-%d %H:%M') if self._session_start_time else '?'} (VN) "
+                f"| equity mốc {self._session_start_equity:.2f}$ "
+                f"| mục tiêu +{data.get('target_usd', '?')}$"
+            )
+            return True
+        except Exception as e:
+            logger.error(f"[HEDGE] Không đọc được state phiên: {e}")
+            return False
+
+    def _equity(self):
+        acct = mt5h.get_account_info()
+        return acct.equity if acct is not None else None
+
+    def _reset_session(self):
+        """Bắt đầu phiên mới: ghi mốc thời gian + equity hiện tại rồi lưu ra file."""
+        acct = mt5h.get_account_info()
+        self._session_start_equity = acct.equity if acct is not None else None
+        self._session_start_balance = acct.balance if acct is not None else None
+        self._session_start_time = self._vn_now()
+        self._save_state()
+        target = float(getattr(config, "HEDGE_TAKE_PROFIT_USD", 0) or 0)
+        logger.info(
+            f"[HEDGE] 🏁 PHIÊN MỚI: bắt đầu "
+            f"{self._session_start_time.strftime('%Y-%m-%d %H:%M')} (VN) | "
+            f"equity mốc {self._session_start_equity:.2f}$ "
+            f"| mục tiêu +{target:.0f}$"
+        )
 
     def _vn_now(self):
         """Giờ Việt Nam hiện tại (naive) = UTC + VN_UTC_OFFSET."""
@@ -43,10 +119,17 @@ class HedgingEngine:
             self._magic = None
             self._known = set()
             self._fresh = True
+            self.stop_requested = False
+            self._session_start_equity = None
+            self._session_start_balance = None
+            self._session_start_time = None
+            self._load_state()   # có mốc phiên cũ -> tiếp tục; không thì mở phiên mới ở tick sau
 
     # ------------------------------------------------------------------
     def process(self, strategy):
         magic = getattr(strategy, "magic", config.MAGIC_HEDGE)
+        if self.stop_requested:
+            return
         if not mt5h.connect():
             logger.error("[HEDGE] Không kết nối được MT5")
             return
@@ -61,32 +144,44 @@ class HedgingEngine:
             positions = mt5h.get_open_positions(config.SYMBOL, [magic])
             current = {p.ticket for p in positions}
 
-            # --- Giới hạn giờ giao dịch (giờ VN) ---
+            # --- Chốt theo TỔNG LÃI PHIÊN (equity - đầu phiên) ---
+            target = float(getattr(config, "HEDGE_TAKE_PROFIT_USD", 0) or 0)
+            if target > 0:
+                acct = mt5h.get_account_info()
+                if acct is not None:
+                    eq = acct.equity
+                    if self._session_start_equity is None:
+                        self._session_start_equity = eq
+                        self._session_start_balance = acct.balance
+                        self._session_start_time = self._vn_now()
+                        self._save_state()
+                        logger.info(
+                            f"[HEDGE] 🏁 Mốc lãi phiên: "
+                            f"{self._session_start_time.strftime('%Y-%m-%d %H:%M')} (VN) "
+                            f"| equity đầu = {eq:.2f}$ | mục tiêu +{target:.0f}$"
+                        )
+                    elif eq - self._session_start_equity >= target:
+                        self._close_all(
+                            strategy,
+                            f"ĐẠT MỤC TIÊU lãi {target:.0f}$ "
+                            f"(equity {eq:.2f} vs mốc {self._session_start_equity:.2f})"
+                        )
+                        self._reset_session()
+                        self._maybe_log_balance(strategy)
+                        if getattr(config, "HEDGE_STOP_AFTER_TARGET", False):
+                            self.stop_requested = True
+                        return
+
+            # --- Giới hạn giờ giao dịch (giờ VN): chỉ chặn MỞ lệnh mới ---
             if getattr(config, "HEDGE_TRADING_HOURS_ENABLED", True):
                 vn = self._vn_now()
                 h = vn.hour
                 skip = getattr(config, "HEDGE_SKIP_HOURS_VN", []) or []
-                before = max(1, int(getattr(config, "HEDGE_CLOSE_BEFORE_HOURS", 1) or 1))
-                in_skip = any(a <= h < b for a, b in skip)
-                in_close = any((a - before) <= h < a for a, b in skip)
-
-                if in_skip:
-                    # Đã tới hạn mà còn lệnh -> CẮT TOÀN BỘ (dù chưa cân bằng)
+                if any(a <= h < b for a, b in skip):
+                    # Ngoài giờ: không mở mới; giữ nguyên vị thế (broker tự đóng theo TP)
                     if current:
-                        self._close_all(strategy, "hết giờ theo dõi (chưa cân bằng)")
-                    else:
-                        self._known = set()
-                        self._fresh = True
-                    self._maybe_log_balance(strategy)
-                    return
-
-                if in_close:
-                    # Cửa sổ theo dõi: đóng toàn bộ khi BUY = SELL; chưa cân bằng thì chờ
-                    if current:
-                        nb = sum(1 for p in positions if p.type == 0)
-                        ns = sum(1 for p in positions if p.type == 1)
-                        if nb == ns:
-                            self._close_all(strategy, f"đã cân bằng {nb}BUY/{ns}SELL")
+                        self._known = set(current)
+                        self._fresh = False
                     else:
                         self._known = set()
                         self._fresh = True
@@ -205,6 +300,7 @@ class HedgingEngine:
         self._magic = None
         self._known = set()
         self._fresh = True
+        self._reset_session()
         logger.info("[HEDGE] ✅ Đã đóng hết, chu kỳ mới sẽ bắt đầu ở vòng sau")
 
     # ------------------------------------------------------------------

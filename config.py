@@ -147,17 +147,22 @@ MAGIC_HEDGE      = 20260601
 HEDGE_COMMENT    = "HedgeGrid_Bot"
 HEDGE_LOT        = 0.01     # Khối lượng mỗi lệnh (0.01 = nhỏ nhất)
 HEDGE_TP_USD     = 3.0      # TP cách giá vào = 3.0 USD ≈ 30 pip (1 pip XAUUSD = 0.1)
-HEDGE_POLL_SEC   = 1        # Chu kỳ bot kiểm tra TP/mở cặp mới (giây)
+HEDGE_POLL_SEC   = 0.5      # Chu kỳ bot kiểm tra TP/mở cặp mới (giây) — nhỏ để chốt sát mốc lãi
 HEDGE_MAX_DEVIATION_PTS = 30  # Giới hạn trượt mỗi lệnh (points). 0 = tắt (không giới hạn)
 HEDGE_OPEN_RETRIES = 3        # Số lần thử lại mỗi chân nếu sàn từ chối do trượt
 HEDGE_RESET_ON_NO_MARGIN = True  # Hết margin (không mở thêm được) -> đóng toàn bộ, mở chu kỳ mới
 HEDGE_LOG_BALANCE_SEC    = 0     # 0 = chỉ log khi có lệnh thoát; >0 = thêm log định kỳ mỗi N giây
+# --- Chốt theo tổng lãi trong phiên (equity - đầu phiên) ---
+HEDGE_TAKE_PROFIT_USD    = 1100.0  # Lãi phiên đạt mức này -> đóng toàn bộ, bắt đầu phiên mới
+                                   # (để 1100 thay vì 1000 nhằm bù spread/trượt khi đóng loạt,
+                                   #  thực nhận sau khi đóng ~1000$)
+HEDGE_STATE_FILE         = "logs/hedge_session.json"  # Lưu mốc phiên để khởi động lại tiếp tục
+HEDGE_STOP_AFTER_TARGET  = False   # True = dừng hẳn bot sau khi chốt mục tiêu
 # --- Khung giờ giao dịch (GIỜ VIỆT NAM, UTC+7) ---
-# Trong các khoảng skip: không mở lệnh mới.
-# Trước đó HEDGE_CLOSE_BEFORE_HOURS giờ là "cửa sổ theo dõi": đóng toàn bộ khi
-# BUY=SELL; hết cửa sổ mà vẫn chưa cân bằng thì CẮT TOÀN BỘ.
+# Trong các khoảng skip: KHÔNG mở lệnh mới (vẫn giữ/đóng lệnh cũ theo TP).
+# Lưu ý: KHÔNG còn đóng lệnh theo khung giờ; việc đóng dựa trên HEDGE_TAKE_PROFIT_USD.
 HEDGE_SKIP_HOURS_VN      = [(4, 6)]
-HEDGE_CLOSE_BEFORE_HOURS = 2
+HEDGE_CLOSE_BEFORE_HOURS = 2   # (không dùng nữa — giữ lại cho tương thích)
 HEDGE_TRADING_HOURS_ENABLED = True
 
 # Chiến lược chạy mặc định khi khởi động chương trình.

@@ -167,10 +167,14 @@ class BotEngine:
                             self._cancel_other_pending()
                         self._maybe_log_session()
                         hedging_engine.process(strategy_manager.get_current_strategy())
+                        if hedging_engine.stop_requested:
+                            logger.info("[HEDGE] Đã đạt mục tiêu lãi & cấu hình dừng bot")
+                            self.stop()
+                            break
                     except Exception as e:
                         logger.error(f"Error in hedging: {e}")
                         time.sleep(5)
-                    time.sleep(max(1, int(getattr(config, "HEDGE_POLL_SEC", 1))))
+                    time.sleep(max(0.2, float(getattr(config, "HEDGE_POLL_SEC", 1) or 1)))
                     continue
 
                 # 1. Chờ nến mới
