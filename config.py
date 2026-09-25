@@ -159,11 +159,10 @@ HEDGE_TAKE_PROFIT_USD    = 1100.0  # Lãi phiên đạt mức này -> đóng to�
 HEDGE_STATE_FILE         = "logs/hedge_session.json"  # Lưu mốc phiên để khởi động lại tiếp tục
 HEDGE_STOP_AFTER_TARGET  = False   # True = dừng hẳn bot sau khi chốt mục tiêu
 # --- Khung giờ giao dịch (GIỜ VIỆT NAM, UTC+7) ---
-# Trong các khoảng skip: KHÔNG mở lệnh mới (vẫn giữ/đóng lệnh cũ theo TP).
-# Lưu ý: KHÔNG còn đóng lệnh theo khung giờ; việc đóng dựa trên HEDGE_TAKE_PROFIT_USD.
-HEDGE_SKIP_HOURS_VN      = [(4, 6)]
-HEDGE_CLOSE_BEFORE_HOURS = 2   # (không dùng nữa — giữ lại cho tương thích)
-HEDGE_TRADING_HOURS_ENABLED = True
+# ĐÃ TẮT: bot giao dịch 24/7, KHÔNG chặn khung giờ nào.
+HEDGE_SKIP_HOURS_VN      = []
+HEDGE_CLOSE_BEFORE_HOURS = 2   # (không dùng)
+HEDGE_TRADING_HOURS_ENABLED = False
 
 # Chiến lược chạy mặc định khi khởi động chương trình.
 # "hedging" | "trend_momentum" | "asian_sweep" | "smc"
