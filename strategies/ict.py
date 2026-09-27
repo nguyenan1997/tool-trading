@@ -4,14 +4,14 @@ ICT "Power of 3 / Silver Bullet" (theo Michael J. Huddleston).
 Chạy trên XAUUSD M5. Xem docs/ict_playbook.md.
 
 Mô hình đầy đủ (tất cả trên nến M5 ĐÃ ĐÓNG, không nhìn tương lai):
-  1. BIAS khung lớn H4 (EMA50) — chỉ trade cùng chiều bias.
+  1. BIAS khung lớn (mặc định `prevday` = hướng nến ngày trước) — chỉ trade cùng chiều.
   2. Vùng TÍCH LŨY Á (00–06h broker) tạo thanh khoản ở hai biên.
-  3. Trong KILLZONE (London 07–10h, NY 12–15h) giá QUÉT biên ĐỐI DIỆN bias
+  3. Trong KILLZONE (London 07–11h, NY 12–16h) giá QUÉT biên ĐỐI DIỆN bias
      (manipulation) rồi ĐÓNG nến reclaim trở lại → dấu hiệu lấy thanh khoản.
   4. DISPLACEMENT + CHoCH: nến M5 đóng phá swing đối diện kèm thân nến lớn.
   5. Vùng vào lệnh: FVG mới nhất trước CHoCH (bắt buộc).
   6. Vào LIMIT tại CE/OTE của vùng; SL sau điểm quét ± buffer.
-  7. TP = DRAW ON LIQUIDITY: PDH/PDL hoặc biên Á đối diện (≥ ICT_TP_MIN_R×R).
+  7. TP = DRAW ON LIQUIDITY: PDH/PDL hoặc biên Á đối diện.
   8. Chốt 50% @1R, phần còn lại chạy tới TP.
 
 Chiến lược dùng lệnh CHỜ LIMIT → triển khai ở get_pending_setup(),
@@ -58,10 +58,6 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
         tp_min_r=config.ICT_TP_MIN_R,
         pend_min=config.ICT_PEND_MIN,
         one_per_day=config.ICT_ONE_PER_DAY,
-        use_pd=config.ICT_USE_PD,
-        pd_lookback=config.ICT_PD_LOOKBACK,
-        require_confirm=config.ICT_REQUIRE_CONFIRM,
-        confirm_close=config.ICT_CONFIRM_CLOSE,
         history_bars=config.ICT_HISTORY_BARS,
         partial_frac=config.ICT_PARTIAL_FRAC,
         partial_at_r=config.ICT_PARTIAL_AT_R,
@@ -92,10 +88,6 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
         self.tp_min_r = tp_min_r
         self.pend_min = pend_min
         self.one_per_day = one_per_day
-        self.use_pd = use_pd
-        self.pd_lookback = pd_lookback
-        self.require_confirm = require_confirm
-        self.confirm_close = confirm_close
         self.history_bars = history_bars
         self.partial_frac = partial_frac
         self.partial_at_r = partial_at_r
@@ -174,14 +166,6 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
             last_sh[i] = cur_h
             last_sl[i] = cur_l
 
-        # Dealing range cho bộ lọc Premium/Discount (equilibrium = 50%)
-        if self.use_pd:
-            rh = base["high"].rolling(int(self.pd_lookback)).max().to_numpy()
-            rl = base["low"].rolling(int(self.pd_lookback)).min().to_numpy()
-            pd_eq = (rh + rl) / 2.0
-        else:
-            pd_eq = np.full(n, np.nan)
-
         # Killzone
         in_kz = np.zeros(n, dtype=bool)
         for (h0, h1k) in self.killzones:
@@ -242,15 +226,14 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
                 if act_b:
                     if i - start_b > self.choch_wait:
                         act_b = False
-                    elif (close[i] > ref_high and (close[i] - open_[i]) >= self.disp_atr * a
-                          and self._confirm(i, high, low, close, "BUY")):
+                    elif close[i] > ref_high and (close[i] - open_[i]) >= self.disp_atr * a:
                         zone = self._bull_zone(i, base, low, high, close, open_)
                         if zone is not None:
                             if self.entry_mode == "market":
                                 res = self._market_buy(zone, sweep_low, close[i], a)
                             else:
                                 res = self._build_buy(zone, sweep_low, close[i], a,
-                                                      [pdh[i], asia_hi[i], last_sh[i]], pd_eq[i])
+                                                      [pdh[i], asia_hi[i], last_sh[i]])
                             if res is not None:
                                 lvl_buy[i], sl_buy[i], tp_buy[i] = res
                                 sig_buy[i] = True
@@ -268,15 +251,14 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
                 if act_s:
                     if i - start_s > self.choch_wait:
                         act_s = False
-                    elif (close[i] < ref_low and (open_[i] - close[i]) >= self.disp_atr * a
-                          and self._confirm(i, high, low, close, "SELL")):
+                    elif close[i] < ref_low and (open_[i] - close[i]) >= self.disp_atr * a:
                         zone = self._bear_zone(i, base, low, high, close, open_)
                         if zone is not None:
                             if self.entry_mode == "market":
                                 res = self._market_sell(zone, sweep_high, close[i], a)
                             else:
                                 res = self._build_sell(zone, sweep_high, close[i], a,
-                                                       [pdl[i], asia_lo[i], last_sl[i]], pd_eq[i])
+                                                       [pdl[i], asia_lo[i], last_sl[i]])
                             if res is not None:
                                 lvl_sell[i], sl_sell[i], tp_sell[i] = res
                                 sig_sell[i] = True
@@ -397,17 +379,7 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
     # ------------------------------------------------------------------
     # Dựng lệnh LIMIT + TP draw-on-liquidity
     # ------------------------------------------------------------------
-    def _confirm(self, i, high, low, close, side):
-        """Nến displacement phải đóng mạnh về phía mong muốn (xác nhận)."""
-        if not self.require_confirm:
-            return True
-        rng = high[i] - low[i]
-        if rng <= 0:
-            return False
-        pos = (close[i] - low[i]) / rng
-        return pos >= self.confirm_close if side == "BUY" else (1.0 - pos) >= self.confirm_close
-
-    def _build_buy(self, zone, sweep_low, price, a, liq, pd_eq=np.nan):
+    def _build_buy(self, zone, sweep_low, price, a, liq):
         zl, zh = zone
         if not (np.isfinite(zl) and np.isfinite(zh)) or zh <= zl:
             return None
@@ -416,8 +388,6 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
         R = entry - sl
         if R <= 0 or entry >= price - 1e-9:
             return None
-        if self.use_pd and np.isfinite(pd_eq) and entry > pd_eq:
-            return None  # mua ở premium → bỏ (ICT: chỉ mua ở discount)
         if R < self.min_r_atr * a or R > self.max_r_atr * a:
             return None
         tp = self._tp("BUY", entry, R, liq)
@@ -425,7 +395,7 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
             return None
         return float(entry), float(sl), float(tp)
 
-    def _build_sell(self, zone, sweep_high, price, a, liq, pd_eq=np.nan):
+    def _build_sell(self, zone, sweep_high, price, a, liq):
         zl, zh = zone  # zl < zh
         if not (np.isfinite(zl) and np.isfinite(zh)) or zh <= zl:
             return None
@@ -434,8 +404,6 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
         R = sl - entry
         if R <= 0 or entry <= price + 1e-9:
             return None
-        if self.use_pd and np.isfinite(pd_eq) and entry < pd_eq:
-            return None  # bán ở discount → bỏ (ICT: chỉ bán ở premium)
         if R < self.min_r_atr * a or R > self.max_r_atr * a:
             return None
         tp = self._tp("SELL", entry, R, liq)

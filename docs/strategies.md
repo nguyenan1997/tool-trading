@@ -22,14 +22,12 @@ công: **`docs/ict_playbook.md`**.
 6. **LIMIT** tại CE (`ICT_ENTRY_FRAC`=0.5; ~0.62–0.79 = OTE).
 7. **TP = draw on liquidity**: mức thanh khoản đối diện gần nhất (fallback bội số R).
 8. **Chốt 50% @1R**, phần còn lại tới DOL.
-   (Bộ lọc `ICT_REQUIRE_CONFIRM` và `ICT_USE_PD` có sẵn nhưng **tắt mặc định** — không bền vững.)
 
 ### Kết quả (XAUUSD M5, lot 0.02, vốn $1000, 2026-02→09, spread 0.22)
 - Toàn bộ (34 lệnh): WR **79.4%**, PF **3.57**, net +$254, DD **4.0%**.
 - Train 70% (21 lệnh): PF 3.12 · OOS 30% (13 lệnh): PF **4.51**, DD 2.0%.
 - Walk-forward 4 fold: PF 1.65 / 4.71 / 9.98 / 3.74 — mọi fold dương.
 - Đặc điểm: win rate cao + RR < 1 (thắng nhiều, ăn ít mỗi lệnh).
-- Bộ lọc xác nhận/PD chỉ đổi 1–2 lệnh → dao động theo tập dữ liệu, không coi là lợi thế.
 
 ### Cách chạy
 - Live/UI: chọn "ICT KZ→Sweep→FVG" (`strategy_manager` key = `ict`).

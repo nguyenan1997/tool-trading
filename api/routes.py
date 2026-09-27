@@ -64,10 +64,6 @@ def _build_strategy(data):
         tp_mode=(data.get("ict_tp_mode") or config.ICT_TP_MODE),
         tp_r=_num(data, "ict_tp_r", config.ICT_TP_R),
         pend_min=_num(data, "ict_pend_min", config.ICT_PEND_MIN, int),
-        require_confirm=_flag(data, "ict_require_confirm", config.ICT_REQUIRE_CONFIRM),
-        confirm_close=_num(data, "ict_confirm_close", config.ICT_CONFIRM_CLOSE),
-        use_pd=_flag(data, "ict_use_pd", config.ICT_USE_PD),
-        pd_lookback=_num(data, "ict_pd_lookback", config.ICT_PD_LOOKBACK, int),
     ), "ict"
 
 def register_routes(app):

@@ -10,9 +10,9 @@ TIMEFRAME   = "M1"          # M1 M5 M15 M30 H1 H4 D1
 #  ICT — KILLZONE → LIQUIDITY SWEEP → DISPLACEMENT/FVG (XAUUSD M5)
 # ------------------------------------------------------------
 # Mô hình ICT "Power of 3 / Silver Bullet" (Michael J. Huddleston):
-#   1. Bias khung lớn H4 — chỉ trade cùng chiều bias.
+#   1. Bias khung lớn (prevday/h4ema) — chỉ trade cùng chiều bias.
 #   2. Vùng tích lũy Á (00–06h broker) tạo thanh khoản ở hai biên.
-#   3. Trong killzone (London 07–10h, NY 12–15h) giá QUÉT biên ĐỐI DIỆN bias
+#   3. Trong killzone (London 07–11h, NY 12–16h) giá QUÉT biên ĐỐI DIỆN bias
 #      (manipulation) rồi đóng nến reclaim.
 #   4. Displacement + CHoCH để lại FVG → vào LIMIT tại CE/OTE.
 #   5. SL sau điểm quét; TP = DRAW ON LIQUIDITY (PDH/PDL hoặc biên Á đối diện).
@@ -62,14 +62,6 @@ ICT_TP_R          = 3.0      # Dùng khi ICT_TP_MODE = "R"
 ICT_TP_MIN_R      = 0.0      # TP theo DOL phải cách entry ≥ bội R này (0 = lấy mức gần nhất)
 ICT_PEND_MIN      = 120      # Số PHÚT lệnh limit chờ khớp trước khi hủy (= 24 nến M5)
 ICT_ONE_PER_DAY   = True     # Tối đa 1 setup mỗi hướng mỗi ngày
-
-# --- Bộ lọc nâng cao (ICT) ---
-# CẢ HAI bộ lọc dưới đây đều KHÔNG cho lợi thế bền vững (chỉ đổi 1–2 lệnh / ~32 lệnh,
-# kết quả đổi chiều tùy tập dữ liệu) → TẮT mặc định. Chỉ bật khi tự kiểm chứng lại.
-ICT_REQUIRE_CONFIRM = False  # Nến displacement phải đóng mạnh (xác nhận) mới vào
-ICT_CONFIRM_CLOSE = 0.66     # Ngưỡng đóng nến trong biên (0.66 = đóng ở 1/3 trên/dưới)
-ICT_USE_PD        = False    # Lọc Premium/Discount: BUY chỉ ở nửa discount, SELL ở premium
-ICT_PD_LOOKBACK   = 96       # Số nến M5 xác định dealing range (~8h)
 
 # --- Chốt lời từng phần ---
 ICT_PARTIAL_FRAC  = 0.5      # Chốt 50% khối lượng khi đạt 1R

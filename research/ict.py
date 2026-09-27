@@ -49,17 +49,18 @@ def main():
 
     # Vùng killzone/risk đã kiểm chứng
     KZ = [(7, 11), (12, 16)]
-    common = dict(killzones=KZ, min_r_atr=0.0, max_r_atr=6.0, min_sweep_atr=0.3,
-                  tp_mode="liq", tp_min_r=0.0)
+    common = dict(killzones=KZ, min_r_atr=0.0, max_r_atr=6.0)
 
     variants = [
-        ("baseline (khong PD/confirm)", ICTKillzoneFVGStrategy(bias_mode="prevday", use_pd=False, **common)),
-        ("+ PD 48", ICTKillzoneFVGStrategy(bias_mode="prevday", use_pd=True, pd_lookback=48, **common)),
-        ("+ PD 96", ICTKillzoneFVGStrategy(bias_mode="prevday", use_pd=True, pd_lookback=96, **common)),
-        ("+ PD 288", ICTKillzoneFVGStrategy(bias_mode="prevday", use_pd=True, pd_lookback=288, **common)),
-        ("+ confirm .66", ICTKillzoneFVGStrategy(bias_mode="prevday", use_pd=False, require_confirm=True, confirm_close=0.66, **common)),
-        ("+ PD96 + confirm", ICTKillzoneFVGStrategy(bias_mode="prevday", use_pd=True, pd_lookback=96, require_confirm=True, confirm_close=0.66, **common)),
-        ("+ PD96 + confirm .75", ICTKillzoneFVGStrategy(bias_mode="prevday", use_pd=True, pd_lookback=96, require_confirm=True, confirm_close=0.75, **common)),
+        ("prevday bias (default)", ICTKillzoneFVGStrategy(bias_mode="prevday", **common)),
+        ("h4ema bias", ICTKillzoneFVGStrategy(bias_mode="h4ema", **common)),
+        ("no bias", ICTKillzoneFVGStrategy(bias_mode="none", **common)),
+        ("sweep 0.15", ICTKillzoneFVGStrategy(bias_mode="prevday", min_sweep_atr=0.15, **common)),
+        ("disp 0.6", ICTKillzoneFVGStrategy(bias_mode="prevday", disp_atr=0.6, **common)),
+        ("entry mep 0.0", ICTKillzoneFVGStrategy(bias_mode="prevday", entry_frac=0.0, **common)),
+        ("entry OTE 0.7", ICTKillzoneFVGStrategy(bias_mode="prevday", entry_frac=0.7, **common)),
+        ("TP R3", ICTKillzoneFVGStrategy(bias_mode="prevday", tp_mode="R", tp_r=3.0, **common)),
+        ("market entry", ICTKillzoneFVGStrategy(bias_mode="prevday", entry_mode="market", **common)),
     ]
 
     print("=== TRAIN (70% đầu) ===")

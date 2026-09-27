@@ -79,11 +79,8 @@ rồi **đóng nến reclaim** trở lại phía trong.
 
 ### Bước 4 — Displacement + CHoCH
 Trong tối đa **24 nến M5** (2h) sau cú quét: có nến đóng **phá swing đối diện** với
-**thân nến ≥ 0.4×ATR** (displacement). Đây là xác nhận cú quét đã xong và giá đảo.
-- **Nến xác nhận** (`ICT_REQUIRE_CONFIRM`, mặc định **TẮT**): nến phá cấu trúc phải
-  đóng ở **1/3 trên** biên nến (BUY) / 1/3 dưới (SELL). Đây là quy tắc ICT phổ biến
-  nhưng **kiểm chứng cho thấy không tạo lợi thế bền vững** (chỉ đổi 1–2 lệnh / ~32
-  lệnh, kết quả đổi chiều tùy tập dữ liệu) → để tắt mặc định.
+**thân nến ≥ 0.4×ATR** (displacement). Đây chính là "xác nhận" của ICT — cấu trúc +
+displacement, **không dùng mẫu nến xác nhận riêng**.
 
 ### Bước 5 — FVG (vùng vào lệnh bắt buộc)
 - Tìm FVG mới nhất trong **12 nến** trước nến CHoCH. Không có FVG → **bỏ setup**.
@@ -126,13 +123,11 @@ Trong tối đa **24 nến M5** (2h) sau cú quét: có nến đóng **phá swin
 | Tìm vùng | 12 nến | `ICT_ZONE_LOOKBACK` |
 | Vào tại | CE (0.5) | `ICT_ENTRY_FRAC` |
 | Chế độ vào | LIMIT | `ICT_ENTRY_MODE = "limit"` |
-| Nến xác nhận | tắt (không bền vững) | `ICT_REQUIRE_CONFIRM = False` |
 | SL | sau quét ± 0.2×ATR | `ICT_SL_BUF_ATR` |
 | R tối đa | 6 × ATR | `ICT_MAX_R_ATR` |
 | TP | **DOL** (mức gần nhất) | `ICT_TP_MODE = "liq"`, `ICT_TP_MIN_R = 0` |
 | Chốt lời | 50% @1R + còn lại tới DOL | `ICT_PARTIAL_*` |
 | Số setup | 1/hướng/ngày | `ICT_ONE_PER_DAY` |
-| Premium/Discount | **tắt** (xem mục 6) | `ICT_USE_PD = False` |
 
 ---
 
@@ -140,8 +135,7 @@ Trong tối đa **24 nến M5** (2h) sau cú quét: có nến đóng **phá swin
 
 Dữ liệu gộp M1→M5: **2026-02-23 → 2026-09-18** (38.515 nến M5), spread 0.22.
 
-Cấu hình chốt = bias `prevday` + TP DOL. Hai bộ lọc **nến xác nhận** và
-**Premium/Discount** đều tắt (kiểm chứng không bền vững).
+Cấu hình chốt = bias `prevday` + TP DOL (không dùng bộ lọc nến xác nhận / Premium-Discount).
 
 | Giai đoạn | n | Win rate | PF | Net | Max DD |
 |---|---|---|---|---|---|
@@ -154,8 +148,7 @@ Cấu hình chốt = bias `prevday` + TP DOL. Hai bộ lọc **nến xác nhận
   độ chính xác và **TP theo thanh khoản gần nhất**, không phải nhờ vài lệnh thắng lớn.
 - Đặc trưng PP: **ít lệnh**, PF cao, drawdown thấp, nhưng phụ thuộc win rate cao (RR < 1).
 
-> **Cảnh báo về độ tin cậy:** mẫu chỉ ~34 lệnh. Các bộ lọc phụ (xác nhận, PD) thay đổi
-> chỉ 1–2 lệnh nên kết quả **dao động theo tập dữ liệu** — không nên coi là lợi thế.
+> **Cảnh báo về độ tin cậy:** mẫu chỉ ~34 lệnh → kết quả còn phụ thuộc tập dữ liệu.
 > Khi tự kiểm chứng trên dữ liệu broker lớn hơn, kết quả có thể khác.
 
 ### Điều gì tạo ra lợi thế?
@@ -167,11 +160,10 @@ Kiểm chứng tách biến (train / OOS PF; toàn bộ trên cùng dữ liệu)
 | bias none + TP DOL | 2.34 | 3.42 | bias giúp tăng PF |
 | bias prevday + TP 3R | 1.52 | 1.00 | TP DOL > TP bội số R |
 | bias prevday + TP 2R | 1.68 | 1.32 | |
-| + nến xác nhận 0.66 | 3.01 | 6.51 | chỉ đổi 1–2 lệnh → **không bền vững** |
-| + Premium/Discount (PD96) | 12.34 | 3.53 | OOS giảm, 1 fold sụp → **không bền vững** |
 
 → Hai yếu tố thực sự quan trọng: **bias** (chỉ trade cùng chiều) và **TP theo draw on
 liquidity** (chốt tại bể thanh khoản gần nhất thay vì bội số R cố định).
+Bộ lọc "nến xác nhận" và "Premium/Discount" đã được thử và **loại bỏ** (không bền vững).
 
 ---
 
@@ -183,7 +175,6 @@ liquidity** (chốt tại bể thanh khoản gần nhất thay vì bội số R 
 [ ] 3. Đánh dấu thanh khoản: PDH/PDL, biên vùng Á, đỉnh/đáy gần nhất
 [ ] 4. Chờ giá QUÉT biên đối diện bias ≥ 0.3×ATR rồi ĐÓNG CỬA reclaim
 [ ] 5. Chờ displacement + CHoCH (nến đóng phá swing đối diện, thân ≥ 0.4×ATR)
-[ ] 5b. (tùy chọn) Nến xác nhận đóng mạnh — không bắt buộc, không tạo lợi thế rõ
 [ ] 6. Có FVG trong 12 nến trước CHoCH? Nếu không → BỎ QUA
 [ ] 7. Đặt LIMIT tại CE (hoặc OTE 0.62–0.79) của FVG
 [ ] 8. SL sau điểm quét ± 0.2×ATR; TP = bể thanh khoản đối diện gần nhất

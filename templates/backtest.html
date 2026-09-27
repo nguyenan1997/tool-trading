@@ -338,19 +338,6 @@
                                 <input type="checkbox" id="ict_require_fvg" checked style="width:auto;"> Bắt buộc có FVG
                             </label>
                         </div>
-                        <div class="param-block">
-                            <div class="label">Bộ lọc nâng cao (ICT)</div>
-                            <div class="col2">
-                                <div><label>Ngưỡng đóng nến xác nhận</label><input type="number" id="ict_confirm_close" step="0.05" value="0.66" min="0.5" max="1"></div>
-                                <div><label>PD lookback (nến, khi bật)</label><input type="number" id="ict_pd_lookback" value="96" min="12"></div>
-                            </div>
-                            <label style="display:flex; gap:0.5rem; align-items:center; margin-top:0.6rem;">
-                                <input type="checkbox" id="ict_require_confirm" style="width:auto;"> Nến xác nhận (không bền vững)
-                            </label>
-                            <label style="display:flex; gap:0.5rem; align-items:center; margin-top:0.4rem;">
-                                <input type="checkbox" id="ict_use_pd" style="width:auto;"> Lọc Premium/Discount
-                            </label>
-                        </div>
                     </div>
                 </div>
 
@@ -471,10 +458,6 @@
                 ict_tp_mode: document.getElementById('ict_tp_mode').value,
                 ict_require_fvg: document.getElementById('ict_require_fvg').checked ? 1 : 0,
                 ict_entry_mode: document.getElementById('ict_entry_mode').value,
-                ict_require_confirm: document.getElementById('ict_require_confirm').checked ? 1 : 0,
-                ict_confirm_close: document.getElementById('ict_confirm_close').value,
-                ict_use_pd: document.getElementById('ict_use_pd').checked ? 1 : 0,
-                ict_pd_lookback: document.getElementById('ict_pd_lookback').value,
             };
 
             try {
