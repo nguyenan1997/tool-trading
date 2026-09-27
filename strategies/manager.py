@@ -3,8 +3,6 @@ strategy_manager.py
 Quản lý việc lựa chọn và truy xuất chiến lược.
 """
 
-from .trend_momentum import TrendMomentumStrategy
-from .asian_sweep import AsianSweepStrategy
 from .ict import ICTKillzoneFVGStrategy
 from .hedging import HedgingStrategy
 
@@ -14,13 +12,11 @@ class StrategyManager:
     def __init__(self):
         self._strategies = {
             "hedging": HedgingStrategy(),
-            "trend_momentum": TrendMomentumStrategy(),
-            "asian_sweep": AsianSweepStrategy(),
             "ict": ICTKillzoneFVGStrategy(),
         }
         # PP chạy mặc định khi khởi động (config.DEFAULT_STRATEGY).
         default = getattr(config, "DEFAULT_STRATEGY", "hedging")
-        self._current_key = default if default in self._strategies else "trend_momentum"
+        self._current_key = default if default in self._strategies else "hedging"
         # Chọn PP nào thì CHỈ chạy PP đó (loại trừ nhau).
         self._enabled = {k: (k == self._current_key) for k in self._strategies}
 

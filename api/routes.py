@@ -14,8 +14,6 @@ from core.bot_engine import bot_engine
 from strategies.manager import strategy_manager
 from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data, get_with_warmup
-from strategies.trend_momentum import TrendMomentumStrategy
-from strategies.asian_sweep import AsianSweepStrategy
 from strategies.ict import ICTKillzoneFVGStrategy
 from strategies.hedging import HedgingStrategy
 
@@ -41,8 +39,8 @@ def _flag(data, key, default=True):
 
 
 def _build_strategy(data):
-    """Xây dựng chiến lược theo tham số từ UI ('trend_momentum' | 'asian_sweep' | 'ict')."""
-    sid = (data.get("strategy") or "trend_momentum").strip().lower()
+    """Xây dựng chiến lược theo tham số từ UI ('hedging' | 'ict')."""
+    sid = (data.get("strategy") or "ict").strip().lower()
 
     if sid == "hedging":
         # Hedging Grid không mô phỏng được bằng Backtester hiện tại (nhiều vị thế
@@ -52,51 +50,25 @@ def _build_strategy(data):
             lot=_num(data, "hedge_lot", config.HEDGE_LOT),
         ), "hedging"
 
-    if sid == "ict":
-        return ICTKillzoneFVGStrategy(
-            swing_k=_num(data, "ict_swing_k", config.ICT_SWING_K, int),
-            min_sweep_atr=_num(data, "ict_min_sweep_atr", config.ICT_MIN_SWEEP_ATR),
-            choch_wait=_num(data, "ict_choch_wait", config.ICT_CHOCH_WAIT, int),
-            disp_atr=_num(data, "ict_disp_atr", config.ICT_DISP_ATR),
-            zone_lookback=_num(data, "ict_zone_lookback", config.ICT_ZONE_LOOKBACK, int),
-            entry_frac=_num(data, "ict_entry_frac", config.ICT_ENTRY_FRAC),
-            require_fvg=_flag(data, "ict_require_fvg", config.ICT_REQUIRE_FVG),
-            entry_mode=(data.get("ict_entry_mode") or config.ICT_ENTRY_MODE),
-            bias_mode=(data.get("ict_bias_mode") or config.ICT_BIAS_MODE),
-            sl_buf_atr=_num(data, "ict_sl_buf_atr", config.ICT_SL_BUF_ATR),
-            tp_mode=(data.get("ict_tp_mode") or config.ICT_TP_MODE),
-            tp_r=_num(data, "ict_tp_r", config.ICT_TP_R),
-            pend_min=_num(data, "ict_pend_min", config.ICT_PEND_MIN, int),
-            require_confirm=_flag(data, "ict_require_confirm", config.ICT_REQUIRE_CONFIRM),
-            confirm_close=_num(data, "ict_confirm_close", config.ICT_CONFIRM_CLOSE),
-            use_pd=_flag(data, "ict_use_pd", config.ICT_USE_PD),
-            pd_lookback=_num(data, "ict_pd_lookback", config.ICT_PD_LOOKBACK, int),
-        ), "ict"
-
-    if sid == "asian_sweep":
-        s = AsianSweepStrategy()
-        s.range_start = _num(data, "as_range_start", config.AS_RANGE_START, int)
-        s.range_end = _num(data, "as_range_end", config.AS_RANGE_END, int)
-        s.kz_start = _num(data, "as_kz_start", config.AS_KZ_START, int)
-        s.kz_end = _num(data, "as_kz_end", config.AS_KZ_END, int)
-        s.retrace = _num(data, "as_retrace", config.AS_RETRACE)
-        s.wait_min = _num(data, "as_wait_min", config.AS_WAIT_MIN, int)
-        s.sl_buf_atr = _num(data, "as_sl_buf_atr", config.AS_SL_BUF_ATR)
-        return s, "asian_sweep"
-
-    return TrendMomentumStrategy(
-        lookback=_num(data, "tm_lookback", config.TM_LOOKBACK, int),
-        rsi_period=_num(data, "tm_rsi_period", config.TM_RSI_PERIOD, int),
-        rsi_buy=_num(data, "tm_rsi_buy", config.TM_RSI_BUY),
-        rsi_sell=_num(data, "tm_rsi_sell", config.TM_RSI_SELL),
-        sl_atr=_num(data, "tm_sl_atr", config.TM_SL_ATR),
-        tp_r=_num(data, "tm_tp_r", config.TM_TP_R),
-        adx_thresh=_num(data, "tm_adx_thresh", config.TM_ADX_THRESH),
-        session=config.TM_SESSION,
-        history_bars=config.TM_HISTORY_BARS,
-        be_move_at_r=config.TM_BE_AT_R,
-        min_atr_pct=_num(data, "tm_min_atr_pct", config.TM_MIN_ATR_PCT),
-    ), "trend_momentum"
+    return ICTKillzoneFVGStrategy(
+        swing_k=_num(data, "ict_swing_k", config.ICT_SWING_K, int),
+        min_sweep_atr=_num(data, "ict_min_sweep_atr", config.ICT_MIN_SWEEP_ATR),
+        choch_wait=_num(data, "ict_choch_wait", config.ICT_CHOCH_WAIT, int),
+        disp_atr=_num(data, "ict_disp_atr", config.ICT_DISP_ATR),
+        zone_lookback=_num(data, "ict_zone_lookback", config.ICT_ZONE_LOOKBACK, int),
+        entry_frac=_num(data, "ict_entry_frac", config.ICT_ENTRY_FRAC),
+        require_fvg=_flag(data, "ict_require_fvg", config.ICT_REQUIRE_FVG),
+        entry_mode=(data.get("ict_entry_mode") or config.ICT_ENTRY_MODE),
+        bias_mode=(data.get("ict_bias_mode") or config.ICT_BIAS_MODE),
+        sl_buf_atr=_num(data, "ict_sl_buf_atr", config.ICT_SL_BUF_ATR),
+        tp_mode=(data.get("ict_tp_mode") or config.ICT_TP_MODE),
+        tp_r=_num(data, "ict_tp_r", config.ICT_TP_R),
+        pend_min=_num(data, "ict_pend_min", config.ICT_PEND_MIN, int),
+        require_confirm=_flag(data, "ict_require_confirm", config.ICT_REQUIRE_CONFIRM),
+        confirm_close=_num(data, "ict_confirm_close", config.ICT_CONFIRM_CLOSE),
+        use_pd=_flag(data, "ict_use_pd", config.ICT_USE_PD),
+        pd_lookback=_num(data, "ict_pd_lookback", config.ICT_PD_LOOKBACK, int),
+    ), "ict"
 
 def register_routes(app):
     @app.route('/')

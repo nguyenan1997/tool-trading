@@ -3,10 +3,9 @@ run_backtest.py
 Chạy thử nghiệm chiến lược trên dữ liệu lịch sử.
 
 Cách dùng:
-    python run_backtest.py                 # mặc định trend_momentum
+    python run_backtest.py                 # mặc định ict
     python run_backtest.py ict             # ICT (M5)
-    python run_backtest.py asian_sweep     # Asian Sweep (M1)
-    python run_backtest.py trend_momentum 20000
+    python run_backtest.py ict 50000
 """
 import sys
 import logging
@@ -15,8 +14,6 @@ import pandas as pd
 
 from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data, get_with_warmup
-from strategies.trend_momentum import TrendMomentumStrategy
-from strategies.asian_sweep import AsianSweepStrategy
 from strategies.ict import ICTKillzoneFVGStrategy
 import config
 
@@ -24,8 +21,6 @@ logging.basicConfig(level=logging.INFO)
 
 # key -> (class, timeframe, số nến mặc định)
 REGISTRY = {
-    "trend_momentum": (TrendMomentumStrategy, "M1", 100000),
-    "asian_sweep": (AsianSweepStrategy, "M1", 20000),
     "ict": (ICTKillzoneFVGStrategy, "M5", 20000),
 }
 
@@ -35,7 +30,7 @@ def main():
     print("      TRADING BOT BACK-TEST SYSTEM      ")
     print("=" * 40)
 
-    key = (sys.argv[1] if len(sys.argv) > 1 else "trend_momentum").strip().lower()
+    key = (sys.argv[1] if len(sys.argv) > 1 else "ict").strip().lower()
     if key not in REGISTRY:
         print(f"❌ Chiến lược không hợp lệ: {key}. Chọn: {', '.join(REGISTRY)}")
         return

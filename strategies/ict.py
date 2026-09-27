@@ -1,7 +1,7 @@
 """
 strategies/ict.py
 ICT "Power of 3 / Silver Bullet" (theo Michael J. Huddleston).
-ĐỘC LẬP với Trend Momentum và Asian Sweep. Chạy trên XAUUSD M5.
+Chạy trên XAUUSD M5. Xem docs/ict_playbook.md.
 
 Mô hình đầy đủ (tất cả trên nến M5 ĐÃ ĐÓNG, không nhìn tương lai):
   1. BIAS khung lớn H4 (EMA50) — chỉ trade cùng chiều bias.

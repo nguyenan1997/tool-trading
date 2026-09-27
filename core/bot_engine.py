@@ -86,7 +86,7 @@ class BotEngine:
         kz_end = getattr(strategy, "kz_end", None)
         if kz_start is not None and kz_end is not None:
             return (kz_start, kz_end)
-        return getattr(config, "TM_SESSION", (12, 21))
+        return (0, 23)
 
     def get_session_status(self) -> dict:
         """Trạng thái phiên + đếm ngược, hiển thị theo GIỜ VIỆT NAM (UTC+7).
@@ -242,7 +242,7 @@ class BotEngine:
                 self._partial_done.discard(t)
 
     def _process_strategy(self, strategy):
-        magic = getattr(strategy, "magic", config.MAGIC_TM)
+        magic = getattr(strategy, "magic", 0)
         count = getattr(strategy, "history_bars", 200)
         tf = getattr(strategy, "timeframe", config.TIMEFRAME)
         df = mt5h.get_candles(config.SYMBOL, tf, count=count)
@@ -271,7 +271,7 @@ class BotEngine:
                 sl, tp = strategy.get_sl_tp(df, price, info.digits, signal)
                 if sl and tp:
                     lot = getattr(strategy, "lot", config.FIXED_LOT)
-                    comment = getattr(strategy, "comment", config.ORDER_COMMENT)
+                    comment = getattr(strategy, "comment", "Bot")
                     logger.info(f"⚡ EXECUTE {signal} | Strategy: {strategy.name} | Price: {price} | SL: {sl} | TP: {tp}")
                     mt5h.open_position(config.SYMBOL, signal, lot, sl, tp, magic, comment)
 
@@ -376,7 +376,7 @@ class BotEngine:
         price = round(level + spread, info.digits) if typ == "BUY" else round(level, info.digits)
 
         lot = getattr(strategy, "lot", config.FIXED_LOT)
-        comment = getattr(strategy, "comment", config.ORDER_COMMENT)
+        comment = getattr(strategy, "comment", "Bot")
         ticket = mt5h.place_limit_order(
             config.SYMBOL, typ, lot, price, sl, tp, magic, comment,
             expire_minutes=int(wait_min),

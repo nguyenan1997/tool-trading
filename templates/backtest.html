@@ -225,8 +225,8 @@
                         <div class="input-group">
                             <label>Khung thời gian</label>
                             <select id="timeframe">
+                                <option value="M5" selected>M5</option>
                                 <option value="M1">M1</option>
-                                <option value="M5">M5</option>
                                 <option value="M15">M15</option>
                                 <option value="H1">H1</option>
                             </select>
@@ -276,20 +276,8 @@
 
                 <div class="section">
                     <div class="section-title"><i data-lucide="brain"></i> 4. Chiến lược</div>
-                    <label class="strat-card selected" onclick="selectStrategy('trend_momentum', this)">
-                        <input type="radio" name="strategy" value="trend_momentum" checked>
-                        <b>Trend Momentum</b>
-                        <span><span class="tag tag-mtf">M1 · M15 · H1</span></span>
-                        <p>Chỉ vào lệnh khi xu hướng lớn rõ ràng (ADX/EMA200 H1), phá đỉnh/đáy M1 + RSI. Ít lệnh, lợi nhuận ròng cao hơn.</p>
-                    </label>
-                    <label class="strat-card" onclick="selectStrategy('asian_sweep', this)">
-                        <input type="radio" name="strategy" value="asian_sweep">
-                        <b>Asian Sweep (ICT)</b>
-                        <span><span class="tag tag-mtf">M1 · M15</span></span>
-                        <p>Quét biên vùng Á (04–07h broker) → reclaim trong killzone 10–11h → vào LIMIT hồi 50%. Chạy NGOÀI khung Trend Momentum.</p>
-                    </label>
-                    <label class="strat-card" onclick="selectStrategy('ict', this)">
-                        <input type="radio" name="strategy" value="ict">
+                    <label class="strat-card selected" onclick="selectStrategy('ict', this)">
+                        <input type="radio" name="strategy" value="ict" checked>
                         <b>ICT KZ → Sweep → FVG</b>
                         <span><span class="tag tag-mtf">M5 · H4 bias</span></span>
                         <p>Bias H4 → quét thanh khoản trong killzone London/NY → CHoCH + FVG → vào OTE/CE. TP theo draw-on-liquidity. Chỉ chạy khung M5.</p>
@@ -299,34 +287,7 @@
                 <div class="section">
                     <div class="section-title"><i data-lucide="sliders-horizontal"></i> 5. Tham số chiến lược</div>
 
-                    <div id="params-trend-momentum">
-                        <div class="param-block">
-                            <div class="label">Điểm vào (M1)</div>
-                            <div class="col2">
-                                <div><label>Độ dài phá vỡ (nến)</label><input type="number" id="tm_lookback" value="20" min="5"></div>
-                                <div><label>RSI Period</label><input type="number" id="tm_rsi_period" value="7" min="2"></div>
-                                <div><label>RSI vào lệnh Mua ≥</label><input type="number" id="tm_rsi_buy" value="55"></div>
-                                <div><label>RSI vào lệnh Bán ≤</label><input type="number" id="tm_rsi_sell" value="45"></div>
-                            </div>
-                        </div>
-                        <div class="param-block">
-                            <div class="label">Lọc xu hướng (H1)</div>
-                            <div class="input-group" style="margin:0;">
-                                <label>ADX H1 tối thiểu ≥</label>
-                                <input type="number" id="tm_adx_thresh" value="22" min="5" max="50">
-                            </div>
-                            <div class="hint">Càng cao càng chắc xu hướng nhưng bỏ lỡ tín hiệu sớm.</div>
-                        </div>
-                        <div class="param-block">
-                            <div class="label">Thoát lệnh</div>
-                            <div class="col2">
-                                <div><label>SL (× ATR M15)</label><input type="number" id="tm_sl_atr" step="0.1" value="1.5" min="0.5"></div>
-                                <div><label>TP (× khoảng SL)</label><input type="number" id="tm_tp_r" step="0.1" value="2.0" min="0.5"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="params-ict" style="display:none;">
+                    <div id="params-ict">
                         <div class="param-block">
                             <div class="label">Bias khung lớn (chỉ trade cùng chiều)</div>
                             <div class="input-group" style="margin:0;">
@@ -497,13 +458,6 @@
                 balance: document.getElementById('balance').value,
                 lot: document.getElementById('lot').value,
                 strategy: strategy,
-                tm_lookback: document.getElementById('tm_lookback').value,
-                tm_rsi_period: document.getElementById('tm_rsi_period').value,
-                tm_rsi_buy: document.getElementById('tm_rsi_buy').value,
-                tm_rsi_sell: document.getElementById('tm_rsi_sell').value,
-                tm_sl_atr: document.getElementById('tm_sl_atr').value,
-                tm_tp_r: document.getElementById('tm_tp_r').value,
-                tm_adx_thresh: document.getElementById('tm_adx_thresh').value,
                 ict_bias_mode: document.getElementById('ict_bias_mode').value,
                 ict_swing_k: document.getElementById('ict_swing_k').value,
                 ict_min_sweep_atr: document.getElementById('ict_min_sweep_atr').value,
@@ -545,7 +499,7 @@
             }
         }
 
-        const strategyNames = { 'trend_momentum': 'Trend Momentum', 'asian_sweep': 'Asian Sweep (ICT)', 'ict': 'ICT KZ→Sweep→FVG' };
+        const strategyNames = { 'ict': 'ICT KZ→Sweep→FVG' };
 
         /* ── Tính thêm chỉ số từ danh sách lệnh ── */
         function computeStats(data) {
