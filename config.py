@@ -69,6 +69,44 @@ ICT_PARTIAL_AT_R  = 1.0
 ICT_BE_AT_R       = 0.0      # Dời SL hòa vốn (tắt mặc định)
 
 # ============================================================
+#  MASTER_XAU_TP (XAUUSD) — Hedge + Grid + Martingale + Basket TP
+# ------------------------------------------------------------
+#    1. Init: mở BUY + SELL market (hedge), lot MASTER_LOT_START.
+#    2. Grid: rải dải Buy Stop trên / Sell Stop dưới giá hiện tại, cách MASTER_GRID_STEP,
+#       tối đa MASTER_MAX_LEVEL lệnh mỗi bên (dựng lại dải sau khi reset).
+#    3. Lot: cấp n = MASTER_LOT_START + MASTER_LOT_INC×(n−1), cap MASTER_MAX_LOT.
+#    4. Trailing từng lệnh: đạt MASTER_TRAIL_START (giá) → dời SL khóa lãi.
+#    5. TP tổng: basket ≥ MASTER_TP_USD hoặc ≥ MASTER_TP_PCT% số dư → đóng ALL.
+#    6. Trailing TP tổng: basket ≥ MASTER_TRAIL_TP_START → khóa đỉnh; tụt
+#       MASTER_TRAIL_TP_STEP → đóng ALL.
+#    7. 1 lệnh chạm SL → xóa ALL pending, reset lưới, dựng lại từ giá hiện tại.
+#    8. Theo dõi max DD tháng (hiển thị/log; KHÔNG tự đóng).
+#  ⚠️ Martingale: rủi ro cháy rất cao. Chạy demo trước.
+# ============================================================
+MASTER_ENABLED     = True
+MAGIC_MASTER       = 20261111
+MASTER_COMMENT     = "Master_XAU_TP"
+
+MASTER_LOT_START   = 0.01     # lot lệnh đầu (hedge)
+MASTER_LOT_INC     = 0.01     # lot cộng tiến mỗi cấp: 0.01 → 0.02 → 0.03 ...
+MASTER_MAX_LOT     = 0.10     # cap lot mỗi lệnh (cent: 0.10 lot ~ 200 cent margin)
+
+MASTER_GRID_STEP   = 1.0      # khoảng cách grid (giá) = 1.0 giá
+MASTER_MAX_LEVEL   = 100      # số lệnh mỗi bên (theo luật: tối đa 100)
+MASTER_INIT_HEDGE  = True     # mở BUY+SELL market khi bắt đầu
+
+MASTER_TRAIL_START = 1.0      # lãi (giá) để bắt đầu dời SL từng lệnh
+MASTER_TRAIL_STEP  = 0.5      # bước khóa lãi (giá)
+MASTER_INIT_SL     = 3.0      # SL ban đầu mỗi lệnh (giá)
+
+MASTER_TP_USD      = 0.0      # TP tổng theo đơn vị tài khoản (cent); 0 = tắt
+MASTER_TP_PCT      = 3.0      # TP tổng theo % số dư (0 = tắt)
+MASTER_TRAIL_TP_START = 150.0 # ngưỡng kích hoạt trailing TP tổng (cent)
+MASTER_TRAIL_TP_STEP  = 50.0  # bước khóa lợi nhuận đỉnh (cent)
+
+MASTER_POLL_SEC    = 0.5      # chu kỳ engine (giây)
+
+# ============================================================
 #  HEDGING GRID (HỆ THỐNG 4, XAUUSD) — CHẠY LIÊN TỤC 24/7
 # ------------------------------------------------------------
 # Luật:
