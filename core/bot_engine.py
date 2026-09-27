@@ -10,7 +10,6 @@ from datetime import datetime, timezone, timedelta
 import config
 from . import mt5_handler as mt5h
 from .hedging_engine import hedging_engine
-from .master_engine import master_engine
 from strategies.manager import strategy_manager
 
 logger = logging.getLogger(__name__)
@@ -28,7 +27,6 @@ class BotEngine:
         self._last_session_key = None # PP đã ghi log phiên lần cuối (đổi PP → log ngay)
         self._pending = {}        # magic -> meta lệnh CHỜ LIMIT thật {ticket, expire_ts}
         self._hedge_cleared_key = None  # đã dọn lệnh chờ của PP khác khi vào hedging chưa
-        self._master_cleared_key = None # đã dọn lệnh chờ của PP khác khi vào master chưa
 
     def start(self):
         with self._lock:
@@ -40,7 +38,6 @@ class BotEngine:
             self.is_running = True
             self.status = "Running"
             hedging_engine.reset()   # chạy lại -> tiếp quản vị thế hiện có
-            master_engine.reset()    # chạy lại -> tiếp quản chu kỳ hiện có
             self._thread = threading.Thread(target=self._run_loop, daemon=True)
             self._thread.start()
             logger.info("Bot Engine STARTED")
@@ -178,22 +175,6 @@ class BotEngine:
                         logger.error(f"Error in hedging: {e}")
                         time.sleep(5)
                     time.sleep(max(0.2, float(getattr(config, "HEDGE_POLL_SEC", 1) or 1)))
-                    continue
-
-                # PP MASTER_XAU_TP chạy vòng lặp riêng, poll liên tục theo giây
-                cur_strat = strategy_manager.get_current_strategy()
-                if getattr(cur_strat, "is_master", False):
-                    try:
-                        cur_key = strategy_manager.get_current_key()
-                        if self._master_cleared_key != cur_key:
-                            self._master_cleared_key = cur_key
-                            self._cancel_other_pending(exclude=cur_strat)
-                        self._maybe_log_session()
-                        master_engine.process(cur_strat)
-                    except Exception as e:
-                        logger.error(f"Error in master: {e}")
-                        time.sleep(5)
-                    time.sleep(max(0.2, float(getattr(config, "MASTER_POLL_SEC", 0.5) or 0.5)))
                     continue
 
                 # 1. Chờ nến mới
