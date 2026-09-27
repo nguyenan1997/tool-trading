@@ -36,6 +36,7 @@ class HedgingEngine:
         self._session_start_equity = None  # equity đầu phiên (mốc tính lãi)
         self._session_start_balance = None # balance đầu phiên (để đối chiếu)
         self._session_start_time = None    # thời điểm bắt đầu phiên (giờ VN)
+        self._session_orders = 0      # số lệnh đã mở trong phiên (để xét cân bằng BUY/SELL)
         self.stop_requested = False   # engine yêu cầu dừng bot (HEDGE_STOP_AFTER_TARGET)
 
     # ---- Lưu/đọc mốc phiên (để khởi động lại tiếp tục) ----
@@ -99,6 +100,7 @@ class HedgingEngine:
         self._session_start_equity = acct.equity if acct is not None else None
         self._session_start_balance = acct.balance if acct is not None else None
         self._session_start_time = self._vn_now()
+        self._session_orders = 0
         self._save_state()
         target = float(getattr(config, "HEDGE_TAKE_PROFIT_USD", 0) or 0)
         logger.info(
@@ -123,6 +125,7 @@ class HedgingEngine:
             self._session_start_equity = None
             self._session_start_balance = None
             self._session_start_time = None
+            self._session_orders = 0
             self._load_state()   # có mốc phiên cũ -> tiếp tục; không thì mở phiên mới ở tick sau
 
     # ------------------------------------------------------------------
@@ -171,6 +174,23 @@ class HedgingEngine:
                         if getattr(config, "HEDGE_STOP_AFTER_TARGET", False):
                             self.stop_requested = True
                         return
+
+            # --- Đóng phiên khi số BUY ≈ số SELL (từ HEDGE_BALANCE_MIN_ORDERS lệnh) ---
+            min_ord = int(getattr(config, "HEDGE_BALANCE_MIN_ORDERS", 0) or 0)
+            bal_pct = float(getattr(config, "HEDGE_BALANCE_PCT", 0) or 0)
+            if min_ord > 0 and self._session_orders >= min_ord and positions:
+                nb = sum(1 for p in positions if p.type == 0)
+                ns = sum(1 for p in positions if p.type == 1)
+                mx = max(nb, ns)
+                if mx > 0 and abs(nb - ns) <= bal_pct * mx:
+                    logger.warning(
+                        f"[HEDGE] ⚖️ BUY={nb} ≈ SELL={ns} (sau {self._session_orders} lệnh) "
+                        f"→ đóng cả phiên, bắt đầu phiên mới"
+                    )
+                    self._close_all(strategy, f"cân bằng BUY={nb}/SELL={ns}")
+                    self._reset_session()
+                    self._maybe_log_balance(strategy)
+                    return
 
             # --- Giới hạn giờ giao dịch (giờ VN): chỉ chặn MỞ lệnh mới ---
             if getattr(config, "HEDGE_TRADING_HOURS_ENABLED", True):
@@ -409,6 +429,7 @@ class HedgingEngine:
                 f"thử {retries} lần)"
             )
             self._no_money = self._is_no_money(strategy)
+        self._session_orders += ok
         return ok
 
 
