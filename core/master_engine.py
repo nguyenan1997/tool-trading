@@ -160,7 +160,7 @@ class MasterEngine:
         step = step or 0.01
         raw = base * (mart ** max(0, n - 1))
         raw = min(raw, max_lot)
-        lot = math.floor(raw / step + 1e-9) * step
+        lot = math.floor(raw / step + 0.5) * step   # làm tròn gần nhất theo volume_step
         lot = max(lot, vmin)
         lot = min(lot, max_lot)
         return round(lot, 2)
