@@ -35,6 +35,7 @@ class MasterEngine:
         self._month_key = None
         self._dd_peak = 0.0
         self._dd_max = 0.0
+        self._last_closed_log = 0.0
 
     def reset(self):
         with self._lock:
@@ -48,6 +49,12 @@ class MasterEngine:
         magic = getattr(strategy, "magic", config.MAGIC_MASTER)
         if not mt5h.connect():
             logger.error("[MASTER] Không kết nối được MT5")
+            return
+        if not mt5h.is_market_open(config.SYMBOL):
+            now = time.time()
+            if now - self._last_closed_log > 600:
+                self._last_closed_log = now
+                logger.info("[MASTER] ⏸️ Thị trường đóng cửa — tạm dừng đặt/quản lý lệnh")
             return
         with self._lock:
             if self._magic != magic:
@@ -117,6 +124,9 @@ class MasterEngine:
             lot = float(getattr(strategy, "lot_start", config.MASTER_LOT_START))
             ok_b = self._open_market(strategy, "BUY", lot)
             ok_s = self._open_market(strategy, "SELL", lot)
+            if not ok_b and not ok_s:
+                logger.warning("[MASTER] Không mở được hedge (thị trường đóng?) — thử lại sau")
+                return
             logger.info(f"[MASTER] 🏁 Chu kỳ mới: hedge BUY={bool(ok_b)} SELL={bool(ok_s)} lot={lot}")
         self._place_ladder(strategy)
         self._known = {p.ticket for p in mt5h.get_open_positions(config.SYMBOL, [self._magic])}

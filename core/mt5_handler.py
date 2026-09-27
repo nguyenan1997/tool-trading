@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import logging
 import math
+import time
 from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
@@ -173,6 +174,62 @@ def get_tick(symbol: str):
 
 
 # ────────────────────────────────────────────────
+#  Market session (đóng/mở cửa)
+# ────────────────────────────────────────────────
+_MKT_INIT = False
+_MKT_LAST_TICK = None
+_MKT_LAST_WALL = None
+
+
+def is_market_open(symbol: str, max_stale_sec: int = 300) -> bool:
+    """True nếu thị trường đang giao dịch được (tránh đặt lệnh khi sàn đóng).
+
+    Điều kiện:
+      - Terminal MT5 đang connected.
+      - Symbol cho phép giao dịch đầy đủ (trade_mode == FULL).
+      - ĐÃ QUAN SÁT thấy tick thay đổi, và tick không đóng băng quá `max_stale_sec`.
+
+    Lần gọi đầu tiên luôn trả False (chỉ ghi mốc). Khi thị trường mở, tick vàng
+    đổi liên tục nên chỉ chậm ~1 giây; khi đóng, tick đứng yên → luôn False.
+    """
+    global _MKT_INIT, _MKT_LAST_TICK, _MKT_LAST_WALL
+    if not connect():
+        return False
+    term = mt5.terminal_info()
+    if term is None or not getattr(term, "connected", False):
+        return False
+    info = mt5.symbol_info(symbol)
+    if info is None:
+        return False
+    try:
+        if info.trade_mode != mt5.SYMBOL_TRADE_MODE_FULL:
+            return False
+    except Exception:
+        pass
+    tick = mt5.symbol_info_tick(symbol)
+    if tick is None or tick.bid <= 0:
+        return False
+    now = time.time()
+
+    if not _MKT_INIT:
+        _MKT_INIT = True
+        _MKT_LAST_TICK = tick.time
+        _MKT_LAST_WALL = None
+        return False
+
+    if tick.time != _MKT_LAST_TICK:
+        # Tick vừa thay đổi → thị trường đang chạy
+        _MKT_LAST_TICK = tick.time
+        _MKT_LAST_WALL = now
+        return True
+
+    # Tick không đổi: chỉ coi là mở nếu gần đây TỪNG thấy tick đổi
+    if _MKT_LAST_WALL is None:
+        return False
+    return (now - _MKT_LAST_WALL) < max_stale_sec
+
+
+# ────────────────────────────────────────────────
 #  Position Management
 # ────────────────────────────────────────────────
 def get_open_position(symbol: str, magic: int):
@@ -247,6 +304,9 @@ _SLIPPAGE_RETCODES = {
     10020,  # TRADE_RETCODE_PRICE_CHANGED
     10021,  # TRADE_RETCODE_PRICE_OFF
 }
+
+# Retcode "thị trường đóng cửa" — không log ồn ào (chỉ debug)
+_MARKET_CLOSED_RETCODE = getattr(mt5, "TRADE_RETCODE_MARKET_CLOSED", 10018)
 
 
 def _supported_filling(info) -> int:
@@ -349,6 +409,8 @@ def open_position(
         msg = result.comment if result else "order_send returned None"
         if code in _SLIPPAGE_RETCODES:
             logger.warning(f"⚠️ BỎ LỆNH do trượt giá  |  retcode={code}  |  {msg}")
+        elif code == _MARKET_CLOSED_RETCODE:
+            logger.debug(f"open_position bỏ qua: thị trường đóng cửa (retcode={code})")
         else:
             logger.error(f"open_position FAILED  |  retcode={code}  |  {msg}")
         return False
@@ -610,7 +672,10 @@ def place_limit_order(
     if result is None or result.retcode != mt5.TRADE_RETCODE_DONE:
         code = result.retcode if result else "None"
         msg = result.comment if result else "order_send returned None"
-        logger.error(f"place_limit_order FAILED  |  retcode={code}  |  {msg}")
+        if code == _MARKET_CLOSED_RETCODE:
+            logger.debug(f"place_limit_order bỏ qua: thị trường đóng cửa (retcode={code})")
+        else:
+            logger.error(f"place_limit_order FAILED  |  retcode={code}  |  {msg}")
         return None
 
     ticket = result.order
@@ -705,11 +770,14 @@ def place_stop_order(
     if result is None or result.retcode != mt5.TRADE_RETCODE_DONE:
         code = result.retcode if result else "None"
         msg = result.comment if result else "order_send returned None"
-        logger.error(f"place_stop_order FAILED  |  retcode={code}  |  {msg}")
+        if code == _MARKET_CLOSED_RETCODE:
+            logger.debug(f"place_stop_order bỏ qua: thị trường đóng cửa (retcode={code})")
+        else:
+            logger.error(f"place_stop_order FAILED  |  retcode={code}  |  {msg}")
         return None
 
     ticket = result.order
-    logger.info(
+    logger.debug(
         f"📌 ĐẶT LỆNH CHỜ {order_type} STOP  |  Ticket={ticket}  |  "
         f"Price={price:.{digits}f}  |  Lot={lot}"
     )

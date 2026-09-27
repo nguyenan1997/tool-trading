@@ -32,6 +32,7 @@ class HedgingEngine:
         self._fresh = True    # True = cần khởi tạo/tiếp quản ở lần xử lý kế tiếp
         self._no_money = False  # lần mở gần nhất thất bại vì hết margin
         self._last_balance_log = 0.0  # lần cuối ghi log tỷ lệ BUY/SELL
+        self._last_closed_log = 0.0   # lần cuối log "thị trường đóng cửa"
         self._last_close_key = None   # (ngày, giờ) lần cuối đóng cuối phiên
         self._session_start_equity = None  # equity đầu phiên (mốc tính lãi)
         self._session_start_balance = None # balance đầu phiên (để đối chiếu)
@@ -132,6 +133,12 @@ class HedgingEngine:
             return
         if not mt5h.connect():
             logger.error("[HEDGE] Không kết nối được MT5")
+            return
+        if not mt5h.is_market_open(config.SYMBOL):
+            now = time.time()
+            if now - self._last_closed_log > 600:
+                self._last_closed_log = now
+                logger.info("[HEDGE] ⏸️ Thị trường đóng cửa — tạm dừng đặt/quản lý lệnh")
             return
 
         with self._lock:
