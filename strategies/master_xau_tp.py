@@ -18,7 +18,7 @@ class MasterXAUTPStrategy(BaseStrategy):
     def __init__(
         self,
         lot_start=config.MASTER_LOT_START,
-        lot_inc=config.MASTER_LOT_INC,
+        mart=config.MASTER_MART,
         max_lot=config.MASTER_MAX_LOT,
         grid_step=config.MASTER_GRID_STEP,
         max_level=config.MASTER_MAX_LEVEL,
@@ -34,7 +34,7 @@ class MasterXAUTPStrategy(BaseStrategy):
     ):
         super().__init__("MASTER_XAU_TP", magic=magic)
         self.lot_start = lot_start
-        self.lot_inc = lot_inc
+        self.mart = mart
         self.max_lot = max_lot
         self.grid_step = grid_step
         self.max_level = int(max_level)

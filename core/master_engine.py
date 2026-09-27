@@ -4,9 +4,9 @@ Engine cho PP MASTER_XAU_TP (XAUUSD), gọi định kỳ từ BotEngine.
 
 Luật:
   1. Init: mở BUY + SELL market (hedge), lot MASTER_LOT_START.
-  2. Grid động: duy trì 1 Buy Stop phía trên & 1 Sell Stop phía dưới (cách
-     MASTER_GRID_STEP), dời theo giá; tối đa MASTER_MAX_LEVEL lệnh mỗi bên.
-  3. Martingale: lot = MASTER_LOT_START × MASTER_MART^(số lệnh đang mở), cap MASTER_MAX_LOT.
+  2. Grid: rải dải mỗi bên MASTER_MAX_LEVEL lệnh — BUY LIMIT dưới giá hiện tại,
+     SELL LIMIT trên giá hiện tại, cách nhau MASTER_GRID_STEP (dựng lại sau reset).
+  3. Lot: cấp n = MASTER_LOT_START + MASTER_LOT_INC×(n−1), cap MASTER_MAX_LOT.
   4. Trailing từng lệnh: lãi ≥ MASTER_TRAIL_START (giá) → dời SL khóa lãi.
   5. TP tổng: basket ≥ MASTER_TP_USD hoặc ≥ MASTER_TP_PCT% số dư → đóng ALL + xóa pending.
   6. Trailing TP tổng: basket ≥ MASTER_TRAIL_TP_START → khóa đỉnh; tụt MASTER_TRAIL_TP_STEP → đóng ALL.
@@ -150,15 +150,15 @@ class MasterEngine:
 
     # ------------------------------------------------------------------
     def _lot_for_level(self, strategy, n):
-        """Lot cho cấp grid thứ n (1..max_level): LOT_START + LOT_INC×(n−1), cap MAX_LOT."""
+        """Lot cho cấp grid thứ n (1..max_level): LOT_START × MART^(n−1), cap MAX_LOT."""
         base = float(getattr(strategy, "lot_start", config.MASTER_LOT_START))
-        inc = float(getattr(strategy, "lot_inc", config.MASTER_LOT_INC))
+        mart = float(getattr(strategy, "mart", config.MASTER_MART))
         max_lot = float(getattr(strategy, "max_lot", config.MASTER_MAX_LOT))
         info = mt5h.get_symbol_info(config.SYMBOL)
         step = getattr(info, "volume_step", 0.01) if info is not None else 0.01
         vmin = getattr(info, "volume_min", 0.01) if info is not None else 0.01
         step = step or 0.01
-        raw = base + inc * max(0, n - 1)
+        raw = base * (mart ** max(0, n - 1))
         raw = min(raw, max_lot)
         lot = math.floor(raw / step + 1e-9) * step
         lot = max(lot, vmin)
@@ -181,21 +181,26 @@ class MasterEngine:
         init_sl = float(getattr(strategy, "init_sl", config.MASTER_INIT_SL) or 0)
         mid = (tick.ask + tick.bid) / 2.0
         placed = 0
-        for i in range(1, n + 1):
-            lot = self._lot_for_level(strategy, i)
-            price = round(mid + i * step, d)
-            sl = round(price - init_sl, d) if init_sl > 0 else 0.0
-            if price > tick.ask and mt5h.place_stop_order(
-                    config.SYMBOL, "BUY", lot, price, magic, comment, sl=sl, tp=0.0):
-                placed += 1
+        # BUY LIMIT phía DƯỚI giá
         for i in range(1, n + 1):
             lot = self._lot_for_level(strategy, i)
             price = round(mid - i * step, d)
-            sl = round(price + init_sl, d) if init_sl > 0 else 0.0
-            if price < tick.bid and mt5h.place_stop_order(
-                    config.SYMBOL, "SELL", lot, price, magic, comment, sl=sl, tp=0.0):
+            sl = round(price - init_sl, d) if init_sl > 0 else 0.0
+            if price < tick.ask and mt5h.place_limit_order(
+                    config.SYMBOL, "BUY", lot, price, sl, 0.0, magic, comment, quiet=True):
                 placed += 1
-        logger.info(f"[MASTER] 🪜 Dải lưới quanh {mid:.{d}f}: đặt {placed}/{2*n} lệnh stop")
+        # SELL LIMIT phía TRÊN giá
+        for i in range(1, n + 1):
+            lot = self._lot_for_level(strategy, i)
+            price = round(mid + i * step, d)
+            sl = round(price + init_sl, d) if init_sl > 0 else 0.0
+            if price > tick.bid and mt5h.place_limit_order(
+                    config.SYMBOL, "SELL", lot, price, sl, 0.0, magic, comment, quiet=True):
+                placed += 1
+        logger.info(
+            f"[MASTER] 🪜 Dải lưới quanh {mid:.{d}f}: đặt {placed}/{2*n} lệnh limit "
+            f"(BUY dưới / SELL trên, step={step}, SL={init_sl} giá)"
+        )
 
     # ------------------------------------------------------------------
     def _trail_orders(self, strategy, positions):

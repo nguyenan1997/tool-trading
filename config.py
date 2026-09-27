@@ -72,9 +72,9 @@ ICT_BE_AT_R       = 0.0      # Dời SL hòa vốn (tắt mặc định)
 #  MASTER_XAU_TP (XAUUSD) — Hedge + Grid + Martingale + Basket TP
 # ------------------------------------------------------------
 #    1. Init: mở BUY + SELL market (hedge), lot MASTER_LOT_START.
-#    2. Grid: rải dải Buy Stop trên / Sell Stop dưới giá hiện tại, cách MASTER_GRID_STEP,
+#    2. Grid: rải dải BUY LIMIT dưới / SELL LIMIT trên giá hiện tại, cách MASTER_GRID_STEP,
 #       tối đa MASTER_MAX_LEVEL lệnh mỗi bên (dựng lại dải sau khi reset).
-#    3. Lot: cấp n = MASTER_LOT_START + MASTER_LOT_INC×(n−1), cap MASTER_MAX_LOT.
+#    3. Martingale: lot cấp n = MASTER_LOT_START × MASTER_MART^(n−1), cap MASTER_MAX_LOT.
 #    4. Trailing từng lệnh: đạt MASTER_TRAIL_START (giá) → dời SL khóa lãi.
 #    5. TP tổng: basket ≥ MASTER_TP_USD hoặc ≥ MASTER_TP_PCT% số dư → đóng ALL.
 #    6. Trailing TP tổng: basket ≥ MASTER_TRAIL_TP_START → khóa đỉnh; tụt
@@ -88,7 +88,7 @@ MAGIC_MASTER       = 20261111
 MASTER_COMMENT     = "Master_XAU_TP"
 
 MASTER_LOT_START   = 0.01     # lot lệnh đầu (hedge)
-MASTER_LOT_INC     = 0.01     # lot cộng tiến mỗi cấp: 0.01 → 0.02 → 0.03 ...
+MASTER_MART        = 1.21     # hệ số nhân lot mỗi cấp: 0.01 × 1.21^(n−1)
 MASTER_MAX_LOT     = 0.10     # cap lot mỗi lệnh (cent: 0.10 lot ~ 200 cent margin)
 
 MASTER_GRID_STEP   = 1.0      # khoảng cách grid (giá) = 1.0 giá

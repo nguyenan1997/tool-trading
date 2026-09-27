@@ -606,6 +606,7 @@ def place_limit_order(
     magic: int,
     comment: str,
     expire_minutes: int = None,
+    quiet: bool = False,
 ) -> int | None:
     """Đặt lệnh CHỜ LIMIT thật trên MT5. Trả về ticket, hoặc None nếu thất bại.
 
@@ -679,7 +680,7 @@ def place_limit_order(
         return None
 
     ticket = result.order
-    logger.info(
+    (logger.debug if quiet else logger.info)(
         f"📌 ĐẶT LỆNH CHỜ {order_type} LIMIT  |  Ticket={ticket}  |  "
         f"Price={price:.{digits}f}  |  SL={sl:.{digits}f}  |  TP={tp:.{digits}f}  |  "
         f"Lot={lot}  |  hết hạn={expire_minutes} phút"
