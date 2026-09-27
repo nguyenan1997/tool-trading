@@ -84,7 +84,7 @@ HEDGE_ENABLED    = True
 MAGIC_HEDGE      = 20260601
 HEDGE_COMMENT    = "HedgeGrid_Bot"
 HEDGE_LOT        = 0.01     # Khối lượng mỗi lệnh (0.01 = nhỏ nhất)
-HEDGE_TP_USD     = 3.0      # TP cách giá vào = 3.0 USD ≈ 30 pip (1 pip XAUUSD = 0.1)
+HEDGE_TP_USD     = 5.0      # TP cách giá vào = 5.0 USD ≈ 50 pip (1 pip XAUUSD = 0.1)
 HEDGE_POLL_SEC   = 0.5      # Chu kỳ bot kiểm tra TP/mở cặp mới (giây) — nhỏ để chốt sát mốc lãi
 HEDGE_MAX_DEVIATION_PTS = 30  # Giới hạn trượt mỗi lệnh (points). 0 = tắt (không giới hạn)
 HEDGE_OPEN_RETRIES = 3        # Số lần thử lại mỗi chân nếu sàn từ chối do trượt
