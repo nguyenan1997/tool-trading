@@ -1,6 +1,6 @@
 # Chiến lược giao dịch — Tài liệu chi tiết
 
-Trạng thái hiện tại của bot: **XAUUSD**, 3 chiến lược (`trend_momentum`, `asian_sweep`, `smc`).
+Trạng thái hiện tại của bot: **XAUUSD**, 3 chiến lược (`trend_momentum`, `asian_sweep`, `ict`).
 Bot chạy chiến lược đang chọn trên UI/API (các PP loại trừ nhau); đổi tham số qua giao diện/API.
 
 ---
@@ -70,7 +70,7 @@ Toàn bộ chỉ báo dùng nến **ĐÃ ĐÓNG** (shift 1 trên mỗi khung), k
 
 ## 2. Cách bot thực thi chung (`core/bot_engine.py`)
 
-1. Bot chờ **nến mới đóng** của khung theo chiến lược đang chọn (`M1`; riêng SMC là `M5`).
+1. Bot chờ **nến mới đóng** của khung theo chiến lược đang chọn (`M1`; riêng ICT là `M5`).
 2. Nạp nến: `get_candles(SYMBOL, strategy.timeframe, count = strategy.history_bars)`.
 3. `strategy.calculate_indicators(df)` → nếu có vị thế đang mở: **BE-move** khi giá đạt 1R, chốt một phần khi đạt 1R (chỉ với strategy có `be_move_at_r`/`partial_at_r` > 0).
 4. Nếu **không có vị thế** và `check_signal(df)` trả `BUY`/`SELL` → mở lệnh tại giá tick hiện tại (Ask/Bid), SL/TP theo `get_sl_tp`.
@@ -87,86 +87,35 @@ Toàn bộ chỉ báo dùng nến **ĐÃ ĐÓNG** (shift 1 trên mỗi khung), k
 
 ---
 
-## 3. Phương pháp SMC — Sweep → CHoCH → OB/FVG (`strategies/smc.py`)
+## 3. Phương pháp ICT — Killzone → Sweep → Displacement/FVG (`strategies/ict.py`)
 
-Chiến lược Smart Money Concept chạy trên **XAUUSD M5**, dùng lệnh **LIMIT**.
+PP lấy cảm hứng từ ICT (Power of 3, liquidity sweep, FVG, killzone, draw on
+liquidity). Chạy **XAUUSD M5**, dùng lệnh **LIMIT**. Chi tiết đầy đủ + checklist thủ
+công: **`docs/ict_playbook.md`**.
 
 ### Quy trình
-1. **Quét thanh khoản** trong killzone (mặc định 07–11h và 12–16h giờ broker):
-   giá thâm nhập qua một mức — biên vùng Á hôm nay, PDH/PDL ngày trước, hoặc
-   swing low/high gần nhất — vượt ít nhất `SMC_MIN_SWEEP_ATR`×ATR(M5), rồi
-   **đóng cửa trở lại** trên mức (reclaim).
-2. **CHoCH**: trong tối đa `SMC_CHOCH_WAIT` nến, nến M5 đóng phá swing đối
-   diện kèm **displacement** (thân nến ≥ `SMC_DISP_ATR`×ATR).
-3. **Vùng vào lệnh**: **FVG** mới nhất trong `SMC_ZONE_LOOKBACK` nến trước
-   CHoCH; nếu không có (và `SMC_REQUIRE_FVG` = False) → **Order Block**.
-4. **Vào LIMIT** tại `SMC_ENTRY_FRAC` của vùng (0 = mép gần, 0.5 = CE);
-   **SL** sau điểm quét ± `SMC_SL_BUF_ATR`×ATR; **TP** = `SMC_TP_R`×R.
-5. Tối đa 1 setup mỗi hướng mỗi ngày; lệnh chờ hủy sau `SMC_PEND_MIN` phút.
+1. **Bias (`ICT_BIAS_MODE`)**: mặc định `prevday` = hướng nến ngày hôm trước → chỉ
+   trade cùng chiều bias.
+2. **Killzone** (giờ broker): London **07–11h**, NY **12–16h**.
+3. **Quét thanh khoản** biên ĐỐI DIỆN bias (PDH/PDL, biên vùng Á, swing gần nhất),
+   vượt ≥ `ICT_MIN_SWEEP_ATR`×ATR rồi **reclaim** (đóng cửa trở lại).
+4. **Displacement + CHoCH** trong `ICT_CHOCH_WAIT` nến (thân nến ≥ `ICT_DISP_ATR`×ATR).
+5. **FVG bắt buộc** trong `ICT_ZONE_LOOKBACK` nến trước CHoCH.
+6. **LIMIT** tại CE (`ICT_ENTRY_FRAC`=0.5; ~0.62–0.79 = OTE).
+7. **TP = draw on liquidity**: mức thanh khoản đối diện gần nhất (fallback bội số R).
+8. **Chốt 50% @1R**, phần còn lại tới DOL.
+   (Bộ lọc `ICT_REQUIRE_CONFIRM` và `ICT_USE_PD` có sẵn nhưng **tắt mặc định** — không bền vững.)
 
-### Cách chốt lời (mặc định: partial 50%@1R)
-- Chốt **50% khối lượng tại 1R** (`SMC_PARTIAL_FRAC = 0.5`, `SMC_PARTIAL_AT_R = 1.0`),
-  phần còn lại chạy tới **TP 3R** (`SMC_TP_R = 3.0`). Không trailing, không dời BE.
-- Yêu cầu **lot ≥ 0.02** (XAUUSD volume_min 0.01) mới chia được khối lượng.
-- Đã kiểm chứng ổn định (3 mẫu × 4 fold):
-  partial 50%@1R cho PF ngang/cao hơn, **DD giảm ~30–40%**, **WR ~50%**;
-  trailing và TP-theo-thanh-khoản kém ổn định nên không dùng.
+### Kết quả (XAUUSD M5, lot 0.02, vốn $1000, 2026-02→09, spread 0.22)
+- Toàn bộ (34 lệnh): WR **79.4%**, PF **3.57**, net +$254, DD **4.0%**.
+- Train 70% (21 lệnh): PF 3.12 · OOS 30% (13 lệnh): PF **4.51**, DD 2.0%.
+- Walk-forward 4 fold: PF 1.65 / 4.71 / 9.98 / 3.74 — mọi fold dương.
+- Đặc điểm: win rate cao + RR < 1 (thắng nhiều, ăn ít mỗi lệnh).
+- Bộ lọc xác nhận/PD chỉ đổi 1–2 lệnh → dao động theo tập dữ liệu, không coi là lợi thế.
 
-### Kết quả backtest tham khảo (XAUUSD M5, vốn $1000, lot 0.02, partial 50%@1R, 2026-02→09)
-- 101 lệnh · Win rate **49.5%** · PF **2.17** · Expectancy **+$9.15/lệnh** · Max DD **6.1%**.
-- OOS (30% cuối) PF 2.18; walk-forward 4 fold: worst **1.04**, mean **2.20**.
-- So với TP 3R thuần: PF 2.10, DD 9.7%, net $1222 → partial đổi ~25% lãi lấy DD thấp và WR cao.
-
-### Hệ thống backtest
-- **API**: `POST /api/backtest/run` (tham số `strategy=smc`) → trả về
-  `profit_factor`, `expectancy`, `max_drawdown`, `avg_win/avg_loss`,
-  `timeframe`… SMC tự ép chạy khung **M5**.
-- **UI**: trang `/backtest` có thẻ chọn SMC và khối tham số riêng.
-- **CLI**: `python run_backtest.py smc [count]`.
-- **Nghiên cứu chuyên sâu**: `python research/smc.py` (train/OOS + walk-forward
-  + tách đoạn dữ liệu liên tục).
+### Cách chạy
+- Live/UI: chọn "ICT KZ→Sweep→FVG" (`strategy_manager` key = `ict`).
+- CLI: `python run_backtest.py ict [count]` — Nghiên cứu: `python research/ict.py`.
 
 ### Lưu ý
-- `SMC_ENABLED = True`: đã tích hợp vào hệ thống (chọn được trên UI/live).
-- Chỉ chạy trong killzone; ngoài phiên bot không vào lệnh mới nhưng vẫn quản lý
-  vị thế đang mở của chính nó.
-- Mẫu backtest còn nhỏ (~100 lệnh) và lợi nhuận phụ thuộc vài lệnh thắng lớn —
-  nên forward-test trên demo trước khi tăng vốn.
-
-### Cách vào lệnh (`SMC_ENTRY_MODE`)
-`limit` (mặc định) = chờ hồi về CE của FVG/OB; `market` = vào ngay khi CHoCH.
-Đã kiểm chứng độ ổn định (3 mẫu × 4 fold):
-`market` nhiều lệnh hơn nhưng PF thấp hơn nhiều (~1.28 vs ~2.0) và drawdown
-gấp ~3 lần (~18–20% vs ~6%); `limit` vẫn tốt hơn rõ rệt nên GIỮ mặc định.
-
----
-
-## 4. Cấu hình CHỐT (FINAL) — SMC Sweep→CHoCH→FVG
-
-| Tham số | Giá trị | Ghi chú |
-|---|---|---|
-| Khung / sản phẩm | M5 · XAUUSD | bot tự chọn M5 khi bật SMC |
-| Killzone | 07–11h, 12–16h (broker) | `SMC_KILLZONES` |
-| Swing K | 2 | `SMC_SWING_K` |
-| Quét tối thiểu | 0.3 × ATR(M5) | `SMC_MIN_SWEEP_ATR` |
-| Chờ CHoCH | 24 nến | `SMC_CHOCH_WAIT` |
-| Displacement | 0.4 × ATR | `SMC_DISP_ATR` |
-| Vùng vào lệnh | **FVG bắt buộc** | `SMC_REQUIRE_FVG = True` |
-| Tìm vùng | 12 nến | `SMC_ZONE_LOOKBACK` |
-| Cách vào | **LIMIT tại CE (0.5)** | `SMC_ENTRY_MODE = "limit"` |
-| Chờ khớp | 120 phút | `SMC_PEND_MIN` |
-| SL | sau điểm quét ± 0.2×ATR | `SMC_SL_BUF_ATR` |
-| R tối đa | 6 × ATR | `SMC_MAX_R_ATR` |
-| TP | 3R | `SMC_TP_MODE = "R"`, `SMC_TP_R = 3.0` |
-| Chốt lời | **50% @1R** + phần còn lại tới 3R | `SMC_PARTIAL_FRAC/AT_R` |
-| BE / Trailing | tắt | `SMC_BE_AT_R = 0`, `SMC_TRAIL_AT_R = 0` |
-| Số setup | 1/hướng/ngày | `SMC_ONE_PER_DAY` |
-
-**Kết quả chốt (XAUUSD M5, lot 0.02, vốn $1000):**
-- Full 2026-02→09 (101 lệnh): WR **49.5%**, PF **2.17**, Expectancy **+$9.15/lệnh**,
-  DD **6.1%**, OOS PF 2.18.
-- Mẫu 150k (90 lệnh): WR 51.1%, PF 2.05, DD 7.2%.
-- Walk-forward 4 fold: worst **1.04**, mean **2.20**.
-
-Trạng thái: đã tích hợp live (chọn được trên UI) + backtest API/UI/CLI. Chỉ đổi
-tham số sau khi kiểm chứng lại độ ổn định trên nhiều mẫu.
+- Mẫu nhỏ (34 lệnh) → forward-test demo trước khi tăng vốn; RR < 1 nhạy spread.

@@ -16,7 +16,7 @@ from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data, get_with_warmup
 from strategies.trend_momentum import TrendMomentumStrategy
 from strategies.asian_sweep import AsianSweepStrategy
-from strategies.smc import SMCSweepChochStrategy
+from strategies.ict import ICTKillzoneFVGStrategy
 from strategies.hedging import HedgingStrategy
 
 logger = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ def _flag(data, key, default=True):
 
 
 def _build_strategy(data):
-    """Xây dựng chiến lược theo tham số từ UI ('trend_momentum' | 'asian_sweep' | 'smc')."""
+    """Xây dựng chiến lược theo tham số từ UI ('trend_momentum' | 'asian_sweep' | 'ict')."""
     sid = (data.get("strategy") or "trend_momentum").strip().lower()
 
     if sid == "hedging":
@@ -52,21 +52,26 @@ def _build_strategy(data):
             lot=_num(data, "hedge_lot", config.HEDGE_LOT),
         ), "hedging"
 
-    if sid == "smc":
-        return SMCSweepChochStrategy(
-            swing_k=_num(data, "smc_swing_k", config.SMC_SWING_K, int),
-            min_sweep_atr=_num(data, "smc_min_sweep_atr", config.SMC_MIN_SWEEP_ATR),
-            choch_wait=_num(data, "smc_choch_wait", config.SMC_CHOCH_WAIT, int),
-            disp_atr=_num(data, "smc_disp_atr", config.SMC_DISP_ATR),
-            zone_lookback=_num(data, "smc_zone_lookback", config.SMC_ZONE_LOOKBACK, int),
-            entry_frac=_num(data, "smc_entry_frac", config.SMC_ENTRY_FRAC),
-            require_fvg=_flag(data, "smc_require_fvg", config.SMC_REQUIRE_FVG),
-            entry_mode=(data.get("smc_entry_mode") or config.SMC_ENTRY_MODE),
-            sl_buf_atr=_num(data, "smc_sl_buf_atr", config.SMC_SL_BUF_ATR),
-            tp_mode=(data.get("smc_tp_mode") or config.SMC_TP_MODE),
-            tp_r=_num(data, "smc_tp_r", config.SMC_TP_R),
-            pend_min=_num(data, "smc_pend_min", config.SMC_PEND_MIN, int),
-        ), "smc"
+    if sid == "ict":
+        return ICTKillzoneFVGStrategy(
+            swing_k=_num(data, "ict_swing_k", config.ICT_SWING_K, int),
+            min_sweep_atr=_num(data, "ict_min_sweep_atr", config.ICT_MIN_SWEEP_ATR),
+            choch_wait=_num(data, "ict_choch_wait", config.ICT_CHOCH_WAIT, int),
+            disp_atr=_num(data, "ict_disp_atr", config.ICT_DISP_ATR),
+            zone_lookback=_num(data, "ict_zone_lookback", config.ICT_ZONE_LOOKBACK, int),
+            entry_frac=_num(data, "ict_entry_frac", config.ICT_ENTRY_FRAC),
+            require_fvg=_flag(data, "ict_require_fvg", config.ICT_REQUIRE_FVG),
+            entry_mode=(data.get("ict_entry_mode") or config.ICT_ENTRY_MODE),
+            bias_mode=(data.get("ict_bias_mode") or config.ICT_BIAS_MODE),
+            sl_buf_atr=_num(data, "ict_sl_buf_atr", config.ICT_SL_BUF_ATR),
+            tp_mode=(data.get("ict_tp_mode") or config.ICT_TP_MODE),
+            tp_r=_num(data, "ict_tp_r", config.ICT_TP_R),
+            pend_min=_num(data, "ict_pend_min", config.ICT_PEND_MIN, int),
+            require_confirm=_flag(data, "ict_require_confirm", config.ICT_REQUIRE_CONFIRM),
+            confirm_close=_num(data, "ict_confirm_close", config.ICT_CONFIRM_CLOSE),
+            use_pd=_flag(data, "ict_use_pd", config.ICT_USE_PD),
+            pd_lookback=_num(data, "ict_pd_lookback", config.ICT_PD_LOOKBACK, int),
+        ), "ict"
 
     if sid == "asian_sweep":
         s = AsianSweepStrategy()
@@ -131,7 +136,7 @@ def register_routes(app):
         except Exception as e:
             logger.warning(f"[Backtest] Không lấy được info từ MT5, dùng fallback: {e}")
         
-        # Khởi tạo chiến lược (SMC tự chạy khung M5; các PP khác theo UI)
+        # Khởi tạo chiến lược (ICT tự chạy khung M5; các PP khác theo UI)
         strategy, sid = _build_strategy(data)
         tf = getattr(strategy, "timeframe", tf)
 

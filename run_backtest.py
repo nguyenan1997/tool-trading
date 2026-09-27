@@ -4,7 +4,7 @@ Chạy thử nghiệm chiến lược trên dữ liệu lịch sử.
 
 Cách dùng:
     python run_backtest.py                 # mặc định trend_momentum
-    python run_backtest.py smc             # SMC (M5)
+    python run_backtest.py ict             # ICT (M5)
     python run_backtest.py asian_sweep     # Asian Sweep (M1)
     python run_backtest.py trend_momentum 20000
 """
@@ -17,7 +17,7 @@ from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data, get_with_warmup
 from strategies.trend_momentum import TrendMomentumStrategy
 from strategies.asian_sweep import AsianSweepStrategy
-from strategies.smc import SMCSweepChochStrategy
+from strategies.ict import ICTKillzoneFVGStrategy
 import config
 
 logging.basicConfig(level=logging.INFO)
@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.INFO)
 REGISTRY = {
     "trend_momentum": (TrendMomentumStrategy, "M1", 100000),
     "asian_sweep": (AsianSweepStrategy, "M1", 20000),
-    "smc": (SMCSweepChochStrategy, "M5", 20000),
+    "ict": (ICTKillzoneFVGStrategy, "M5", 20000),
 }
 
 

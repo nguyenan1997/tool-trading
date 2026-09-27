@@ -68,7 +68,7 @@ class BotEngine:
         return int(round((server_wall - utc_now).total_seconds() / 3600.0))
 
     def _active_timeframe(self) -> str:
-        """Khung thời gian của chiến lược đang chọn (SMC chạy M5, còn lại M1)."""
+        """Khung thời gian của chiến lược đang chọn (ICT chạy M5, còn lại M1)."""
         try:
             return getattr(strategy_manager.get_current_strategy(), "timeframe", config.TIMEFRAME)
         except Exception:

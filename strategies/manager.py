@@ -5,7 +5,7 @@ Quản lý việc lựa chọn và truy xuất chiến lược.
 
 from .trend_momentum import TrendMomentumStrategy
 from .asian_sweep import AsianSweepStrategy
-from .smc import SMCSweepChochStrategy
+from .ict import ICTKillzoneFVGStrategy
 from .hedging import HedgingStrategy
 
 import config
@@ -16,7 +16,7 @@ class StrategyManager:
             "hedging": HedgingStrategy(),
             "trend_momentum": TrendMomentumStrategy(),
             "asian_sweep": AsianSweepStrategy(),
-            "smc": SMCSweepChochStrategy(),
+            "ict": ICTKillzoneFVGStrategy(),
         }
         # PP chạy mặc định khi khởi động (config.DEFAULT_STRATEGY).
         default = getattr(config, "DEFAULT_STRATEGY", "hedging")
