@@ -186,6 +186,11 @@ class BotEngine:
                 time.sleep(min(wait, 5)) 
                 if wait > 5: continue
 
+                # Sàn đóng -> không xử lý
+                if not mt5h.is_market_open(config.SYMBOL):
+                    time.sleep(10)
+                    continue
+
                 try:
                     self._maybe_log_session()
                     self._on_candle_tick()

@@ -136,6 +136,9 @@ class HedgingEngine:
         if not mt5h.connect():
             logger.error("[HEDGE] Không kết nối được MT5")
             return
+        # Sàn đóng -> không tiếp quản/sửa lệnh (tránh spam lỗi 10018)
+        if not mt5h.is_market_open(config.SYMBOL):
+            return
 
         with self._lock:
             self._no_money = False

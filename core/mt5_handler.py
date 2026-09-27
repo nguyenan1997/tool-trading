@@ -8,9 +8,57 @@ import pandas as pd
 import numpy as np
 import logging
 import math
+import time
 from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
+
+# retcode "thị trường đóng cửa" (log ở mức debug, không ồn ào)
+_MARKET_CLOSED_RETCODE = getattr(mt5, "TRADE_RETCODE_MARKET_CLOSED", 10018)
+_MKT_INIT = False
+_MKT_LAST_TICK = None
+_MKT_LAST_WALL = None
+
+
+def is_market_open(symbol: str, max_stale_sec: int = 300) -> bool:
+    """True nếu thị trường đang giao dịch được (tránh đặt/sửa lệnh khi sàn đóng).
+
+    - Terminal connected, symbol trade_mode = FULL.
+    - ĐÃ thấy tick thay đổi và tick không đóng băng quá max_stale_sec.
+
+    Lần gọi đầu luôn trả False (chỉ ghi mốc). Thị trường mở thì tick vàng đổi
+    liên tục (chậm ~1s); đóng thì tick đứng yên -> luôn False.
+    """
+    global _MKT_INIT, _MKT_LAST_TICK, _MKT_LAST_WALL
+    if not connect():
+        return False
+    term = mt5.terminal_info()
+    if term is None or not getattr(term, "connected", False):
+        return False
+    info = mt5.symbol_info(symbol)
+    if info is None:
+        return False
+    try:
+        if info.trade_mode != mt5.SYMBOL_TRADE_MODE_FULL:
+            return False
+    except Exception:
+        pass
+    tick = mt5.symbol_info_tick(symbol)
+    if tick is None or tick.bid <= 0:
+        return False
+    now = time.time()
+    if not _MKT_INIT:
+        _MKT_INIT = True
+        _MKT_LAST_TICK = tick.time
+        _MKT_LAST_WALL = None
+        return False
+    if tick.time != _MKT_LAST_TICK:
+        _MKT_LAST_TICK = tick.time
+        _MKT_LAST_WALL = now
+        return True
+    if _MKT_LAST_WALL is None:
+        return False
+    return (now - _MKT_LAST_WALL) < max_stale_sec
 
 # Map string timeframe → mt5 constant
 _TF_MAP = {
@@ -512,10 +560,13 @@ def modify_position(symbol: str, ticket: int, sl=None, tp=None, magic: int = Non
 
     result = mt5.order_send(request)
     if result.retcode != mt5.TRADE_RETCODE_DONE:
-        logger.error(
-            f"modify_position FAILED  |  ticket={ticket}  |  "
-            f"retcode={result.retcode}  |  {result.comment}"
-        )
+        if result.retcode == _MARKET_CLOSED_RETCODE:
+            logger.debug(f"modify_position bỏ qua (thị trường đóng) | ticket={ticket}")
+        else:
+            logger.error(
+                f"modify_position FAILED  |  ticket={ticket}  |  "
+                f"retcode={result.retcode}  |  {result.comment}"
+            )
         return False
     logger.info(f"✅ MODIFIED  |  ticket={ticket}  |  SL={sl}  |  TP={tp}")
     return True
