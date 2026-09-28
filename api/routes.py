@@ -11,6 +11,7 @@ import logging
 import os
 import re
 from core.bot_engine import bot_engine
+from core.hedging_engine import hedging_engine
 from strategies.manager import strategy_manager
 from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data, get_with_warmup
@@ -259,6 +260,25 @@ def register_routes(app):
         if strategy_manager.set_strategy(strategy_id):
             return jsonify({"success": True})
         return jsonify({"success": False, "error": "Invalid strategy"}), 400
+
+    @app.route('/api/close-all', methods=['POST'])
+    def close_all():
+        """Đóng toàn bộ vị thế + hủy toàn bộ lệnh chờ của bot, rồi DỪNG bot.
+        Dừng bot trước để hedging không mở lại cặp mới ngay khi bị đóng sạch."""
+        was_running = bot_engine.is_running
+        if was_running:
+            bot_engine.stop()
+        magics = strategy_manager.get_magics()
+        closed = mt5h.close_all_positions(config.SYMBOL, magics, "close all (UI)")
+        canceled = mt5h.cancel_all_pending(config.SYMBOL, magics)
+        hedging_engine.reset()
+        logger.info(f"[CLOSE-ALL] đóng {closed} vị thế, hủy {canceled} lệnh chờ (bot_running={was_running})")
+        return jsonify({
+            "closed": closed,
+            "canceled": canceled,
+            "bot_stopped": was_running,
+            "bot_running": bot_engine.is_running,
+        })
 
     @app.route('/api/toggle-bot', methods=['POST'])
     def toggle_bot():

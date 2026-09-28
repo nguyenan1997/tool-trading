@@ -325,6 +325,19 @@
                     <div class="log-muted">Đang tải log...</div>
                 </div>
             </div>
+
+            <!-- Danger Zone (tách riêng, tránh bấm nhầm) -->
+            <div class="card" style="grid-column: span 3; border-color: rgba(239, 68, 68, 0.45); background: rgba(69, 10, 10, 0.35);">
+                <div class="card-title" style="color: var(--danger);"><i data-lucide="shield-alert"></i> Vùng nguy hiểm</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+                    <div style="color: var(--text-dim); font-size: 0.875rem; max-width: 620px;">
+                        Đóng <b>toàn bộ</b> vị thế đang mở + hủy toàn bộ lệnh chờ, và <b>dừng bot</b> ngay lập tức.
+                    </div>
+                    <button id="close-all-btn" class="btn btn-stop" onclick="closeAll()">
+                        <i data-lucide="shield-alert"></i> Đóng tất cả &amp; Dừng bot
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -499,6 +512,29 @@
         async function toggleBot() {
             await fetch(`${API_BASE}/toggle-bot`, { method: 'POST' });
             refreshData();
+        }
+
+        async function closeAll() {
+            if (!confirm("Đóng TOÀN BỘ vị thế + lệnh chờ và DỪNG bot?\nThao tác này không thể hoàn tác.")) return;
+            const typed = prompt('Để chắc chắn, gõ chữ "DONG" rồi bấm OK:');
+            if (!typed || typed.trim().toUpperCase() !== "DONG") return;
+            const btn = document.getElementById('close-all-btn');
+            btn.disabled = true;
+            try {
+                const res = await fetch(`${API_BASE}/close-all`, { method: 'POST' });
+                const data = await res.json();
+                if (data.error) { alert("Lỗi: " + data.error); }
+                else {
+                    alert(`Đã đóng ${data.closed} vị thế, hủy ${data.canceled} lệnh chờ.`
+                        + (data.bot_stopped ? "\nBot đã được dừng." : ""));
+                }
+                refreshData();
+            } catch (e) {
+                console.error(e);
+                alert("Yêu cầu thất bại. Kiểm tra server.");
+            } finally {
+                btn.disabled = false;
+            }
         }
 
         function refreshData() {

@@ -686,3 +686,42 @@ def cancel_pending_order(ticket: int) -> bool:
         return False
     logger.info(f"✅ HỦY LỆNH CHỜ  |  ticket={ticket}")
     return True
+
+
+# ────────────────────────────────────────────────
+#  Close ALL — đóng toàn bộ vị thế / hủy toàn bộ lệnh chờ
+# ────────────────────────────────────────────────
+def close_all_positions(symbol: str = None, magics=None, comment: str = "close all") -> int:
+    """Đóng TOÀN BỘ vị thế đang mở (lọc theo `symbol` và/hoặc `magics` nếu có).
+    Trả về số vị thế đã đóng thành công."""
+    if not connect():
+        return 0
+    positions = mt5.positions_get(symbol=symbol) if symbol else mt5.positions_get()
+    if not positions:
+        return 0
+    if magics is not None:
+        mset = set(magics)
+        positions = [p for p in positions if p.magic in mset]
+    closed = 0
+    for p in list(positions):
+        if close_position(p, p.magic, comment):
+            closed += 1
+    return closed
+
+
+def cancel_all_pending(symbol: str = None, magics=None) -> int:
+    """Hủy TOÀN BỘ lệnh chờ (lọc theo `symbol` và/hoặc `magics` nếu có).
+    Trả về số lệnh đã hủy thành công."""
+    if not connect():
+        return 0
+    orders = mt5.orders_get(symbol=symbol) if symbol else mt5.orders_get()
+    if not orders:
+        return 0
+    if magics is not None:
+        mset = set(magics)
+        orders = [o for o in orders if o.magic in mset]
+    canceled = 0
+    for o in list(orders):
+        if cancel_pending_order(o.ticket):
+            canceled += 1
+    return canceled
