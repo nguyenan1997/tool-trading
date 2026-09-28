@@ -28,7 +28,7 @@ input int    InpMaxDevPts       = 30;             // Trượt tối đa (points)
 input int    InpOpenRetries     = 3;              // Số lần thử mở mỗi chân
 input int    InpPollMs          = 500;            // Chu kỳ xử lý (ms)
 input string InpStateFile       = "hedge_session.txt"; // File lưu phiên (MQL5/Files)
-input int    InpBalanceMinOrders = 500;           // Từ số lệnh này mới xét cân bằng BUY/SELL (0 = tắt)
+input int    InpBalanceMinOrders = 400;           // Từ số lệnh này mới xét cân bằng BUY/SELL (0 = tắt)
 input double InpBalancePct       = 0.05;          // |BUY-SELL| <= PCT*max(BUY,SELL) -> cân bằng -> đóng phiên
 
 //────────────────────────────── Trạng thái ──────────────────────────────

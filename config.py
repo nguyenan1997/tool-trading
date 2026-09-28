@@ -91,7 +91,7 @@ HEDGE_OPEN_RETRIES = 3        # Số lần thử lại mỗi chân nếu sàn t�
 HEDGE_RESET_ON_NO_MARGIN = True  # Hết margin (không mở thêm được) -> đóng toàn bộ, mở chu kỳ mới
 HEDGE_LOG_BALANCE_SEC    = 0     # 0 = chỉ log khi có lệnh thoát; >0 = thêm log định kỳ mỗi N giây
 # --- Đóng phiên khi số BUY ≈ số SELL (từ lệnh thứ N trở đi) ---
-HEDGE_BALANCE_MIN_ORDERS = 500   # Từ số lệnh này trong phiên mới xét cân bằng (0 = tắt)
+HEDGE_BALANCE_MIN_ORDERS = 400   # Từ số lệnh này trong phiên mới xét cân bằng (0 = tắt)
 HEDGE_BALANCE_PCT        = 0.05  # |BUY−SELL| ≤ PCT×max(BUY,SELL) → coi là cân bằng → đóng phiên
 # --- Chốt theo tổng lãi trong phiên (equity - đầu phiên) ---
 HEDGE_TAKE_PROFIT_USD    = 1100.0  # Lãi phiên đạt mức này -> đóng toàn bộ, bắt đầu phiên mới
