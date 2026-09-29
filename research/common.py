@@ -46,6 +46,8 @@ def load_m5(files=None, rule="5min"):
         cols = ["time", "open", "high", "low", "close"]
         if "spread" in d.columns:
             cols.append("spread")
+        if "volume" in d.columns:
+            cols.append("volume")
         frames.append(d[cols])
     if not frames:
         raise RuntimeError("Không tìm thấy file M1 cache nào!")
@@ -59,6 +61,8 @@ def load_m5(files=None, rule="5min"):
     agg = {"open": "first", "high": "max", "low": "min", "close": "last"}
     if "spread" in m1.columns:
         agg["spread"] = "mean"   # spread trung bình của các nến M1 trong nến gộp
+    if "volume" in m1.columns:
+        agg["volume"] = "sum"    # tổng tick-volume của các nến M1
     out = m1.resample(rule).agg(agg).dropna()
     out.index.name = "time"
     return out

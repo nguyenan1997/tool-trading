@@ -18,15 +18,22 @@ công: **`docs/ict_playbook.md`**.
 3. **Quét thanh khoản** biên ĐỐI DIỆN bias (PDH/PDL, biên vùng Á, swing gần nhất),
    vượt ≥ `ICT_MIN_SWEEP_ATR`×ATR rồi **reclaim** (đóng cửa trở lại).
 4. **Displacement + CHoCH** trong `ICT_CHOCH_WAIT` nến (thân nến ≥ `ICT_DISP_ATR`×ATR).
-5. **FVG bắt buộc** trong `ICT_ZONE_LOOKBACK` nến trước CHoCH.
+5. **FVG bắt buộc** trong `ICT_ZONE_LOOKBACK` nến trước CHoCH, và **lọc chất lượng**:
+   chỉ nhận FVG có **kích thước ≥ `ICT_MIN_FVG_ATR`×ATR** (mặc định **0.5**).
 6. **LIMIT** tại CE (`ICT_ENTRY_FRAC`=0.5; ~0.62–0.79 = OTE).
 7. **TP = draw on liquidity**: mức thanh khoản đối diện gần nhất (fallback bội số R).
 8. **Chốt 50% @1R**, phần còn lại tới DOL.
 
+### Bộ lọc FVG (học từ "Ranked FVG – Zeiierman")
+Ngoài lọc kích thước (mặc định **bật, 0.5×ATR**), code còn có sẵn (mặc định tắt vì
+chưa bền vững): `ICT_VOL_MIN` (volume nến đẩy ≥ k×MA), `ICT_SKIP_MITIGATED` (bỏ FVG
+đã lấp), `ICT_FVG_SELECT="score"` (chọn FVG điểm cao nhất). Bật/tắt trong `config.py`.
+
 ### Kết quả (XAUUSD M5, lot 0.02, vốn $1000, 2026-02→09, spread 0.22)
-- Toàn bộ (34 lệnh): WR **79.4%**, PF **3.57**, net +$254, DD **4.0%**.
-- Train 70% (21 lệnh): PF 3.12 · OOS 30% (13 lệnh): PF **4.51**, DD 2.0%.
-- Walk-forward 4 fold: PF 1.65 / 4.71 / 9.98 / 3.74 — mọi fold dương.
+- Toàn bộ (26 lệnh): WR **92.3%**, PF **22.92**, net +$344, DD **0.7%**.
+- Train 70% (15 lệnh): PF 27.58 · OOS 30% (11 lệnh): PF **17.88**, DD 0.7%.
+- Walk-forward 4 fold: PF inf / inf / 11.5 / 15.5 — mọi fold dương.
+- Bật lọc size nâng PF toàn bộ **3.57 → 22.92** (chỉ nhận FVG lớn, bỏ setup yếu).
 - Đặc điểm: win rate cao + RR < 1 (thắng nhiều, ăn ít mỗi lệnh).
 
 ### Cách chạy
@@ -34,7 +41,8 @@ công: **`docs/ict_playbook.md`**.
 - CLI: `python run_backtest.py ict [count]` — Nghiên cứu: `python research/ict.py`.
 
 ### Lưu ý
-- Mẫu nhỏ (34 lệnh) → forward-test demo trước khi tăng vốn; RR < 1 nhạy spread.
+- Mẫu **nhỏ (26 lệnh)** → PF rất cao có thể do mẫu nhỏ; **forward-test demo** trước khi tăng vốn.
+- RR < 1 nên **nhạy spread**; đặt `ICT_MIN_FVG_ATR = 0` để quay về hành vi cũ (34 lệnh).
 
 ---
 

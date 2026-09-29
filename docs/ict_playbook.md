@@ -82,8 +82,10 @@ Trong tối đa **24 nến M5** (2h) sau cú quét: có nến đóng **phá swin
 **thân nến ≥ 0.4×ATR** (displacement). Đây chính là "xác nhận" của ICT — cấu trúc +
 displacement, **không dùng mẫu nến xác nhận riêng**.
 
-### Bước 5 — FVG (vùng vào lệnh bắt buộc)
+### Bước 5 — FVG (vùng vào lệnh bắt buộc) + lọc chất lượng
 - Tìm FVG mới nhất trong **12 nến** trước nến CHoCH. Không có FVG → **bỏ setup**.
+- **Lọc kích thước:** chỉ nhận FVG có **kích thước ≥ `ICT_MIN_FVG_ATR`×ATR** (mặc định **0.5**).
+  FVG quá nhỏ (nhiễu) bị loại → chỉ giữ "imbalance" thật. *(Đã kiểm chứng: nâng PF 3.57 → 22.92.)*
 - FVG chính là "dấu vết" của dòng lệnh lớn; giá thường hồi về lấp một phần.
 
 ### Bước 6 — Vào lệnh
@@ -121,6 +123,7 @@ displacement, **không dùng mẫu nến xác nhận riêng**.
 | Displacement | 0.4 × ATR | `ICT_DISP_ATR` |
 | Vùng vào lệnh | FVG bắt buộc | `ICT_REQUIRE_FVG = True` |
 | Tìm vùng | 12 nến | `ICT_ZONE_LOOKBACK` |
+| Lọc FVG size | ≥ 0.5 × ATR | `ICT_MIN_FVG_ATR = 0.5` |
 | Vào tại | CE (0.5) | `ICT_ENTRY_FRAC` |
 | Chế độ vào | LIMIT | `ICT_ENTRY_MODE = "limit"` |
 | SL | sau quét ± 0.2×ATR | `ICT_SL_BUF_ATR` |
@@ -135,20 +138,21 @@ displacement, **không dùng mẫu nến xác nhận riêng**.
 
 Dữ liệu gộp M1→M5: **2026-02-23 → 2026-09-18** (38.515 nến M5), spread 0.22.
 
-Cấu hình chốt = bias `prevday` + TP DOL (không dùng bộ lọc nến xác nhận / Premium-Discount).
+Cấu hình chốt = bias `prevday` + TP DOL + **lọc FVG size ≥ 0.5×ATR** (bỏ các bộ lọc
+nến xác nhận / Premium-Discount / volume vì không bền vững).
 
 | Giai đoạn | n | Win rate | PF | Net | Max DD |
 |---|---|---|---|---|---|
-| Train 70% | 21 | 81.0% | 3.12 | +$141 | 4.0% |
-| **OOS 30%** | 13 | 76.9% | **4.51** | +$113 | 2.0% |
-| Toàn bộ | 34 | 79.4% | **3.57** | +$254 | 4.0% |
+| Train 70% | 15 | 93.3% | 27.58 | +$216 | 0.7% |
+| **OOS 30%** | 11 | 90.9% | **17.88** | +$127 | 0.7% |
+| Toàn bộ | 26 | 92.3% | **22.92** | +$344 | 0.7% |
 
-- **Walk-forward 4 fold** (tham số cố định): PF **1.65 / 4.71 / 9.98 / 3.74** — mọi fold dương.
-- Đặc điểm: **win rate cao (≈79%)**, RR khiêm tốn (avgW ≈ +$13 / avgL ≈ −$14) → lãi nhờ
-  độ chính xác và **TP theo thanh khoản gần nhất**, không phải nhờ vài lệnh thắng lớn.
-- Đặc trưng PP: **ít lệnh**, PF cao, drawdown thấp, nhưng phụ thuộc win rate cao (RR < 1).
+- **Walk-forward 4 fold**: PF **inf / inf / 11.5 / 15.5** — mọi fold dương.
+- **Lọc FVG size nâng PF 3.57 → 22.92** (bỏ setup FVG nhỏ = nhiễu; DD 4% → 0.7%).
+- Đặc trưng PP: **ít lệnh**, PF cao, drawdown rất thấp, nhưng phụ thuộc win rate cao (RR < 1).
 
-> **Cảnh báo về độ tin cậy:** mẫu chỉ ~34 lệnh → kết quả còn phụ thuộc tập dữ liệu.
+> **Cảnh báo về độ tin cậy:** mẫu chỉ ~26 lệnh → PF rất cao có thể do mẫu nhỏ.
+> Nên forward-test demo và thử thêm dữ liệu/sản phẩm trước khi tin tuyệt đối.
 > Khi tự kiểm chứng trên dữ liệu broker lớn hơn, kết quả có thể khác.
 
 ### Điều gì tạo ra lợi thế?

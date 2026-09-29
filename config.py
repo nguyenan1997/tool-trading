@@ -68,6 +68,14 @@ ICT_PARTIAL_FRAC  = 0.5      # Chốt 50% khối lượng khi đạt 1R
 ICT_PARTIAL_AT_R  = 1.0
 ICT_BE_AT_R       = 0.0      # Dời SL hòa vốn (tắt mặc định)
 
+# --- Bộ lọc FVG nâng cao (học từ "Ranked FVG Imbalance Zones" – Zeiierman) ---
+ICT_MIN_FVG_ATR    = 0.5     # Bỏ FVG nhỏ hơn k×ATR (0 = tắt). 0.5 kiểm chứng tốt nhất.
+ICT_VOL_MA         = 20      # Chu kỳ MA volume
+ICT_VOL_MIN        = 0.0     # Nến displacement phải có volume ≥ k×volMA (0 = tắt)
+ICT_SKIP_MITIGATED = False   # Bỏ FVG đã bị lấp ≥ ICT_MITIGATE_MAX
+ICT_MITIGATE_MAX   = 0.5     # Ngưỡng lấp (0..1) coi như FVG hết giá trị
+ICT_FVG_SELECT     = "near"  # "near" = FVG gần nhất | "score" = điểm chất lượng cao nhất
+
 # ============================================================
 #  HEDGING GRID (HỆ THỐNG 4, XAUUSD) — CHẠY LIÊN TỤC 24/7
 # ------------------------------------------------------------

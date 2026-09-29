@@ -62,6 +62,12 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
         partial_frac=config.ICT_PARTIAL_FRAC,
         partial_at_r=config.ICT_PARTIAL_AT_R,
         be_move_at_r=config.ICT_BE_AT_R,
+        min_fvg_atr=config.ICT_MIN_FVG_ATR,
+        vol_ma=config.ICT_VOL_MA,
+        vol_min=config.ICT_VOL_MIN,
+        skip_mitigated=config.ICT_SKIP_MITIGATED,
+        mitigate_max=config.ICT_MITIGATE_MAX,
+        fvg_select=config.ICT_FVG_SELECT,
         magic=config.MAGIC_ICT,
     ):
         super().__init__("ICT KZ→Sweep→FVG", magic=magic)
@@ -92,6 +98,12 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
         self.partial_frac = partial_frac
         self.partial_at_r = partial_at_r
         self.be_move_at_r = be_move_at_r
+        self.min_fvg_atr = min_fvg_atr
+        self.vol_ma = int(vol_ma)
+        self.vol_min = vol_min
+        self.skip_mitigated = skip_mitigated
+        self.mitigate_max = mitigate_max
+        self.fvg_select = str(fvg_select).lower()
         self.lot = config.ICT_LOT
         self.comment = config.ICT_COMMENT
         self.timeframe = "M5"
@@ -118,6 +130,13 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
             }
         )
         base["atr"] = _atr(base, 14).to_numpy()
+        # Volume + MA + EMA trend (để chấm điểm/lọc FVG)
+        if "volume" in df.columns:
+            base["volume"] = pd.to_numeric(df["volume"], errors="coerce").fillna(0.0).to_numpy()
+        else:
+            base["volume"] = 0.0
+        base["vol_ma"] = base["volume"].rolling(max(2, self.vol_ma)).mean()
+        base["ema"] = base["close"].ewm(span=50, adjust=False).mean()
         base["hour"] = base["ts"].dt.hour
         base["date"] = base["ts"].dt.date
 
@@ -180,6 +199,9 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
         pdl = base["pdl"].to_numpy()
         asia_hi = base["asia_hi"].to_numpy()
         asia_lo = base["asia_lo"].to_numpy()
+        vol = base["volume"].to_numpy()
+        volma = base["vol_ma"].to_numpy()
+        ema = base["ema"].to_numpy()
 
         sig_buy = np.zeros(n, dtype=bool)
         sig_sell = np.zeros(n, dtype=bool)
@@ -227,7 +249,7 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
                     if i - start_b > self.choch_wait:
                         act_b = False
                     elif close[i] > ref_high and (close[i] - open_[i]) >= self.disp_atr * a:
-                        zone = self._bull_zone(i, base, low, high, close, open_)
+                        zone = self._bull_zone(i, base, low, high, close, open_, atr, vol, volma, ema)
                         if zone is not None:
                             if self.entry_mode == "market":
                                 res = self._market_buy(zone, sweep_low, close[i], a)
@@ -252,7 +274,7 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
                     if i - start_s > self.choch_wait:
                         act_s = False
                     elif close[i] < ref_low and (open_[i] - close[i]) >= self.disp_atr * a:
-                        zone = self._bear_zone(i, base, low, high, close, open_)
+                        zone = self._bear_zone(i, base, low, high, close, open_, atr, vol, volma, ema)
                         if zone is not None:
                             if self.entry_mode == "market":
                                 res = self._market_sell(zone, sweep_high, close[i], a)
@@ -336,17 +358,55 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
     # ------------------------------------------------------------------
     # Vùng vào lệnh (FVG / OB)
     # ------------------------------------------------------------------
-    def _bull_zone(self, i, base, low, high, close, open_):
+    def _fvg_score(self, direction, size, a, volm, volmam, close_m, ema_m, o, h, l):
+        """Điểm chất lượng FVG (học từ Ranked FVG – Zeiierman): size/ATR + volume + trend + thân nến."""
+        gap = min(size / a, 2.0) / 2.0 * 40.0 if a and a > 0 else 0.0
+        volS = min(volm / volmam, 2.0) / 2.0 * 30.0 if volmam and volmam > 0 else 0.0
+        trend = 20.0 if ((direction > 0 and close_m > ema_m) or (direction < 0 and close_m < ema_m)) else 0.0
+        rng = max(h - l, 1e-9)
+        body = abs(close_m - o) / rng * 10.0
+        return gap + volS + trend + body
+
+    def _fvg_ok(self, i, m, zl, zh, direction, low, high, atr, vol, volma):
+        size = zh - zl
+        if size <= 0:
+            return False
+        a = atr[i]
+        if self.min_fvg_atr > 0 and (not np.isfinite(a) or size < self.min_fvg_atr * a):
+            return False
+        if self.vol_min > 0:
+            vm = volma[m]
+            if np.isfinite(vm) and vm > 0 and vol[m] < self.vol_min * vm:
+                return False
+        if self.skip_mitigated:
+            seg = low[m + 1:i + 1] if direction > 0 else high[m + 1:i + 1]
+            if len(seg) > 0:
+                pen = (zh - seg.min()) / size if direction > 0 else (seg.max() - zl) / size
+                if np.isfinite(pen) and pen >= self.mitigate_max:
+                    return False
+        return True
+
+    def _bull_zone(self, i, base, low, high, close, open_, atr, vol, volma, ema):
         lo = max(2, i - self.zone_lookback)
-        fvg = None
+        best = None
+        best_score = -1.0
         for m in range(i, lo - 1, -1):
             if low[m] > high[m - 2] and low[m] < close[i]:
-                fvg = (high[m - 2], low[m])
-                break
+                zl, zh = high[m - 2], low[m]
+                if not self._fvg_ok(i, m, zl, zh, +1, low, high, atr, vol, volma):
+                    continue
+                if self.fvg_select == "score":
+                    sc = self._fvg_score(+1, zh - zl, atr[i], vol[m], volma[m],
+                                         close[m], ema[m], open_[m], high[m], low[m])
+                    if sc > best_score:
+                        best_score = sc
+                        best = (zl, zh)
+                else:
+                    return (zl, zh)
+        if best is not None:
+            return best
         if self.require_fvg:
-            return fvg
-        if fvg is not None:
-            return fvg
+            return None
         ob = None
         for m in range(i, i - self.zone_lookback - 1, -1):
             if m < 0:
@@ -356,17 +416,27 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
                 break
         return ob
 
-    def _bear_zone(self, i, base, low, high, close, open_):
+    def _bear_zone(self, i, base, low, high, close, open_, atr, vol, volma, ema):
         lo = max(2, i - self.zone_lookback)
-        fvg = None
+        best = None
+        best_score = -1.0
         for m in range(i, lo - 1, -1):
             if high[m] < low[m - 2] and high[m] > close[i]:
-                fvg = (high[m], low[m - 2])
-                break
+                zl, zh = high[m], low[m - 2]
+                if not self._fvg_ok(i, m, zl, zh, -1, low, high, atr, vol, volma):
+                    continue
+                if self.fvg_select == "score":
+                    sc = self._fvg_score(-1, zh - zl, atr[i], vol[m], volma[m],
+                                         close[m], ema[m], open_[m], high[m], low[m])
+                    if sc > best_score:
+                        best_score = sc
+                        best = (zl, zh)
+                else:
+                    return (zl, zh)
+        if best is not None:
+            return best
         if self.require_fvg:
-            return fvg
-        if fvg is not None:
-            return fvg
+            return None
         ob = None
         for m in range(i, i - self.zone_lookback - 1, -1):
             if m < 0:

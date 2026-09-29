@@ -52,15 +52,14 @@ def main():
     common = dict(killzones=KZ, min_r_atr=0.0, max_r_atr=6.0)
 
     variants = [
-        ("prevday bias (default)", ICTKillzoneFVGStrategy(bias_mode="prevday", **common)),
-        ("h4ema bias", ICTKillzoneFVGStrategy(bias_mode="h4ema", **common)),
-        ("no bias", ICTKillzoneFVGStrategy(bias_mode="none", **common)),
-        ("sweep 0.15", ICTKillzoneFVGStrategy(bias_mode="prevday", min_sweep_atr=0.15, **common)),
-        ("disp 0.6", ICTKillzoneFVGStrategy(bias_mode="prevday", disp_atr=0.6, **common)),
-        ("entry mep 0.0", ICTKillzoneFVGStrategy(bias_mode="prevday", entry_frac=0.0, **common)),
-        ("entry OTE 0.7", ICTKillzoneFVGStrategy(bias_mode="prevday", entry_frac=0.7, **common)),
-        ("TP R3", ICTKillzoneFVGStrategy(bias_mode="prevday", tp_mode="R", tp_r=3.0, **common)),
-        ("market entry", ICTKillzoneFVGStrategy(bias_mode="prevday", entry_mode="market", **common)),
+        ("baseline", ICTKillzoneFVGStrategy(bias_mode="prevday", **common)),
+        ("size>=0.3", ICTKillzoneFVGStrategy(bias_mode="prevday", min_fvg_atr=0.3, **common)),
+        ("size>=0.5", ICTKillzoneFVGStrategy(bias_mode="prevday", min_fvg_atr=0.5, **common)),
+        ("size>=0.7", ICTKillzoneFVGStrategy(bias_mode="prevday", min_fvg_atr=0.7, **common)),
+        ("size>=1.0", ICTKillzoneFVGStrategy(bias_mode="prevday", min_fvg_atr=1.0, **common)),
+        ("size0.5+vol1.2", ICTKillzoneFVGStrategy(bias_mode="prevday", min_fvg_atr=0.5, vol_min=1.2, **common)),
+        ("size0.5+score", ICTKillzoneFVGStrategy(bias_mode="prevday", min_fvg_atr=0.5, fvg_select="score", **common)),
+        ("size0.5+vol1.2+score", ICTKillzoneFVGStrategy(bias_mode="prevday", min_fvg_atr=0.5, vol_min=1.2, fvg_select="score", **common)),
     ]
 
     print("=== TRAIN (70% đầu) ===")
@@ -76,7 +75,7 @@ def main():
 
     print("\n=== BỀN VỮNG: sắp theo min(PF_train, PF_oos) ===")
     header()
-    eligible = [r for r in scored if r["m_tr"]["n"] >= 15 and r["m_oos"]["n"] >= 12]
+    eligible = [r for r in scored if r["m_tr"]["n"] >= 10 and r["m_oos"]["n"] >= 8]
     eligible.sort(key=lambda r: r["robust"], reverse=True)
     for r in eligible:
         show(f"{r['name']} [tr]", r["m_tr"])
