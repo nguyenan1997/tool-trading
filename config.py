@@ -69,7 +69,7 @@ ICT_PARTIAL_AT_R  = 1.0
 ICT_BE_AT_R       = 0.0      # Dời SL hòa vốn (tắt mặc định)
 
 # --- Bộ lọc FVG nâng cao (học từ "Ranked FVG Imbalance Zones" – Zeiierman) ---
-ICT_MIN_FVG_ATR    = 0.5     # Bỏ FVG nhỏ hơn k×ATR (0 = tắt). 0.5 kiểm chứng tốt nhất.
+ICT_MIN_FVG_ATR    = 0.3     # Bỏ FVG nhỏ hơn k×ATR (0 = tắt). 0.3 tốt nhất trên 90k nến M5.
 ICT_VOL_MA         = 20      # Chu kỳ MA volume
 ICT_VOL_MIN        = 0.0     # Nến displacement phải có volume ≥ k×volMA (0 = tắt)
 ICT_SKIP_MITIGATED = False   # Bỏ FVG đã bị lấp ≥ ICT_MITIGATE_MAX

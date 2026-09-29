@@ -19,7 +19,7 @@ công: **`docs/ict_playbook.md`**.
    vượt ≥ `ICT_MIN_SWEEP_ATR`×ATR rồi **reclaim** (đóng cửa trở lại).
 4. **Displacement + CHoCH** trong `ICT_CHOCH_WAIT` nến (thân nến ≥ `ICT_DISP_ATR`×ATR).
 5. **FVG bắt buộc** trong `ICT_ZONE_LOOKBACK` nến trước CHoCH, và **lọc chất lượng**:
-   chỉ nhận FVG có **kích thước ≥ `ICT_MIN_FVG_ATR`×ATR** (mặc định **0.5**).
+   chỉ nhận FVG có **kích thước ≥ `ICT_MIN_FVG_ATR`×ATR** (mặc định **0.3**).
 6. **LIMIT** tại CE (`ICT_ENTRY_FRAC`=0.5; ~0.62–0.79 = OTE).
 7. **TP = draw on liquidity**: mức thanh khoản đối diện gần nhất (fallback bội số R).
 8. **Chốt 50% @1R**, phần còn lại tới DOL.
@@ -29,20 +29,27 @@ Ngoài lọc kích thước (mặc định **bật, 0.5×ATR**), code còn có s
 chưa bền vững): `ICT_VOL_MIN` (volume nến đẩy ≥ k×MA), `ICT_SKIP_MITIGATED` (bỏ FVG
 đã lấp), `ICT_FVG_SELECT="score"` (chọn FVG điểm cao nhất). Bật/tắt trong `config.py`.
 
-### Kết quả (XAUUSD M5, lot 0.02, vốn $1000, 2026-02→09, spread 0.22)
-- Toàn bộ (26 lệnh): WR **92.3%**, PF **22.92**, net +$344, DD **0.7%**.
-- Train 70% (15 lệnh): PF 27.58 · OOS 30% (11 lệnh): PF **17.88**, DD 0.7%.
-- Walk-forward 4 fold: PF inf / inf / 11.5 / 15.5 — mọi fold dương.
-- Bật lọc size nâng PF toàn bộ **3.57 → 22.92** (chỉ nhận FVG lớn, bỏ setup yếu).
-- Đặc điểm: win rate cao + RR < 1 (thắng nhiều, ăn ít mỗi lệnh).
+### Kết quả trên 90.000 nến M5 (2025-06 → 2026-09, ~15 tháng)
+| Cấu hình | n | WR | PF | Net | DD |
+|---|---|---|---|---|---|
+| baseline (tắt lọc) | 88 | 77.3% | 2.63 | +457 | 6.0% |
+| **size≥0.3 (chốt)** | 74 | 78.4% | **4.81** | +568 | 2.8% |
+| size≥0.5 | 67 | 74.6% | 3.49 | +553 | 7.6% |
+| size≥0.7 | 52 | 73.1% | 2.88 | +453 | 7.7% |
+
+- Lọc **size≥0.3** cải thiện khiêm tốn nhưng ổn: PF 2.63 → **4.81**, DD 6% → 2.8%.
+- Ngưỡng **0.5/0.7 không rõ ràng hơn** (DD còn tệ hơn) → **0.3 là mức hợp lý**.
+- **Cảnh báo:** các kết quả PF rất cao trước đây là do **mẫu nhỏ**; trên 90k thì mức cải thiện
+  **khiêm tốn** hơn nhiều — đừng kỳ vọng PF 20.
 
 ### Cách chạy
 - Live/UI: chọn "ICT KZ→Sweep→FVG" (`strategy_manager` key = `ict`).
-- CLI: `python run_backtest.py ict [count]` — Nghiên cứu: `python research/ict.py`.
+- CLI: `python run_backtest.py ict [count]`.
+- Nghiên cứu: `python research/ict.py` (train/OOS + walk-forward trên dữ liệu M1→M5).
 
 ### Lưu ý
-- Mẫu **nhỏ (26 lệnh)** → PF rất cao có thể do mẫu nhỏ; **forward-test demo** trước khi tăng vốn.
-- RR < 1 nên **nhạy spread**; đặt `ICT_MIN_FVG_ATR = 0` để quay về hành vi cũ (34 lệnh).
+- Mẫu ~74–88 lệnh vẫn chưa nhiều → **forward-test demo** trước khi tăng vốn.
+- Đặt `ICT_MIN_FVG_ATR = 0` để tắt lọc (nhiều lệnh hơn, PF thấp hơn).
 
 ---
 

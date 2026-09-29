@@ -1,0 +1,299 @@
+//@version=5
+// ============================================================================
+//  ICT — Killzone → Liquidity Sweep → Displacement/CHoCH → FVG (+ lọc size)
+//  Hiển thị ĐIỂM VÀO LỆNH + HỘP FVG, khớp strategies/ict.py (XAUUSD M5).
+//  Tín hiệu chốt theo NẾN ĐÓNG. Khuyến nghị khung M5.
+// ============================================================================
+indicator("ICT KZ-Sweep-FVG (signal)", overlay=true, max_lines_count=500, max_boxes_count=500, max_labels_count=500)
+
+// ───────────────────────────── Inputs ─────────────────────────────
+grpT = "Thời gian (giờ broker)"
+brokerOff = input.int(3, "Broker = UTC + (giờ)", -12, 14, group=grpT)
+asiaStart = input.int(0,  "Vùng Á - giờ bắt đầu", 0, 23, group=grpT)
+asiaEnd   = input.int(6,  "Vùng Á - giờ kết thúc", 0, 23, group=grpT)
+kz1s      = input.int(7,  "Killzone 1 - bắt đầu", 0, 23, group=grpT)
+kz1e      = input.int(11, "Killzone 1 - kết thúc", 0, 23, group=grpT)
+kz2s      = input.int(12, "Killzone 2 - bắt đầu", 0, 23, group=grpT)
+kz2e      = input.int(16, "Killzone 2 - kết thúc", 0, 23, group=grpT)
+
+grpB = "Bias khung lớn"
+biasMode = input.string("prevday", "Bias", options=["prevday", "h4ema", "none"], group=grpB)
+biasEma  = input.int(50, "EMA H4 (khi bias = h4ema)", 5, 400, group=grpB)
+
+grpS = "Cấu trúc"
+swingK     = input.int(2, "Swing K (fractal)", 1, 10, group=grpS)
+minSweep   = input.float(0.3, "Độ sâu quét (x ATR)", 0.0, 5.0, 0.05, group=grpS)
+chochWait  = input.int(24, "Chờ CHoCH tối đa (nến)", 1, 200, group=grpS)
+dispATR    = input.float(0.4, "Displacement (x ATR)", 0.0, 5.0, 0.05, group=grpS)
+zoneLB     = input.int(12, "Tìm FVG trong (nến)", 2, 100, group=grpS)
+minFvgATR  = input.float(0.3, "Lọc FVG size >= k x ATR", 0.0, 5.0, 0.05, group=grpS)
+requireFVG = input.bool(true, "Bắt buộc FVG", group=grpS)
+
+grpR = "Vào / Thoát"
+entryFrac = input.float(0.5, "Vào tại (0=mép, 0.5=CE, ~0.7=OTE)", 0.0, 1.0, 0.05, group=grpR)
+slBufATR  = input.float(0.2, "SL buffer (x ATR)", 0.0, 5.0, 0.05, group=grpR)
+minRATR   = input.float(0.0, "R tối thiểu (x ATR)", 0.0, 10.0, 0.1, group=grpR)
+maxRATR   = input.float(6.0, "R tối đa (x ATR)", 0.1, 50.0, 0.1, group=grpR)
+tpMode    = input.string("DOL", "Chế độ TP", options=["DOL", "R"], group=grpR)
+tpR       = input.float(3.0, "TP (x R) khi chế độ R", 0.5, 20.0, 0.5, group=grpR)
+tpMinR    = input.float(0.0, "TP DOL tối thiểu (x R)", 0.0, 10.0, 0.25, group=grpR)
+
+grpD = "Hiển thị"
+showFVG    = input.bool(true, "Vẽ hộp FVG", group=grpD)
+showLevels = input.bool(true, "Vẽ Entry/SL/TP", group=grpD)
+showAsia   = input.bool(true, "Vẽ biên vùng Á", group=grpD)
+showPDPD   = input.bool(true, "Vẽ PDH/PDL", group=grpD)
+
+// ───────────────────────────── Cơ bản ─────────────────────────────
+atr      = ta.atr(14)
+bms      = time + brokerOff * 3600000
+bh       = int((bms / 3600000) % 24)
+bday     = int(bms / 86400000)
+inAsia   = bh >= asiaStart and bh <= asiaEnd
+asiaDone = bh > asiaEnd
+inKZ     = (bh >= kz1s and bh < kz1e) or (bh >= kz2s and bh < kz2e)
+
+// ─────────────────────── Tích lũy theo ngày ───────────────────────
+var float dayHi = na
+var float dayLo = na
+var float dayOpen = na
+var float pdh = na
+var float pdl = na
+var float pdOpen = na
+var float pdClose = na
+var float aHi = na
+var float aLo = na
+
+newDay = ta.change(bday) != 0
+if newDay
+    pdh     := dayHi
+    pdl     := dayLo
+    pdOpen  := dayOpen
+    pdClose := close[1]
+    dayHi   := high
+    dayLo   := low
+    dayOpen := open
+    aHi     := na
+    aLo     := na
+else
+    dayHi := math.max(nz(dayHi, high), high)
+    dayLo := math.min(nz(dayLo, low), low)
+
+if inAsia
+    aHi := na(aHi) ? high : math.max(aHi, high)
+    aLo := na(aLo) ? low  : math.min(aLo, low)
+
+// ───────────────────────────── Bias ─────────────────────────────
+htfEma = request.security(syminfo.tickerid, "240", ta.ema(close, biasEma)[1], barmerge.gaps_off, barmerge.lookahead_off)
+int bias = 0
+if biasMode == "prevday"
+    bias := na(pdOpen) or na(pdClose) ? 0 : (pdClose > pdOpen ? 1 : pdClose < pdOpen ? -1 : 0)
+else if biasMode == "h4ema"
+    bias := na(htfEma) ? 0 : (close > htfEma ? 1 : close < htfEma ? -1 : 0)
+else
+    bias := 0
+
+// ───────────────────────── Swing fractal ─────────────────────────
+ph = ta.pivothigh(high, swingK, swingK)
+pl = ta.pivotlow(low, swingK, swingK)
+var float lastSH = na
+var float lastSL = na
+if not na(ph)
+    lastSH := ph
+if not na(pl)
+    lastSL := pl
+
+// ───────────────────── Tiện ích FVG (lọc size) & TP ─────────────────────
+f_fvgBull(lb) =>
+    float zl = na
+    float zh = na
+    for o = 0 to lb
+        if low[o] > high[o + 2] and low[o] < close
+            float size = low[o] - high[o + 2]
+            if minFvgATR <= 0 or size >= minFvgATR * atr
+                zl := high[o + 2]
+                zh := low[o]
+                break
+    [zl, zh]
+
+f_fvgBear(lb) =>
+    float zl = na
+    float zh = na
+    for o = 0 to lb
+        if high[o] < low[o + 2] and high[o] > close
+            float size = low[o + 2] - high[o]
+            if minFvgATR <= 0 or size >= minFvgATR * atr
+                zl := high[o]
+                zh := low[o + 2]
+                break
+    [zl, zh]
+
+f_tp(isBuy, entry, R) =>
+    float res = na
+    if tpMode == "DOL"
+        float bestD = na
+        lv = array.from(pdh, pdl, aHi, aLo, lastSH, lastSL)
+        for i = 0 to array.size(lv) - 1
+            float x = array.get(lv, i)
+            if not na(x)
+                float dist = isBuy ? x - entry : entry - x
+                if dist >= tpMinR * R and (na(bestD) or dist < bestD)
+                    bestD := dist
+                    res   := x
+    if na(res)
+        res := isBuy ? entry + tpR * R : entry - tpR * R
+    res
+
+f_sweptLow(need) =>
+    bool hit = false
+    if asiaDone and not na(aLo) and low < aLo - need and close > aLo
+        hit := true
+    if not na(pdl) and low < pdl - need and close > pdl
+        hit := true
+    if not na(lastSL) and low < lastSL - need and close > lastSL
+        hit := true
+    hit
+
+f_sweptHigh(need) =>
+    bool hit = false
+    if asiaDone and not na(aHi) and high > aHi + need and close < aHi
+        hit := true
+    if not na(pdh) and high > pdh + need and close < pdh
+        hit := true
+    if not na(lastSH) and high > lastSH + need and close < lastSH
+        hit := true
+    hit
+
+// ───────────────────────── Trạng thái ─────────────────────────
+var bool actB = false
+var bool actS = false
+var bool doneB = false
+var bool doneS = false
+var float sweepLow = na
+var float sweepHigh = na
+var float refHigh = na
+var float refLow = na
+var int startB = na
+var int startS = na
+
+if newDay
+    actB := false
+    actS := false
+    doneB := false
+    doneS := false
+    sweepLow := na
+    sweepHigh := na
+    refHigh := na
+    refLow := na
+    startB := na
+    startS := na
+
+// ───────────────────── Xử lý tín hiệu (nến đóng) ─────────────────────
+bool buySig = false
+bool sellSig = false
+float buyEntry = na
+float buySL = na
+float buyTP = na
+float buyZL = na
+float buyZH = na
+float sellEntry = na
+float sellSL = na
+float sellTP = na
+float sellZL = na
+float sellZH = na
+
+allowBuy  = biasMode == "none" or bias > 0
+allowSell = biasMode == "none" or bias < 0
+
+if barstate.isconfirmed and inKZ and not na(atr) and atr > 0
+    need = minSweep * atr
+
+    // ---------- BUY ----------
+    if allowBuy and not doneB
+        if actB
+            if bar_index - startB > chochWait
+                actB := false
+            else if close > refHigh and (close - open) >= dispATR * atr
+                [zl, zh] = f_fvgBull(zoneLB)
+                okFvg = not na(zl) and zh > zl
+                if (requireFVG and okFvg) or (not requireFVG)
+                    entry = okFvg ? zh - entryFrac * (zh - zl) : close
+                    sl    = math.min(sweepLow, okFvg ? zl : sweepLow) - slBufATR * atr
+                    R     = entry - sl
+                    if R > 0 and entry < close and R >= minRATR * atr and R <= maxRATR * atr
+                        buyEntry := entry
+                        buySL    := sl
+                        buyTP    := f_tp(true, entry, R)
+                        buyZL    := zl
+                        buyZH    := zh
+                        buySig   := true
+                        doneB    := true
+                        actB     := false
+        if not actB and not doneB
+            if f_sweptLow(need)
+                actB     := true
+                sweepLow := low
+                refHigh  := lastSH
+                startB   := bar_index
+
+    // ---------- SELL ----------
+    if allowSell and not doneS
+        if actS
+            if bar_index - startS > chochWait
+                actS := false
+            else if close < refLow and (open - close) >= dispATR * atr
+                [zl, zh] = f_fvgBear(zoneLB)
+                okFvg = not na(zl) and zh > zl
+                if (requireFVG and okFvg) or (not requireFVG)
+                    entry = okFvg ? zl + entryFrac * (zh - zl) : close
+                    sl    = math.max(sweepHigh, okFvg ? zh : sweepHigh) + slBufATR * atr
+                    R     = sl - entry
+                    if R > 0 and entry > close and R >= minRATR * atr and R <= maxRATR * atr
+                        sellEntry := entry
+                        sellSL    := sl
+                        sellTP    := f_tp(false, entry, R)
+                        sellZL    := zl
+                        sellZH    := zh
+                        sellSig   := true
+                        doneS     := true
+                        actS      := false
+        if not actS and not doneS
+            if f_sweptHigh(need)
+                actS      := true
+                sweepHigh := high
+                refLow    := lastSL
+                startS    := bar_index
+
+// ─────────────────────────  Vẽ  ─────────────────────────
+if buySig
+    if showFVG and not na(buyZL)
+        box.new(bar_index - zoneLB, buyZH, bar_index + 20, buyZL, border_color=color.new(color.green, 40), bgcolor=color.new(color.green, 88))
+    if showLevels
+        line.new(bar_index, buyEntry, bar_index + 30, buyEntry, color=color.blue,  width=1, style=line.style_solid)
+        line.new(bar_index, buySL,    bar_index + 30, buySL,    color=color.red,   width=1, style=line.style_dashed)
+        line.new(bar_index, buyTP,    bar_index + 30, buyTP,    color=color.green, width=1, style=line.style_dashed)
+    label.new(bar_index, buySL - atr * 0.5, "BUY\nE " + str.tostring(buyEntry, format.mintick) + "\nSL " + str.tostring(buySL, format.mintick) + "\nTP " + str.tostring(buyTP, format.mintick), style=label.style_label_up, color=color.new(color.green, 0), textcolor=color.white, size=size.small)
+
+if sellSig
+    if showFVG and not na(sellZL)
+        box.new(bar_index - zoneLB, sellZH, bar_index + 20, sellZL, border_color=color.new(color.red, 40), bgcolor=color.new(color.red, 88))
+    if showLevels
+        line.new(bar_index, sellEntry, bar_index + 30, sellEntry, color=color.blue,  width=1, style=line.style_solid)
+        line.new(bar_index, sellSL,    bar_index + 30, sellSL,    color=color.red,   width=1, style=line.style_dashed)
+        line.new(bar_index, sellTP,    bar_index + 30, sellTP,    color=color.green, width=1, style=line.style_dashed)
+    label.new(bar_index, sellSL + atr * 0.5, "SELL\nE " + str.tostring(sellEntry, format.mintick) + "\nSL " + str.tostring(sellSL, format.mintick) + "\nTP " + str.tostring(sellTP, format.mintick), style=label.style_label_down, color=color.new(color.red, 0), textcolor=color.white, size=size.small)
+
+// ─────────────────────────  Vẽ mức nền  ─────────────────────────
+plot(showAsia and asiaDone ? aHi : na, "Asia High", color=color.new(color.orange, 30), style=plot.style_stepline)
+plot(showAsia and asiaDone ? aLo : na, "Asia Low",  color=color.new(color.orange, 30), style=plot.style_stepline)
+plot(showPDPD ? pdh : na, "PDH", color=color.new(color.gray, 20), style=plot.style_stepline)
+plot(showPDPD ? pdl : na, "PDL", color=color.new(color.gray, 20), style=plot.style_stepline)
+
+// ─────────────────────────  Cảnh báo  ─────────────────────────
+alertcondition(buySig,  "ICT BUY",  "ICT BUY setup (KZ-Sweep-FVG)")
+alertcondition(sellSig, "ICT SELL", "ICT SELL setup (KZ-Sweep-FVG)")
+
+if buySig
+    alert("ICT BUY | Entry " + str.tostring(buyEntry, format.mintick) + " | SL " + str.tostring(buySL, format.mintick) + " | TP " + str.tostring(buyTP, format.mintick), alert.freq_once_per_bar_close)
+if sellSig
+    alert("ICT SELL | Entry " + str.tostring(sellEntry, format.mintick) + " | SL " + str.tostring(sellSL, format.mintick) + " | TP " + str.tostring(sellTP, format.mintick), alert.freq_once_per_bar_close)
