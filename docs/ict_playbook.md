@@ -104,7 +104,8 @@ displacement, **không dùng mẫu nến xác nhận riêng**.
 
 ## 4. Quản lý lệnh
 
-- **Chốt 50% khối lượng tại 1R** (`ICT_PARTIAL_FRAC = 0.5`, `ICT_PARTIAL_AT_R = 1.0`).
+- **Không chốt một phần** (tắt `ICT_PARTIAL_FRAC = 0`) — giữ nguyên tới TP.
+  *(Kiểm chứng trên 90k nến M5: bỏ partial cho RR 1.38→1.45, PF 4.68→4.91, DD giữ nguyên.)*
 - Phần còn lại chạy tới TP (DOL). Không trailing, không dời BE mặc định.
 - Cần **lot ≥ 0.02** (XAUUSD volume_min 0.01) mới chia được khối lượng.
 
@@ -130,7 +131,7 @@ displacement, **không dùng mẫu nến xác nhận riêng**.
 | SL | sau quét ± 0.2×ATR | `ICT_SL_BUF_ATR` |
 | R tối đa | 6 × ATR | `ICT_MAX_R_ATR` |
 | TP | **DOL** (mức gần nhất) | `ICT_TP_MODE = "liq"`, `ICT_TP_MIN_R = 0` |
-| Chốt lời | 50% @1R + còn lại tới DOL | `ICT_PARTIAL_*` |
+| Chốt lời | Giữ tới TP (không partial) | `ICT_PARTIAL_FRAC = 0` |
 | Số setup | 1/hướng/ngày | `ICT_ONE_PER_DAY` |
 
 ---
@@ -186,7 +187,7 @@ Bộ lọc "nến xác nhận" và "Premium/Discount" đã được thử và **
 [ ] 6. Có FVG trong 12 nến trước CHoCH? Nếu không → BỎ QUA
 [ ] 7. Đặt LIMIT tại CE (hoặc OTE 0.62–0.79) của FVG
 [ ] 8. SL sau điểm quét ± 0.2×ATR; TP = bể thanh khoản đối diện gần nhất
-[ ] 9. Chốt 50% tại 1R; giữ phần còn lại tới DOL
+[ ] 9. Giữ nguyên tới TP (không chốt một phần)
 [ ] 10. Hết ngày / ngoài killzone → không vào lệnh mới
 ```
 

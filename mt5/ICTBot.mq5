@@ -31,7 +31,7 @@ input double InpEntryFrac   = 0.5;        // Vào tại (0.5=CE)
 input double InpSlBufATR    = 0.2;        // SL buffer (×ATR)
 input double InpMaxRATR     = 6.0;        // R tối đa (×ATR)
 input int    InpPendMin     = 120;        // Lệnh chờ hết hạn (phút)
-input double InpPartialFrac = 0.5;        // Chốt % khi +1R
+input double InpPartialFrac = 0.0;        // Chốt % khi +1R (0 = tắt)
 input double InpPartialAtR  = 1.0;        // Ngưỡng R chốt
 input int    InpMaxDevPts   = 30;         // Trượt tối đa (points)
 input int    InpPollMs      = 1000;       // Chu kỳ kiểm tra (ms)

@@ -64,7 +64,7 @@ ICT_PEND_MIN      = 120      # Số PHÚT lệnh limit chờ khớp trước khi
 ICT_ONE_PER_DAY   = True     # Tối đa 1 setup mỗi hướng mỗi ngày
 
 # --- Chốt lời từng phần ---
-ICT_PARTIAL_FRAC  = 0.5      # Chốt 50% khối lượng khi đạt 1R
+ICT_PARTIAL_FRAC  = 0.0      # Chốt một phần (0 = tắt; kiểm chứng: tắt cho RR/PF tốt hơn)
 ICT_PARTIAL_AT_R  = 1.0
 ICT_BE_AT_R       = 0.0      # Dời SL hòa vốn (tắt mặc định)
 

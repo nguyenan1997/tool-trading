@@ -22,7 +22,7 @@ công: **`docs/ict_playbook.md`**.
    chỉ nhận FVG có **kích thước ≥ `ICT_MIN_FVG_ATR`×ATR** (mặc định **0.3**).
 6. **LIMIT** tại CE (`ICT_ENTRY_FRAC`=0.5; ~0.62–0.79 = OTE).
 7. **TP = draw on liquidity**: mức thanh khoản đối diện gần nhất (fallback bội số R).
-8. **Chốt 50% @1R**, phần còn lại tới DOL.
+8. **Không chốt một phần** — giữ nguyên tới TP (tắt `ICT_PARTIAL_FRAC`; kiểm chứng RR/PF tốt hơn).
 
 ### Bộ lọc FVG (học từ "Ranked FVG – Zeiierman")
 Ngoài lọc kích thước (mặc định **bật, 0.5×ATR**), code còn có sẵn (mặc định tắt vì
