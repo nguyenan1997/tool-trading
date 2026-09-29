@@ -12,9 +12,9 @@ brokerOff = input.int(3, "Broker = UTC + (giờ)", -12, 14, group=grpT)
 asiaStart = input.int(0,  "Vùng Á - giờ bắt đầu", 0, 23, group=grpT)
 asiaEnd   = input.int(6,  "Vùng Á - giờ kết thúc", 0, 23, group=grpT)
 kz1s      = input.int(7,  "Killzone 1 - bắt đầu", 0, 23, group=grpT)
-kz1e      = input.int(11, "Killzone 1 - kết thúc", 0, 23, group=grpT)
-kz2s      = input.int(12, "Killzone 2 - bắt đầu", 0, 23, group=grpT)
-kz2e      = input.int(16, "Killzone 2 - kết thúc", 0, 23, group=grpT)
+kz1e      = input.int(20, "Killzone 1 - kết thúc", 0, 23, group=grpT)
+kz2s      = input.int(0,  "Killzone 2 - bắt đầu (0,0 = tắt)", 0, 23, group=grpT)
+kz2e      = input.int(0,  "Killzone 2 - kết thúc", 0, 23, group=grpT)
 
 grpB = "Bias khung lớn"
 biasMode = input.string("prevday", "Bias", options=["prevday", "h4ema", "none"], group=grpB)

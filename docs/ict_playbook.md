@@ -48,7 +48,7 @@ Giá **đi từ vùng thanh khoản này sang vùng thanh khoản khác** → lu
 
 ```
 Bước 0  Bias            H4/D1 + nến ngày trước  → chỉ trade 1 hướng
-Bước 1  Killzone        London 07–11h, NY 12–16h (giờ broker)
+Bước 1  Killzone        London + NY 07–20h (giờ broker)
 Bước 2  Vùng tích lũy   Vùng Á 00–06h → lấy asia_hi / asia_lo
 Bước 3  Quét            Trong killzone: giá quét biên ĐỐI DIỆN bias + reclaim
 Bước 4  Xác nhận        Displacement + CHoCH (nến đóng phá swing đối diện)
@@ -64,7 +64,8 @@ Bước 7  Thoát           SL sau điểm quét; TP = draw on liquidity đối 
 - Với bias tăng, thao túng là cú **quét xuống** (lấy sell-side liquidity) rồi phân phối lên.
 
 ### Bước 1 — Killzone (giờ broker)
-- London: **07:00–10:59**, New York: **12:00–15:59** (mặc định `ICT_KILLZONES = [(7,11),(12,16)]`).
+- **07:00–19:59** giờ broker (mặc định `ICT_KILLZONES = [(7,20)]` — bắt trọn London + New York).
+  *(Kiểm chứng trên 90k nến M5: mở rộng tới 20h cho PF & net tốt hơn khung 7–11/12–16.)*
 - Ngoài killzone: không vào lệnh mới (vẫn quản lý lệnh đang mở).
 
 ### Bước 2 — Vùng tích lũy Á
@@ -114,7 +115,7 @@ displacement, **không dùng mẫu nến xác nhận riêng**.
 | Tham số | Giá trị | Ý nghĩa |
 |---|---|---|
 | Khung / sản phẩm | M5 · XAUUSD | bot tự chọn M5 |
-| Killzone | (7,11), (12,16) | giờ broker |
+| Killzone | (7,20) | giờ broker |
 | Vùng Á | (0,6) | nguồn thanh khoản |
 | Bias | **prevday** | hướng nến ngày trước |
 | Swing K | 2 | fractal |
@@ -178,7 +179,7 @@ Bộ lọc "nến xác nhận" và "Premium/Discount" đã được thử và **
 
 ```
 [ ] 1. Xác định bias hôm nay (nến ngày trước tăng/giảm) → chỉ trade 1 hướng
-[ ] 2. Đang trong killzone? (London 07–11h / NY 12–16h giờ broker)
+[ ] 2. Đang trong killzone? (07–20h giờ broker — London + NY)
 [ ] 3. Đánh dấu thanh khoản: PDH/PDL, biên vùng Á, đỉnh/đáy gần nhất
 [ ] 4. Chờ giá QUÉT biên đối diện bias ≥ 0.3×ATR rồi ĐÓNG CỬA reclaim
 [ ] 5. Chờ displacement + CHoCH (nến đóng phá swing đối diện, thân ≥ 0.4×ATR)

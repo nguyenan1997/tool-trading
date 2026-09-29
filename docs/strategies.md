@@ -14,7 +14,7 @@ công: **`docs/ict_playbook.md`**.
 ### Quy trình
 1. **Bias (`ICT_BIAS_MODE`)**: mặc định `prevday` = hướng nến ngày hôm trước → chỉ
    trade cùng chiều bias.
-2. **Killzone** (giờ broker): London **07–11h**, NY **12–16h**.
+2. **Killzone** (giờ broker): London + NY **07–20h**.
 3. **Quét thanh khoản** biên ĐỐI DIỆN bias (PDH/PDL, biên vùng Á, swing gần nhất),
    vượt ≥ `ICT_MIN_SWEEP_ATR`×ATR rồi **reclaim** (đóng cửa trở lại).
 4. **Displacement + CHoCH** trong `ICT_CHOCH_WAIT` nến (thân nến ≥ `ICT_DISP_ATR`×ATR).

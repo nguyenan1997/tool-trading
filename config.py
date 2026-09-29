@@ -29,7 +29,7 @@ ICT_WARMUP_BARS   = 600
 
 # --- Cấu trúc / thời gian ---
 ICT_SWING_K       = 2        # Bán kính fractal xác định swing high/low
-ICT_KILLZONES     = [(7, 11), (12, 16)]  # Giờ broker: London open + NY
+ICT_KILLZONES     = [(7, 20)]  # Giờ broker: London + New York (7–19h59)
 ICT_ASIA          = (0, 6)   # Vùng tích lũy Á (0–5:59 giờ broker)
 
 # --- Bias khung lớn (chỉ trade cùng chiều) ---

@@ -18,9 +18,9 @@ input double InpLot         = 0.02;       // Lot
 input int    InpAsiaStart   = 0;          // Vùng Á - bắt đầu (giờ broker)
 input int    InpAsiaEnd     = 6;          // Vùng Á - kết thúc
 input int    InpKz1s        = 7;          // Killzone 1 bắt đầu
-input int    InpKz1e        = 11;         // Killzone 1 kết thúc
-input int    InpKz2s        = 12;         // Killzone 2 bắt đầu
-input int    InpKz2e        = 16;         // Killzone 2 kết thúc
+input int    InpKz1e        = 20;         // Killzone 1 kết thúc
+input int    InpKz2s        = 0;          // Killzone 2 bắt đầu (0,0 = tắt)
+input int    InpKz2e        = 0;          // Killzone 2 kết thúc
 input int    InpSwingK      = 2;          // Swing K (fractal)
 input double InpMinSweepATR = 0.3;        // Độ sâu quét (×ATR)
 input int    InpChochWait   = 24;         // Chờ CHoCH tối đa (nến M5)

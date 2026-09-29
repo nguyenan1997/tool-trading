@@ -48,7 +48,7 @@ def main():
     print(f"Mốc train/OOS: {split_ts}\n")
 
     # Vùng killzone/risk đã kiểm chứng
-    KZ = [(7, 11), (12, 16)]
+    KZ = [(7, 20)]
     common = dict(killzones=KZ, min_r_atr=0.0, max_r_atr=6.0)
 
     variants = [
