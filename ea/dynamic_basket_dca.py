@@ -41,10 +41,19 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
+import sys
 import time
 from dataclasses import dataclass
+from datetime import datetime, timezone, timedelta
 
 import MetaTrader5 as mt5
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from core.news_calendar import news_calendar
+except Exception:      # chạy độc lập vẫn ok nếu thiếu module
+    news_calendar = None
 
 FIB = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181]
 
@@ -70,6 +79,16 @@ class Config:
     close_by_live_pl: bool = True      # đóng theo tổng P/L nổi
     slippage_points: int = 30
     debug: bool = True
+
+    # tránh giờ tin (giờ VN)
+    news_filter: bool = True
+    news_windows_vn: tuple = ()          # cửa sổ thủ công thêm (h1,m1,h2,m2); rỗng = tắt
+    news_block_dca: bool = True
+    news_currencies: tuple = ("USD",)
+    news_min_impact: str = "High"
+    news_buffer_before: int = 15
+    news_buffer_after: int = 15
+    news_refresh_hours: float = 6.0
 
     poll_sec: float = 0.5
     requote_sec: float = 5.0
@@ -150,6 +169,38 @@ class DynamicBasketDCA:
             lot = self.cfg.initial_lot * (self.cfg.lot_mult_fallback ** level)
         lot = round(round(lot / self.vol_step) * self.vol_step, 2)
         return max(self.vol_min, min(lot, self.vol_max))
+
+    def _in_news_window(self) -> bool:
+        if not self.cfg.news_filter:
+            return False
+        now = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=7)
+        cur = now.hour * 60 + now.minute
+        wd = now.weekday()
+        for w in self.cfg.news_windows_vn:
+            h1, m1, h2, m2 = w[0], w[1], w[2], w[3]
+            days = w[4] if len(w) > 4 else None
+            if days is not None and wd not in days:
+                continue
+            a = h1 * 60 + m1; b = h2 * 60 + m2
+            if a <= b:
+                if a <= cur < b:
+                    return True
+            else:
+                if cur >= a or cur < b:
+                    return True
+        if news_calendar is not None:
+            try:
+                hit, ev = news_calendar.in_window(
+                    now, currencies=list(self.cfg.news_currencies),
+                    min_impact=self.cfg.news_min_impact,
+                    before_min=self.cfg.news_buffer_before,
+                    after_min=self.cfg.news_buffer_after,
+                    refresh_hours=self.cfg.news_refresh_hours)
+                if hit:
+                    return True
+            except Exception:
+                pass
+        return False
 
     def profit_target_usd(self) -> float:
         """Mục tiêu lãi CHUNG của rổ (account currency) = be_currency + extra_safety.
@@ -242,6 +293,7 @@ class DynamicBasketDCA:
     def step_once(self):
         positions = self.positions()
         pendings = self.pendings()
+        news = self._in_news_window()
 
         # --- dang co ro ---
         if positions:
@@ -261,6 +313,10 @@ class DynamicBasketDCA:
             if len(sides) > 1:
                 if self.cfg.debug:
                     self.log.warning("mixed directions -> no DCA")
+                return
+
+            # gio tin: khong nhoi them
+            if news and self.cfg.news_block_dca:
                 return
 
             # DCA
@@ -285,6 +341,9 @@ class DynamicBasketDCA:
 
         # --- dang cho straddle ---
         if pendings:
+            if news:
+                self.cancel_pendings()
+                return
             if self.cfg.reposition_pending:
                 tick = mt5.symbol_info_tick(self.cfg.symbol)
                 if tick is not None and self._ref_mid is not None:
@@ -294,7 +353,9 @@ class DynamicBasketDCA:
                         self.place_straddle()
             return
 
-        # --- flat -> mo chu ky moi ---
+        # --- flat -> mo chu ky moi (tru gio tin) ---
+        if news:
+            return
         self._last_target = None
         self.place_straddle()
 

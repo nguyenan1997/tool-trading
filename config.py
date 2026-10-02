@@ -137,6 +137,20 @@ BASKET_POLL_SEC      = 0.5     # chu kỳ vòng lặp
 BASKET_DEVIATION_PTS = 30      # trượt giá tối đa mỗi lệnh
 BASKET_REPOSITION    = True    # "RepositionPending": đặt lại straddle khi giá chạy
 BASKET_MOVE_FRAMEWORK = 0.5    # "Move pending framework": giá chạy bao nhiêu thì reposition
+# --- Tránh giờ tin (GIỜ VIỆT NAM, UTC+7) ---
+# Khung (h1,m1,h2,m2): trong khoảng này KHÔNG mở straddle mới (hủy lệnh chờ).
+# 19:20–19:45 VN = tin Mỹ 8:30 ET (CPI/NFP/PPI); 00:50–01:30 VN = Fed/FOMC (2pm ET).
+BASKET_NEWS_FILTER     = True
+# --- Nguồn lịch kinh tế (Forex Factory, miễn phí, không cần API key) ---
+BASKET_NEWS_SOURCE        = "forexfactory"
+BASKET_NEWS_CURRENCIES    = ["USD"]   # tin ảnh hưởng tới vàng
+BASKET_NEWS_MIN_IMPACT    = "High"    # High | Medium | Low
+BASKET_NEWS_BUFFER_BEFORE = 15        # phút chặn TRƯỚC tin
+BASKET_NEWS_BUFFER_AFTER  = 15        # phút chặn SAU tin
+BASKET_NEWS_REFRESH_HOURS = 6         # tải lại lịch mỗi N giờ
+# Cửa sổ thủ công thêm ngoài lịch: (h1,m1,h2,m2) hoặc (h1,m1,h2,m2,[các thứ]); rỗng = tắt
+BASKET_NEWS_WINDOWS_VN    = []
+BASKET_NEWS_BLOCK_DCA     = True       # True = cũng KHÔNG nhồi DCA trong giờ tin
 
 # Chiến lược chạy mặc định khi khởi động chương trình.
 # "hedging" | "ict" | "basket_dca"

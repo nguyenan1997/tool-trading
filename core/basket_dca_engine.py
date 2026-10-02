@@ -13,6 +13,7 @@ KHÔNG Stop Loss. ⚠️ Martingale → rủi ro cháy. Chỉ demo.
 """
 import logging
 import threading
+from datetime import datetime, timezone, timedelta
 
 import config
 from . import mt5_handler as mt5h
@@ -43,6 +44,48 @@ class BasketDCAEngine:
             self._ref_mid = None
             self._last_target = None
 
+    # ---- tránh giờ tin (giờ VN) ----
+    def _vn_now(self):
+        off = int(getattr(config, "VN_UTC_OFFSET", 7))
+        return datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=off)
+
+    def _in_news_window(self) -> bool:
+        if not getattr(config, "BASKET_NEWS_FILTER", False):
+            return False
+        now = self._vn_now()
+        cur = now.hour * 60 + now.minute
+        wd = now.weekday()   # Mon=0 ... Sun=6
+        for w in getattr(config, "BASKET_NEWS_WINDOWS_VN", []) or []:
+            h1, m1, h2, m2 = w[0], w[1], w[2], w[3]
+            days = w[4] if len(w) > 4 else None   # vd [2] = chỉ Thứ Tư; None = mọi ngày
+            if days is not None and wd not in days:
+                continue
+            a = h1 * 60 + m1
+            b = h2 * 60 + m2
+            if a <= b:
+                if a <= cur < b:
+                    return True
+            else:  # qua nửa đêm
+                if cur >= a or cur < b:
+                    return True
+
+        # Lịch kinh tế thật (Forex Factory)
+        try:
+            from .news_calendar import news_calendar
+            hit, ev = news_calendar.in_window(
+                now,
+                currencies=getattr(config, "BASKET_NEWS_CURRENCIES", ["USD"]),
+                min_impact=getattr(config, "BASKET_NEWS_MIN_IMPACT", "High"),
+                before_min=int(getattr(config, "BASKET_NEWS_BUFFER_BEFORE", 15)),
+                after_min=int(getattr(config, "BASKET_NEWS_BUFFER_AFTER", 15)),
+                refresh_hours=float(getattr(config, "BASKET_NEWS_REFRESH_HOURS", 6)),
+            )
+            if hit:
+                return True
+        except Exception as e:
+            logger.warning(f"[NEWS] calendar error: {e}")
+        return False
+
     # ------------------------------------------------------------------
     def process(self, strategy):
         magic = getattr(strategy, "magic", config.MAGIC_BASKET)
@@ -58,6 +101,7 @@ class BasketDCAEngine:
 
             positions = mt5h.get_open_positions(config.SYMBOL, [magic])
             pendings = mt5h.get_pending_orders(config.SYMBOL, magic)
+            news = self._in_news_window()
 
             # --- Có rổ ---
             if positions:
@@ -75,11 +119,19 @@ class BasketDCAEngine:
                         self.close_all(strategy, "basket livePL")
                         return
 
+                # giờ tin: không nhồi thêm (nếu bật)
+                if news and getattr(config, "BASKET_NEWS_BLOCK_DCA", True):
+                    return
                 self._maybe_add_dca(strategy, positions)
                 return
 
             # --- Chưa có rổ, có lệnh chờ (straddle) ---
             if pendings:
+                if news:
+                    # giờ tin: hủy straddle, không vào lệnh mới
+                    for o in pendings:
+                        mt5h.cancel_pending_order(o.ticket)
+                    return
                 # Reposition CHỈ khi giá chạy >= BASKET_MOVE_FRAMEWORK (giống EA gốc)
                 if getattr(config, "BASKET_REPOSITION", True) and self._ref_mid is not None:
                     tick = mt5h.get_tick(config.SYMBOL)
@@ -91,7 +143,9 @@ class BasketDCAEngine:
                             self._place_straddle(strategy)
                 return
 
-            # --- Flat -> mở straddle mới ---
+            # --- Flat -> mở straddle mới (trừ giờ tin) ---
+            if news:
+                return
             self._last_target = None
             self._place_straddle(strategy)
 
