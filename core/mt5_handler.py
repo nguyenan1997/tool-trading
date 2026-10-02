@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 import logging
 import math
-import time
+import threading
 from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
@@ -243,6 +243,22 @@ def get_open_positions(symbol: str, magics) -> list:
     return [p for p in positions if p.magic in magics]
 
 
+def get_all_positions(symbol: str = None) -> list:
+    """Trả về TẤT CẢ vị thế (không lọc magic). Nếu `symbol` -> chỉ symbol đó."""
+    if not connect():
+        return []
+    positions = mt5.positions_get(symbol=symbol) if symbol else mt5.positions_get()
+    return list(positions) if positions else []
+
+
+def get_all_pending_orders(symbol: str = None) -> list:
+    """Trả về TẤT CẢ lệnh chờ (không lọc magic). Nếu `symbol` -> chỉ symbol đó."""
+    if not connect():
+        return []
+    orders = mt5.orders_get(symbol=symbol) if symbol else mt5.orders_get()
+    return list(orders) if orders else []
+
+
 def get_position_by_ticket(ticket: int):
     """Trả về Position theo ticket, hoặc None nếu không còn mở."""
     if not connect():
@@ -287,6 +303,9 @@ def calc_lot_by_risk(symbol: str, sl_distance: float, balance: float, risk_pct: 
 # ────────────────────────────────────────────────
 #  Filling mode (tránh lỗi 10030 Unsupported filling mode)
 # ────────────────────────────────────────────────
+# Khóa gửi lệnh: tránh 2 luồng (bot + guard) gọi order_send cùng lúc.
+_SEND_LOCK = threading.Lock()
+
 _FILLING_ORDER = (mt5.ORDER_FILLING_FOK, mt5.ORDER_FILLING_IOC, mt5.ORDER_FILLING_RETURN)
 
 # Retcode liên quan tới trượt giá / giá đổi
@@ -309,21 +328,23 @@ def _supported_filling(info) -> int:
 
 
 def _order_send(request: dict, info=None):
-    """Gửi lệnh; nếu bị lỗi 10030 (Unsupported filling mode) thì tự thử mode khác."""
-    if info is not None:
-        request["type_filling"] = _supported_filling(info)
-    result = mt5.order_send(request)
-    if result is None:
+    """Gửi lệnh; nếu bị lỗi 10030 (Unsupported filling mode) thì tự thử mode khác.
+    Dùng _SEND_LOCK để bot + guard không gửi lệnh đồng thời."""
+    with _SEND_LOCK:
+        if info is not None:
+            request["type_filling"] = _supported_filling(info)
+        result = mt5.order_send(request)
+        if result is None:
+            return result
+        if result.retcode == mt5.TRADE_RETCODE_INVALID_FILL:
+            for fm in _FILLING_ORDER:
+                if request.get("type_filling") == fm:
+                    continue
+                request["type_filling"] = fm
+                result = mt5.order_send(request)
+                if result is None or result.retcode != mt5.TRADE_RETCODE_INVALID_FILL:
+                    break
         return result
-    if result.retcode == mt5.TRADE_RETCODE_INVALID_FILL:
-        for fm in _FILLING_ORDER:
-            if request.get("type_filling") == fm:
-                continue
-            request["type_filling"] = fm
-            result = mt5.order_send(request)
-            if result is None or result.retcode != mt5.TRADE_RETCODE_INVALID_FILL:
-                break
-    return result
 
 
 # ────────────────────────────────────────────────
@@ -558,7 +579,8 @@ def modify_position(symbol: str, ticket: int, sl=None, tp=None, magic: int = Non
     if magic is not None:
         request["magic"] = magic
 
-    result = mt5.order_send(request)
+    with _SEND_LOCK:
+        result = mt5.order_send(request)
     if result.retcode != mt5.TRADE_RETCODE_DONE:
         if result.retcode == _MARKET_CLOSED_RETCODE:
             logger.debug(f"modify_position bỏ qua (thị trường đóng) | ticket={ticket}")
@@ -678,7 +700,8 @@ def cancel_pending_order(ticket: int) -> bool:
     if not connect():
         return False
     request = {"action": mt5.TRADE_ACTION_REMOVE, "order": ticket}
-    result = mt5.order_send(request)
+    with _SEND_LOCK:
+        result = mt5.order_send(request)
     if result is None or result.retcode != mt5.TRADE_RETCODE_DONE:
         code = result.retcode if result else "None"
         msg = result.comment if result else "order_send returned None"

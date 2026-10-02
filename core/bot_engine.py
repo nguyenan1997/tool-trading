@@ -28,6 +28,7 @@ class BotEngine:
         self._last_session_key = None # PP đã ghi log phiên lần cuối (đổi PP → log ngay)
         self._pending = {}        # magic -> meta lệnh CHỜ LIMIT thật {ticket, expire_ts}
         self._hedge_cleared_key = None  # đã dọn lệnh chờ của PP khác khi vào hedging chưa
+        self._guard_thread: threading.Thread = None # type: ignore  # luồng chặn lệnh ngoài bot
 
     def start(self):
         with self._lock:
@@ -41,6 +42,8 @@ class BotEngine:
             hedging_engine.reset()   # chạy lại -> tiếp quản vị thế hiện có
             self._thread = threading.Thread(target=self._run_loop, daemon=True)
             self._thread.start()
+            self._guard_thread = threading.Thread(target=self._guard_loop, daemon=True)
+            self._guard_thread.start()
             logger.info("Bot Engine STARTED")
 
     def stop(self):
@@ -50,6 +53,9 @@ class BotEngine:
             t = self._thread
             if t is not None and t.is_alive() and t is not threading.current_thread():
                 t.join(timeout=10)
+            g = self._guard_thread
+            if g is not None and g.is_alive() and g is not threading.current_thread():
+                g.join(timeout=5)
             logger.info("Bot Engine STOPPED")
 
     def _server_now(self) -> datetime:
@@ -216,6 +222,51 @@ class BotEngine:
 
         finally:
             mt5h.disconnect()
+
+    # ------------------------------------------------------------------
+    #  GUARD — phát hiện & đóng lệnh KHÔNG do bot mở
+    # ------------------------------------------------------------------
+    def _guard_loop(self):
+        """Luồng riêng: quét lệnh ngoài bot định kỳ (GUARD_POLL_SEC)."""
+        if not mt5h.connect():
+            return
+        while self.is_running:
+            try:
+                self._guard_external()
+            except Exception as e:
+                logger.error(f"Guard error: {e}")
+            time.sleep(max(1.0, float(getattr(config, "GUARD_POLL_SEC", 2) or 2)))
+
+    def _guard_external(self):
+        if not getattr(config, "GUARD_EXTERNAL", True):
+            return
+        known = set(strategy_manager.get_magics())
+        symbol = config.SYMBOL if getattr(config, "GUARD_SYMBOL_ONLY", True) else None
+        do_close = getattr(config, "GUARD_CLOSE_EXTERNAL", True)
+
+        # --- Vị thế không thuộc bot ---
+        for p in mt5h.get_all_positions(symbol):
+            if p.magic in known:
+                continue
+            side = "BUY" if p.type == 0 else "SELL"
+            logger.warning(
+                f"🚨 LỆNH NGOÀI BOT  |  ticket={p.ticket}  |  {p.symbol} {side}  |  "
+                f"vol={p.volume}  |  magic={p.magic}  |  open={p.price_open}  |  "
+                f"time={datetime.fromtimestamp(p.time)}  |  cmt={p.comment!r}"
+            )
+            if do_close and mt5h.close_position(p, p.magic, "external guard"):
+                logger.warning(f"🚫 ĐÃ ĐÓNG lệnh ngoài bot  |  ticket={p.ticket}")
+
+        # --- Lệnh chờ không thuộc bot ---
+        for o in mt5h.get_all_pending_orders(symbol):
+            if o.magic in known:
+                continue
+            logger.warning(
+                f"🚨 LỆNH CHỜ NGOÀI BOT  |  ticket={o.ticket}  |  {o.symbol}  |  "
+                f"type={o.type}  |  vol={o.volume}  |  price={o.price_open}  |  magic={o.magic}"
+            )
+            if do_close and mt5h.cancel_pending_order(o.ticket):
+                logger.warning(f"🚫 ĐÃ HỦY lệnh chờ ngoài bot  |  ticket={o.ticket}")
 
     def _cancel_other_pending(self):
         """Hủy mọi lệnh CHỜ của các chiến lược KHÁC khi vào PP chạy liên tục (hedging/basket)."""

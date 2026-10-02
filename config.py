@@ -156,6 +156,18 @@ BASKET_NEWS_BLOCK_DCA     = True       # True = cũng KHÔNG nhồi DCA trong gi
 # "hedging" | "ict" | "basket_dca"
 DEFAULT_STRATEGY = "hedging"
 
+# ============================================================
+#  GUARD — chặn/đóng lệnh KHÔNG do bot mở
+# ------------------------------------------------------------
+# Khi bot đang chạy, định kỳ quét toàn bộ vị thế/lệnh chờ. Lệnh nào có
+# `magic` KHÔNG thuộc các chiến lược của bot (vd mở tay, từ app mobile,
+# từ EA khác) => GHI LOG cảnh báo và ĐÓNG/HỦY ngay.
+# ============================================================
+GUARD_EXTERNAL       = True   # Bật bộ guard
+GUARD_POLL_SEC       = 2      # Chu kỳ quét (giây)
+GUARD_SYMBOL_ONLY    = True   # True = chỉ quét symbol bot (config.SYMBOL); False = mọi symbol
+GUARD_CLOSE_EXTERNAL = True   # True = đóng/hủy ngay; False = chỉ log
+
 # --- Lot Size Mode ---
 # "FIXED"  → always use FIXED_LOT
 # "RISK"   → calculate lot based on RISK_PERCENT of balance
