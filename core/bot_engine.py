@@ -240,6 +240,9 @@ class BotEngine:
     def _guard_external(self):
         if not getattr(config, "GUARD_EXTERNAL", True):
             return
+        # Sàn đóng -> không thể đóng lệnh, bỏ qua (tránh log lỗi)
+        if getattr(config, "GUARD_SYMBOL_ONLY", True) and not mt5h.is_market_open(config.SYMBOL):
+            return
         known = set(strategy_manager.get_magics())
         symbol = config.SYMBOL if getattr(config, "GUARD_SYMBOL_ONLY", True) else None
         do_close = getattr(config, "GUARD_CLOSE_EXTERNAL", True)
