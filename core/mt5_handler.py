@@ -725,3 +725,69 @@ def cancel_all_pending(symbol: str = None, magics=None) -> int:
         if cancel_pending_order(o.ticket):
             canceled += 1
     return canceled
+
+
+# ────────────────────────────────────────────────
+#  Stop Orders (BUY STOP / SELL STOP) — cho Basket DCA
+# ────────────────────────────────────────────────
+def place_stop_order(
+    symbol: str,
+    order_type: str,   # "BUY" → buy_stop | "SELL" → sell_stop
+    lot: float,
+    price: float,
+    magic: int,
+    comment: str,
+    sl: float = 0.0,
+    tp: float = 0.0,
+    deviation: int = None,
+) -> int | None:
+    """Đặt lệnh CHỜ STOP thật trên MT5. Trả về ticket hoặc None.
+
+    - BUY STOP : hợp lệ khi price > ask hiện tại.
+    - SELL STOP: hợp lệ khi price < bid hiện tại.
+    """
+    info = get_symbol_info(symbol)
+    tick = get_tick(symbol)
+    if info is None or tick is None:
+        return None
+
+    d = info.digits
+    price = round(price, d)
+    sl = round(sl, d)
+    tp = round(tp, d)
+
+    if order_type == "BUY":
+        if price <= tick.ask:
+            logger.warning(f"BUY STOP bỏ qua: price {price} <= ask {tick.ask}")
+            return None
+        mt5_type = mt5.ORDER_TYPE_BUY_STOP
+    else:
+        if price >= tick.bid:
+            logger.warning(f"SELL STOP bỏ qua: price {price} >= bid {tick.bid}")
+            return None
+        mt5_type = mt5.ORDER_TYPE_SELL_STOP
+
+    request = {
+        "action":       mt5.TRADE_ACTION_PENDING,
+        "symbol":       symbol,
+        "volume":       lot,
+        "type":         mt5_type,
+        "price":        price,
+        "sl":           sl,
+        "tp":           tp,
+        "magic":        magic,
+        "comment":      comment,
+        "type_time":    mt5.ORDER_TIME_GTC,
+        "type_filling": mt5.ORDER_FILLING_RETURN,
+    }
+    result = _order_send(request, info)
+    if result is None or result.retcode != mt5.TRADE_RETCODE_DONE:
+        code = result.retcode if result else "None"
+        msg = result.comment if result else "order_send returned None"
+        logger.error(f"place_stop_order FAILED  |  retcode={code}  |  {msg}")
+        return None
+    logger.info(
+        f"📌 ĐẶT LỆNH CHỜ {order_type} STOP  |  Ticket={result.order}  |  "
+        f"Price={price:.{d}f}  |  Lot={lot}"
+    )
+    return result.order

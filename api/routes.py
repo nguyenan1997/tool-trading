@@ -12,11 +12,14 @@ import os
 import re
 from core.bot_engine import bot_engine
 from core.hedging_engine import hedging_engine
+from core.basket_dca_engine import basket_dca_engine
 from strategies.manager import strategy_manager
 from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data, get_with_warmup
 from strategies.ict import ICTKillzoneFVGStrategy
 from strategies.hedging import HedgingStrategy
+from strategies.basket_dca import BasketDCAStrategy
+from research.basket_dca import run_backtest as basket_backtest
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +53,16 @@ def _build_strategy(data):
             tp_usd=_num(data, "hedge_tp_usd", config.HEDGE_TP_USD),
             lot=_num(data, "hedge_lot", config.HEDGE_LOT),
         ), "hedging"
+
+    if sid == "basket_dca":
+        return BasketDCAStrategy(
+            lot0=_num(data, "basket_lot", config.BASKET_LOT0),
+            init_dist=_num(data, "basket_init_dist", config.BASKET_INIT_DIST),
+            step=_num(data, "basket_step", config.BASKET_STEP),
+            tp_initial=_num(data, "basket_tp_initial", config.BASKET_TP_INITIAL),
+            tp_basket=_num(data, "basket_tp_basket", config.BASKET_TP_BASKET),
+            max_levels=_num(data, "basket_max_levels", config.BASKET_MAX_LEVELS, int),
+        ), "basket_dca"
 
     return ICTKillzoneFVGStrategy(
         swing_k=_num(data, "ict_swing_k", config.ICT_SWING_K, int),
@@ -107,13 +120,52 @@ def register_routes(app):
         
         # Khởi tạo chiến lược (ICT tự chạy khung M5; các PP khác theo UI)
         strategy, sid = _build_strategy(data)
-        tf = getattr(strategy, "timeframe", tf)
+        tf = "M1" if sid == "basket_dca" else getattr(strategy, "timeframe", tf)
 
         # Lấy dữ liệu (kèm warmup để chỉ báo hội tụ; engine sẽ bỏ qua phần warmup)
         warmup = int(getattr(strategy, "warmup_bars", 0) or 0)
         df = get_with_warmup(symbol, tf, count=count, start_date=start_date, warmup_bars=warmup)
         if df is None or df.empty:
             return jsonify({"error": "Failed to get data for the specified range"}), 400
+
+        # --- Basket DCA: dùng backtest chuyên dụng (multi-position, có stop-out) ---
+        if sid == "basket_dca":
+            r = basket_backtest(
+                df,
+                lot0=getattr(strategy, "lot", lot),
+                init_dist=getattr(strategy, "init_dist", config.BASKET_INIT_DIST),
+                step=getattr(strategy, "step", config.BASKET_STEP),
+                tp_initial=getattr(strategy, "tp_initial", config.BASKET_TP_INITIAL),
+                tp_basket=getattr(strategy, "tp_basket", config.BASKET_TP_BASKET),
+                max_levels=getattr(strategy, "max_levels", config.BASKET_MAX_LEVELS),
+                max_total_lot=getattr(strategy, "max_total_lot", config.BASKET_MAX_TOTAL_LOT),
+                balance=balance,
+                leverage=float(getattr(config, "BASKET_LEVERAGE", 1000.0)),
+                verbose=False,
+            )
+            trades = r.pop("trades", [])
+            return jsonify({
+                "summary": {
+                    "total_trades": r["baskets"],
+                    "win_rate": r["win_rate"],
+                    "final_balance": r["final_equity"],
+                    "profit": r["net"],
+                    "profit_factor": None,
+                    "expectancy": round(r["net"] / r["baskets"], 2) if r["baskets"] else 0.0,
+                    "avg_win": 0.0, "avg_loss": 0.0,
+                    "max_drawdown": r["max_dd"],
+                    "spread_used": spread,
+                    "digits": digits,
+                    "strategy": "basket_dca",
+                    "timeframe": tf,
+                    "max_levels": r["max_levels"],
+                    "max_lot": r["max_lot"],
+                    "blowup": r["blowup"],
+                    "worst_float": r["worst_float"],
+                },
+                "trades": trades,
+                "basket": r,
+            })
 
         # Chạy backtest với spread + digits thật từ broker
         tester = Backtester(strategy, initial_balance=balance, lot_size=lot, digits=digits, spread=spread)
@@ -272,6 +324,7 @@ def register_routes(app):
         closed = mt5h.close_all_positions(config.SYMBOL, magics, "close all (UI)")
         canceled = mt5h.cancel_all_pending(config.SYMBOL, magics)
         hedging_engine.reset()
+        basket_dca_engine.reset()
         logger.info(f"[CLOSE-ALL] đóng {closed} vị thế, hủy {canceled} lệnh chờ (bot_running={was_running})")
         return jsonify({
             "closed": closed,

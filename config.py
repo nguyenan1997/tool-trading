@@ -113,8 +113,30 @@ HEDGE_SKIP_HOURS_VN      = []
 HEDGE_CLOSE_BEFORE_HOURS = 2   # (không dùng)
 HEDGE_TRADING_HOURS_ENABLED = False
 
+# ============================================================
+#  DYNAMIC BASKET DCA (port từ EA "Dynamic_Basket_DCA_V1", XAUUSD)
+# ------------------------------------------------------------
+# Straddle BUY STOP + SELL STOP → bên nào khớp trước thì vào lệnh, hủy bên kia.
+# Giá đi NGƯỢC BASKET_STEP thì nhồi thêm, lot theo FIBONACCI (0.01,0.02,0.03,0.05...).
+# TP động = giá vào BÌNH QUÂN ± BASKET_TP_BASKET (lệnh đơn ± BASKET_TP_INITIAL).
+# KHÔNG Stop Loss.
+# ⚠️ Martingale không SL — rủi ro cháy cực lớn khi giá trend 1 chiều. CHỈ DEMO.
+# ============================================================
+BASKET_ENABLED       = True
+MAGIC_BASKET         = 20261010
+BASKET_COMMENT       = "PyBasketDCA"
+BASKET_LOT0          = 0.01    # lot lệnh đầu
+BASKET_INIT_DIST     = 0.50    # khoảng cách BUY STOP / SELL STOP so với giá
+BASKET_STEP          = 1.00    # giá đi ngược để nhồi DCA
+BASKET_TP_INITIAL    = 0.15    # TP lệnh đơn (chưa nhồi)
+BASKET_TP_BASKET     = 0.05    # TP rổ tính từ giá vào bình quân
+BASKET_MAX_LEVELS    = 0       # 0 = KHÔNG giới hạn (nguy hiểm); đặt vd 8 để chặn
+BASKET_MAX_TOTAL_LOT = 0.0     # 0 = không giới hạn tổng lot
+BASKET_POLL_SEC      = 0.5     # chu kỳ vòng lặp
+BASKET_DEVIATION_PTS = 30      # trượt giá tối đa mỗi lệnh
+
 # Chiến lược chạy mặc định khi khởi động chương trình.
-# "hedging" | "ict"
+# "hedging" | "ict" | "basket_dca"
 DEFAULT_STRATEGY = "hedging"
 
 # --- Lot Size Mode ---
