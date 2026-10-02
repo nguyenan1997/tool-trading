@@ -26,8 +26,8 @@ class BasketDCAStrategy(BaseStrategy):
         lot0=config.BASKET_LOT0,
         init_dist=config.BASKET_INIT_DIST,
         step=config.BASKET_STEP,
-        tp_initial=config.BASKET_TP_INITIAL,
-        tp_basket=config.BASKET_TP_BASKET,
+        be_currency=config.BASKET_BE_CURRENCY,
+        extra_safety=config.BASKET_EXTRA_SAFETY,
         max_levels=config.BASKET_MAX_LEVELS,
         max_total_lot=config.BASKET_MAX_TOTAL_LOT,
         magic=config.MAGIC_BASKET,
@@ -36,8 +36,9 @@ class BasketDCAStrategy(BaseStrategy):
         self.lot = lot0
         self.init_dist = init_dist
         self.step = step
-        self.tp_initial = tp_initial
-        self.tp_basket = tp_basket
+        self.be_currency = be_currency
+        self.extra_safety = extra_safety
+        self.profit_target = be_currency + extra_safety
         self.max_levels = max_levels
         self.max_total_lot = max_total_lot
         self.comment = config.BASKET_COMMENT

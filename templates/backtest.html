@@ -353,8 +353,8 @@
                                 <div><label>Lot lệnh đầu</label><input type="number" id="basket_lot" step="0.01" value="0.01" min="0.01"></div>
                                 <div><label>Khoảng cách stop 2 đầu</label><input type="number" id="basket_init_dist" step="0.1" value="0.5" min="0.1"></div>
                                 <div><label>Bước nhồi DCA</label><input type="number" id="basket_step" step="0.1" value="1.0" min="0.1"></div>
-                                <div><label>TP lệnh đơn</label><input type="number" id="basket_tp_initial" step="0.05" value="0.15" min="0.01"></div>
-                                <div><label>TP rổ (từ bình quân)</label><input type="number" id="basket_tp_basket" step="0.05" value="0.05" min="0.01"></div>
+                                <div><label>Account currency (0=near BE)</label><input type="number" id="basket_be_currency" step="0.01" value="0.1" min="0"></div>
+                                <div><label>Extra safety profit</label><input type="number" id="basket_extra_safety" step="0.01" value="0.05" min="0"></div>
                                 <div><label>Max cấp (0 = vô hạn)</label><input type="number" id="basket_max_levels" value="0" min="0"></div>
                             </div>
                             <div class="hint">⚠️ Không SL. Backtest dùng M1 + mô phỏng stop-out margin. Đặt "Max cấp" &gt; 0 để an toàn hơn.</div>
@@ -482,8 +482,8 @@
                 basket_lot: document.getElementById('basket_lot').value,
                 basket_init_dist: document.getElementById('basket_init_dist').value,
                 basket_step: document.getElementById('basket_step').value,
-                basket_tp_initial: document.getElementById('basket_tp_initial').value,
-                basket_tp_basket: document.getElementById('basket_tp_basket').value,
+                basket_be_currency: document.getElementById('basket_be_currency').value,
+                basket_extra_safety: document.getElementById('basket_extra_safety').value,
                 basket_max_levels: document.getElementById('basket_max_levels').value,
             };
 

@@ -19,7 +19,6 @@ from backtest.data_loader import get_historical_data, get_with_warmup
 from strategies.ict import ICTKillzoneFVGStrategy
 from strategies.hedging import HedgingStrategy
 from strategies.basket_dca import BasketDCAStrategy
-from research.basket_dca import run_backtest as basket_backtest
 
 logger = logging.getLogger(__name__)
 
@@ -59,8 +58,8 @@ def _build_strategy(data):
             lot0=_num(data, "basket_lot", config.BASKET_LOT0),
             init_dist=_num(data, "basket_init_dist", config.BASKET_INIT_DIST),
             step=_num(data, "basket_step", config.BASKET_STEP),
-            tp_initial=_num(data, "basket_tp_initial", config.BASKET_TP_INITIAL),
-            tp_basket=_num(data, "basket_tp_basket", config.BASKET_TP_BASKET),
+            be_currency=_num(data, "basket_be_currency", config.BASKET_BE_CURRENCY),
+            extra_safety=_num(data, "basket_extra_safety", config.BASKET_EXTRA_SAFETY),
             max_levels=_num(data, "basket_max_levels", config.BASKET_MAX_LEVELS, int),
         ), "basket_dca"
 
@@ -127,45 +126,6 @@ def register_routes(app):
         df = get_with_warmup(symbol, tf, count=count, start_date=start_date, warmup_bars=warmup)
         if df is None or df.empty:
             return jsonify({"error": "Failed to get data for the specified range"}), 400
-
-        # --- Basket DCA: dùng backtest chuyên dụng (multi-position, có stop-out) ---
-        if sid == "basket_dca":
-            r = basket_backtest(
-                df,
-                lot0=getattr(strategy, "lot", lot),
-                init_dist=getattr(strategy, "init_dist", config.BASKET_INIT_DIST),
-                step=getattr(strategy, "step", config.BASKET_STEP),
-                tp_initial=getattr(strategy, "tp_initial", config.BASKET_TP_INITIAL),
-                tp_basket=getattr(strategy, "tp_basket", config.BASKET_TP_BASKET),
-                max_levels=getattr(strategy, "max_levels", config.BASKET_MAX_LEVELS),
-                max_total_lot=getattr(strategy, "max_total_lot", config.BASKET_MAX_TOTAL_LOT),
-                balance=balance,
-                leverage=float(getattr(config, "BASKET_LEVERAGE", 1000.0)),
-                verbose=False,
-            )
-            trades = r.pop("trades", [])
-            return jsonify({
-                "summary": {
-                    "total_trades": r["baskets"],
-                    "win_rate": r["win_rate"],
-                    "final_balance": r["final_equity"],
-                    "profit": r["net"],
-                    "profit_factor": None,
-                    "expectancy": round(r["net"] / r["baskets"], 2) if r["baskets"] else 0.0,
-                    "avg_win": 0.0, "avg_loss": 0.0,
-                    "max_drawdown": r["max_dd"],
-                    "spread_used": spread,
-                    "digits": digits,
-                    "strategy": "basket_dca",
-                    "timeframe": tf,
-                    "max_levels": r["max_levels"],
-                    "max_lot": r["max_lot"],
-                    "blowup": r["blowup"],
-                    "worst_float": r["worst_float"],
-                },
-                "trades": trades,
-                "basket": r,
-            })
 
         # Chạy backtest với spread + digits thật từ broker
         tester = Backtester(strategy, initial_balance=balance, lot_size=lot, digits=digits, spread=spread)

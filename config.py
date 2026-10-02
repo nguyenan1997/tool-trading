@@ -126,14 +126,17 @@ BASKET_ENABLED       = True
 MAGIC_BASKET         = 20261010
 BASKET_COMMENT       = "PyBasketDCA"
 BASKET_LOT0          = 0.01    # lot lệnh đầu
-BASKET_INIT_DIST     = 0.50    # khoảng cách BUY STOP / SELL STOP so với giá
-BASKET_STEP          = 1.00    # giá đi ngược để nhồi DCA
-BASKET_TP_INITIAL    = 0.15    # TP lệnh đơn (chưa nhồi)
-BASKET_TP_BASKET     = 0.05    # TP rổ tính từ giá vào bình quân
-BASKET_MAX_LEVELS    = 0       # 0 = KHÔNG giới hạn (nguy hiểm); đặt vd 8 để chặn
+BASKET_INIT_DIST     = 0.50    # khoảng cách BUY STOP / SELL STOP so với giá (tổng 2 đầu = 1.0)
+BASKET_STEP          = 1.25    # giá đi ngược để nhồi DCA (EA gốc: "Distance from last same-direction entry")
+BASKET_BE_CURRENCY   = 0.1     # "Account currency, 0 = near breakeven" (USD)
+BASKET_EXTRA_SAFETY  = 0.05    # "Extra safety profit" (USD)
+BASKET_PROFIT_USD    = 0.15    # = be + extra: mục tiêu lãi rổ; TP = wavg ± 0.15/(tổng lot×100)
+BASKET_MAX_LEVELS    = 20      # EA gốc: MaxDcaLevels = 20 (0 = KHÔNG giới hạn)
 BASKET_MAX_TOTAL_LOT = 0.0     # 0 = không giới hạn tổng lot
 BASKET_POLL_SEC      = 0.5     # chu kỳ vòng lặp
 BASKET_DEVIATION_PTS = 30      # trượt giá tối đa mỗi lệnh
+BASKET_REPOSITION    = True    # "RepositionPending": đặt lại straddle khi giá chạy
+BASKET_MOVE_FRAMEWORK = 0.5    # "Move pending framework": giá chạy bao nhiêu thì reposition
 
 # Chiến lược chạy mặc định khi khởi động chương trình.
 # "hedging" | "ict" | "basket_dca"

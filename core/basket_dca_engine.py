@@ -13,7 +13,6 @@ KHÔNG Stop Loss. ⚠️ Martingale → rủi ro cháy. Chỉ demo.
 """
 import logging
 import threading
-import time
 
 import config
 from . import mt5_handler as mt5h
@@ -35,13 +34,13 @@ class BasketDCAEngine:
     def __init__(self):
         self._lock = threading.RLock()
         self._magic = None
-        self._requote_ts = 0.0
+        self._ref_mid = None      # gia tham chieu khi dat straddle (reposition)
         self._last_target = None
 
     def reset(self):
         with self._lock:
             self._magic = None
-            self._requote_ts = 0.0
+            self._ref_mid = None
             self._last_target = None
 
     # ------------------------------------------------------------------
@@ -54,7 +53,7 @@ class BasketDCAEngine:
         with self._lock:
             if self._magic != magic:
                 self._magic = magic
-                self._requote_ts = 0.0
+                self._ref_mid = None
                 self._last_target = None
 
             positions = mt5h.get_open_positions(config.SYMBOL, [magic])
@@ -71,10 +70,15 @@ class BasketDCAEngine:
 
             # --- Chưa có rổ, có lệnh chờ (straddle) ---
             if pendings:
-                if time.time() - self._requote_ts > max(2.0, float(getattr(config, "BASKET_POLL_SEC", 0.5)) * 10):
-                    for o in pendings:
-                        mt5h.cancel_pending_order(o.ticket)
-                    self._place_straddle(strategy)
+                # Reposition CHỈ khi giá chạy >= BASKET_MOVE_FRAMEWORK (giống EA gốc)
+                if getattr(config, "BASKET_REPOSITION", True) and self._ref_mid is not None:
+                    tick = mt5h.get_tick(config.SYMBOL)
+                    if tick is not None:
+                        mid = (tick.ask + tick.bid) / 2.0
+                        if abs(mid - self._ref_mid) >= float(getattr(config, "BASKET_MOVE_FRAMEWORK", 0.5)):
+                            for o in pendings:
+                                mt5h.cancel_pending_order(o.ticket)
+                            self._place_straddle(strategy)
                 return
 
             # --- Flat -> mở straddle mới ---
@@ -92,16 +96,17 @@ class BasketDCAEngine:
         comment = getattr(strategy, "comment", config.BASKET_COMMENT)
         dist = float(getattr(strategy, "init_dist", config.BASKET_INIT_DIST))
         lot = float(getattr(strategy, "lot", config.BASKET_LOT0))
+        mid = (tick.ask + tick.bid) / 2.0
         min_gap = (info.trade_stops_level or 0) * info.point
-        buy_price = round(max(tick.ask + dist, tick.ask + min_gap), d)
-        sell_price = round(min(tick.bid - dist, tick.bid - min_gap), d)
+        buy_price = round(max(mid + dist, tick.ask + min_gap), d)
+        sell_price = round(min(mid - dist, tick.bid - min_gap), d)
         dev = int(getattr(config, "BASKET_DEVIATION_PTS", 30))
         b = mt5h.place_stop_order(config.SYMBOL, "BUY", lot, buy_price, magic,
                                   f"{comment}_BSTOP", deviation=dev)
         s = mt5h.place_stop_order(config.SYMBOL, "SELL", lot, sell_price, magic,
                                   f"{comment}_SSTOP", deviation=dev)
         if b or s:
-            self._requote_ts = time.time()
+            self._ref_mid = mid
             logger.info(f"[BASKET] Straddle BUY STOP {buy_price:.{d}f} / SELL STOP {sell_price:.{d}f} | lot {lot}")
 
     # ------------------------------------------------------------------
@@ -115,9 +120,10 @@ class BasketDCAEngine:
             return
         wavg = sum(p.price_open * p.volume for p in positions) / total
         side = positions[0].type
-        tp_dist = float(getattr(strategy, "tp_initial", config.BASKET_TP_INITIAL)) if len(positions) == 1 \
-            else float(getattr(strategy, "tp_basket", config.BASKET_TP_BASKET))
-        target = round(wavg + tp_dist if side == 0 else wavg - tp_dist, d)
+        contract = info.trade_contract_size or 100.0
+        profit_usd = float(getattr(strategy, "profit_target", config.BASKET_PROFIT_USD))
+        off = profit_usd / (total * contract) if total > 0 else 0.0
+        target = round(wavg + off if side == 0 else wavg - off, d)
         if self._last_target is not None and abs(target - self._last_target) < 1e-9:
             return
         changed = 0
