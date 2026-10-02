@@ -39,6 +39,7 @@ class BasketDCAStrategy(BaseStrategy):
         self.be_currency = be_currency
         self.extra_safety = extra_safety
         self.profit_target = be_currency + extra_safety
+        self.close_by_live_pl = True     # "Also close by live total P/L"
         self.max_levels = max_levels
         self.max_total_lot = max_total_lot
         self.comment = config.BASKET_COMMENT

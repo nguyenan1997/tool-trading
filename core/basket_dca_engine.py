@@ -65,6 +65,16 @@ class BasketDCAEngine:
                     for o in pendings:
                         mt5h.cancel_pending_order(o.ticket)
                 self._set_basket_tp(strategy, positions)
+
+                # "Also close by live total P/L": đóng khi lãi nổi rổ >= mục tiêu
+                if getattr(strategy, "close_by_live_pl", True):
+                    profit = sum(p.profit for p in positions)
+                    target = float(getattr(strategy, "profit_target", config.BASKET_PROFIT_USD))
+                    if profit >= target:
+                        logger.info(f"[BASKET] CLOSE by live P/L {profit:.2f} >= {target:.2f}")
+                        self.close_all(strategy, "basket livePL")
+                        return
+
                 self._maybe_add_dca(strategy, positions)
                 return
 
