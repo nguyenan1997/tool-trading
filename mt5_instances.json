@@ -1,0 +1,20 @@
+[
+  {
+    "name": "MT5-9110",
+    "terminal": "C:\\Program Files\\MetaTrader 5\\terminal64.exe",
+    "symbol": "XAUUSD",
+    "port": 5101,
+    "strategy": "hedging",
+    "autostart": false,
+    "spawn": true
+  },
+  {
+    "name": "MT5-9148",
+    "terminal": "C:\\Program Files\\MetaTrader 5-2\\terminal64.exe",
+    "symbol": "XAUUSD.",
+    "port": 5102,
+    "strategy": "basket_dca",
+    "autostart": false,
+    "spawn": true
+  }
+]

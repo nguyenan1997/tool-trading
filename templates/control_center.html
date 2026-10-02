@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MT5 Control Center</title>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root{--bg:#0f172a;--card:rgba(30,41,59,.7);--border:rgba(255,255,255,.1);--text:#f8fafc;--dim:#94a3b8;--ok:#22c55e;--bad:#ef4444;--warn:#fbbf24;--pri:#6366f1;}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif;}
+  body{background:var(--bg);color:var(--text);padding:1.5rem;background-image:radial-gradient(at 0 0,rgba(99,102,241,.15),transparent 50%),radial-gradient(at 100% 100%,rgba(236,72,153,.1),transparent 50%);min-height:100vh;}
+  .wrap{max-width:1300px;margin:0 auto;}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;}
+  .logo{font-size:1.4rem;font-weight:700;background:linear-gradient(to right,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:flex;gap:.5rem;align-items:center;}
+  .btn{border:none;border-radius:.6rem;padding:.5rem .8rem;font-weight:600;cursor:pointer;color:#fff;background:var(--pri);display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;}
+  .btn:hover{filter:brightness(1.1);}
+  .btn.sm{padding:.35rem .55rem;font-size:.75rem;}
+  .btn.red{background:var(--bad);} .btn.green{background:var(--ok);} .btn.gray{background:#475569;}
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:1rem;overflow:hidden;}
+  th,td{padding:.7rem .8rem;text-align:left;border-bottom:1px solid var(--border);font-size:.85rem;vertical-align:middle;}
+  th{color:var(--dim);font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;}
+  tr:last-child td{border-bottom:none;}
+  select{background:#334155;color:#fff;border:1px solid var(--border);border-radius:.5rem;padding:.4rem .5rem;font-size:.82rem;max-width:180px;}
+  .badge{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .55rem;border-radius:999px;font-size:.72rem;font-weight:700;}
+  .b-on{background:rgba(34,197,94,.2);color:#4ade80;} .b-off{background:rgba(239,68,68,.2);color:#f87171;} .b-warn{background:rgba(251,191,36,.2);color:#fbbf24;}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:1rem;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:1rem;}
+  .card h3{font-size:1rem;margin-bottom:.2rem;display:flex;justify-content:space-between;align-items:center;}
+  .meta{color:var(--dim);font-size:.75rem;margin-bottom:.6rem;word-break:break-all;}
+  .row{display:flex;justify-content:space-between;font-size:.82rem;padding:.15rem 0;}
+  .row b{font-weight:700;}
+  .pos{color:#4ade80;} .neg{color:#f87171;}
+  .actions{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.7rem;}
+  #logpanel{position:fixed;right:0;top:0;height:100%;width:560px;background:#0b1120;border-left:1px solid var(--border);transform:translateX(100%);transition:.25s;display:flex;flex-direction:column;z-index:50;}
+  #logpanel.open{transform:translateX(0);}
+  #logpanel .h{padding:.8rem 1rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+  #logbody{flex:1;overflow:auto;padding:.8rem 1rem;font-family:Consolas,monospace;font-size:.74rem;line-height:1.5;white-space:pre-wrap;color:#cbd5e1;}
+  .spin{animation:sp 1s linear infinite;} @keyframes sp{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><i data-lucide="cpu"></i> MT5 CONTROL CENTER</div>
+    <div style="display:flex;gap:.5rem;">
+      <button class="btn green" onclick="allAction('toggle-bot')"><i data-lucide="play"></i> Start tất cả</button>
+      <button class="btn red" onclick="allAction('close-all')"><i data-lucide="shield-alert"></i> Đóng tất cả mọi MT5</button>
+      <button class="btn gray" onclick="refresh()"><i data-lucide="refresh-cw"></i></button>
+    </div>
+  </header>
+
+  <div class="cards" id="cards"><div class="card">Đang tải...</div></div>
+</div>
+
+<div id="logpanel">
+  <div class="h">
+    <b id="logtitle">Log</b>
+    <span>
+      <button class="btn sm gray" onclick="loadLogs()"><i data-lucide="refresh-cw"></i></button>
+      <button class="btn sm red" onclick="closeLogs()">Đóng</button>
+    </span>
+  </div>
+  <div id="logbody">...</div>
+</div>
+
+<script>
+lucide.createIcons();
+let strategies = [];
+let curLogInst = null;
+
+async function loadStrategies(){
+  try{
+    const r = await fetch('/api/strategies'); strategies = await r.json();
+  }catch(e){ strategies = []; }
+}
+
+async function refresh(){
+  let data=[];
+  try{ data = await (await fetch('/api/instances')).json(); }catch(e){}
+  const box=document.getElementById('cards');
+  if(!data.length){ box.innerHTML='<div class="card">Chưa có instance nào trong mt5_instances.json</div>'; return; }
+  box.innerHTML = data.map(renderCard).join('');
+  lucide.createIcons();
+}
+
+function stratOptions(sel){
+  const opts = strategies.length ? strategies : [{id:sel||'',name:sel||'(?)'}];
+  return opts.map(s=>`<option value="${s.id}" ${s.id===sel?'selected':''}>${s.name}</option>`).join('');
+}
+
+function renderCard(i){
+  const onlineBadge = i.online ? '<span class="badge b-on">ONLINE</span>' : '<span class="badge b-off">OFFLINE</span>';
+  const botBadge = i.bot_running ? '<span class="badge b-on">BOT RUNNING</span>' : '<span class="badge b-off">BOT STOP</span>';
+  const procBadge = i.proc_alive ? '<span class="badge b-on">AGENT</span>' : '<span class="badge b-warn">NO AGENT</span>';
+  const fl = i.floating==null?'—':(i.floating>=0?`<span class="pos">+$${i.floating.toFixed(2)}</span>`:`<span class="neg">$${i.floating.toFixed(2)}</span>`);
+  const bal = i.balance==null?'—':`$${i.balance.toFixed(2)}`;
+  const sess = i.session ? (i.session.label||'') : '';
+  return `
+  <div class="card">
+    <h3>${i.name} ${onlineBadge}</h3>
+    <div class="meta">${i.symbol} · port ${i.port} · ${i.terminal}</div>
+    <div class="row"><span>Trạng thái</span><span>${botBadge} ${procBadge}</span></div>
+    <div class="row"><span>Số dư</span><b>${bal}</b></div>
+    <div class="row"><span>Vị thế</span><b>${i.positions}</b></div>
+    <div class="row"><span>Lãi nổi</span><b>${fl}</b></div>
+    <div class="meta" style="margin-top:.4rem;">${sess}</div>
+    <div class="row" style="margin-top:.4rem;"><span>Phương pháp</span></div>
+    <select onchange="action('${i.name}','set-strategy',{strategy:this.value})">${stratOptions(i.current_strategy||i.config_strategy)}</select>
+    <div class="actions">
+      <button class="btn sm ${i.bot_running?'red':'green'}" onclick="action('${i.name}','toggle-bot')">
+        <i data-lucide="${i.bot_running?'square':'play'}"></i> ${i.bot_running?'Stop':'Start'} bot</button>
+      <button class="btn sm red" onclick="confirmClose('${i.name}')"><i data-lucide="shield-alert"></i> Đóng tất cả</button>
+      <button class="btn sm gray" onclick="openLogs('${i.name}')"><i data-lucide="terminal"></i> Log</button>
+      <button class="btn sm gray" onclick="action('${i.name}','restart-agent')"><i data-lucide="rotate-cw"></i> Restart agent</button>
+      <button class="btn sm ${i.proc_alive?'red':'green'}" onclick="action('${i.name}','${i.proc_alive?'stop-agent':'start-agent'}')">
+        ${i.proc_alive?'Tắt agent':'Bật agent'}</button>
+    </div>
+  </div>`;
+}
+
+async function action(name, act, extra){
+  await fetch(`/api/instances/${name}/action`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(Object.assign({action:act}, extra||{}))
+  });
+  refresh();
+}
+
+function confirmClose(name){
+  if(!confirm(`Đóng TOÀN BỘ lệnh của ${name} và dừng bot?`)) return;
+  action(name,'close-all');
+}
+
+async function allAction(act){
+  if(act==='close-all' && !confirm('Đóng toàn bộ lệnh + dừng bot trên MỌI MT5?')) return;
+  const data = await (await fetch('/api/instances')).json();
+  await Promise.all(data.map(i=>fetch(`/api/instances/${i.name}/action`,{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({action: act==='toggle-bot' ? 'toggle-bot' : 'close-all'})
+  })));
+  refresh();
+}
+
+async function openLogs(name){
+  curLogInst=name;
+  document.getElementById('logtitle').innerText='Log — '+name;
+  document.getElementById('logpanel').classList.add('open');
+  await loadLogs();
+}
+function closeLogs(){ curLogInst=null; document.getElementById('logpanel').classList.remove('open'); }
+async function loadLogs(){
+  if(!curLogInst) return;
+  try{
+    const r = await fetch(`/api/instances/${curLogInst}/logs?lines=300`);
+    const d = await r.json();
+    const body=document.getElementById('logbody');
+    const atBottom = body.scrollHeight-body.scrollTop-body.clientHeight<40;
+    body.textContent = (d.lines||[]).join('\n') || '(trống)';
+    if(atBottom) body.scrollTop=body.scrollHeight;
+  }catch(e){}
+}
+
+loadStrategies().then(refresh);
+setInterval(refresh,3000);
+setInterval(loadLogs,3000);
+</script>
+</body>
+</html>
