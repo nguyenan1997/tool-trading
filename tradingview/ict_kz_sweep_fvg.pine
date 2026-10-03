@@ -28,7 +28,7 @@ biasEma  = input.int(50, "EMA H4 (khi bias = h4ema)", 5, 400, group=grpB)
 grpS = "Cấu trúc"
 swingK     = input.int(2, "Swing K (fractal)", 1, 10, group=grpS)
 minSweep   = input.float(0.3, "Độ sâu quét (x ATR)", 0.0, 5.0, 0.05, group=grpS)
-chochWait  = input.int(24, "Chờ CHoCH tối đa (nến)", 1, 200, group=grpS)
+chochWait  = input.int(36, "Chờ CHoCH tối đa (nến)", 1, 200, group=grpS)
 dispATR    = input.float(0.4, "Displacement (x ATR)", 0.0, 5.0, 0.05, group=grpS)
 zoneLB     = input.int(12, "Tìm FVG trong (nến)", 2, 100, group=grpS)
 minFvgATR  = input.float(0.3, "Lọc FVG size >= k x ATR", 0.0, 5.0, 0.05, group=grpS)
