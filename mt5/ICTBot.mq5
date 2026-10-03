@@ -250,7 +250,7 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
          if(actB)
          {
             if(i - startB > InpChochWait) actB = false;
-            else if(C[i] > refHigh && (C[i] - O[i]) >= InpDispATR * a)
+            else if(refHigh > 0 && C[i] > refHigh && (C[i] - O[i]) >= InpDispATR * a)
             {
                double zl, zh;
                if(BullZone(i, n, H, L, C, a, zl, zh))
@@ -281,7 +281,7 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
          if(actS)
          {
             if(i - startS > InpChochWait) actS = false;
-            else if(C[i] < refLow && (O[i] - C[i]) >= InpDispATR * a)
+            else if(refLow > 0 && C[i] < refLow && (O[i] - C[i]) >= InpDispATR * a)
             {
                double zl, zh;
                if(BearZone(i, n, H, L, C, a, zl, zh))
@@ -332,10 +332,14 @@ bool HasOurPositionOrPending()
 void PlaceLimit(int dir, double entry, double sl, double tp)
 {
    int d = (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS);
-   double e = NormalizeDouble(entry, d), s = NormalizeDouble(sl, d), t = NormalizeDouble(tp, d);
    MqlTick tick; if(!SymbolInfoTick(_Symbol, tick)) return;
-   if(dir > 0 && e >= tick.ask) { Print("[ICT] BUY LIMIT bỏ qua: level >= ask"); return; }
-   if(dir < 0 && e <= tick.bid) { Print("[ICT] SELL LIMIT bỏ qua: level <= bid"); return; }
+   double spread = tick.ask - tick.bid;
+   // BUY LIMIT đặt tại level+spread để khớp khi BID chạm level (giống bot Python/backtest)
+   double raw = (dir > 0) ? (entry + spread) : entry;
+   double e = NormalizeDouble(raw, d), s = NormalizeDouble(sl, d), t = NormalizeDouble(tp, d);
+   double ask = NormalizeDouble(tick.ask, d), bid = NormalizeDouble(tick.bid, d);
+   if(dir > 0 && e >= ask) { Print("[ICT] BUY LIMIT bỏ qua: price >= ask"); return; }
+   if(dir < 0 && e <= bid) { Print("[ICT] SELL LIMIT bỏ qua: price <= bid"); return; }
 
    if(dir > 0 && t <= e) return;
    if(dir < 0 && t >= e) return;
