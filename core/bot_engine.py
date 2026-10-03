@@ -2,6 +2,8 @@
 core/bot_engine.py
 Hệ điều hành của Bot (Trading Loop).
 """
+import json
+import os
 import time
 import threading
 import logging
@@ -28,6 +30,10 @@ class BotEngine:
         self._pending = {}        # magic -> meta lệnh CHỜ LIMIT thật {ticket, expire_ts}
         self._hedge_cleared_key = None  # đã dọn lệnh chờ của PP khác khi vào hedging chưa
         self._guard_thread: threading.Thread = None # type: ignore  # luồng chặn lệnh ngoài bot
+        self._manual = {}          # magic -> {"side","sl","tp"} — SL/TP ẩn khỏi sàn
+        self._manual_warned = set()  # magic đã cảnh báo "có vị thế nhưng thiếu SL/TP"
+        self._manual_thread: threading.Thread = None # type: ignore
+        self._load_manual()
 
     def start(self):
         with self._lock:
@@ -43,6 +49,8 @@ class BotEngine:
             self._thread.start()
             self._guard_thread = threading.Thread(target=self._guard_loop, daemon=True)
             self._guard_thread.start()
+            self._manual_thread = threading.Thread(target=self._manual_sltp_loop, daemon=True)
+            self._manual_thread.start()
             logger.info("Bot Engine STARTED")
 
     def stop(self):
@@ -55,6 +63,9 @@ class BotEngine:
             g = self._guard_thread
             if g is not None and g.is_alive() and g is not threading.current_thread():
                 g.join(timeout=5)
+            m = self._manual_thread
+            if m is not None and m.is_alive() and m is not threading.current_thread():
+                m.join(timeout=5)
             logger.info("Bot Engine STOPPED")
 
     def _server_now(self) -> datetime:
@@ -255,6 +266,103 @@ class BotEngine:
             if do_close and mt5h.cancel_pending_order(o.ticket):
                 logger.warning(f"🚫 ĐÃ HỦY lệnh chờ ngoài bot  |  ticket={o.ticket}")
 
+    # ------------------------------------------------------------------
+    #  MANUAL SL/TP — ẩn SL/TP khỏi sàn, tự cắt bằng MARKET khi chạm điểm
+    # ------------------------------------------------------------------
+    def _manual_path(self) -> str:
+        p = getattr(config, "MANUAL_SLTP_FILE", "logs/manual_sltp.json")
+        if not os.path.isabs(p):
+            base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            p = os.path.join(base, p)
+        return p
+
+    def _load_manual(self):
+        try:
+            path = self._manual_path()
+            if os.path.exists(path):
+                with open(path, encoding="utf-8") as f:
+                    data = json.load(f)
+                self._manual = {int(k): v for k, v in data.items()}
+        except Exception as e:
+            logger.error(f"[MANUAL SLTP] load error: {e}")
+            self._manual = {}
+
+    def _save_manual(self):
+        try:
+            path = self._manual_path()
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump({str(k): v for k, v in self._manual.items()}, f, ensure_ascii=False)
+        except Exception as e:
+            logger.error(f"[MANUAL SLTP] save error: {e}")
+
+    def _set_manual(self, magic, side, sl, tp):
+        self._manual[int(magic)] = {"side": side, "sl": float(sl), "tp": float(tp)}
+        self._save_manual()
+
+    def _clear_manual(self, magic):
+        if self._manual.pop(int(magic), None) is not None:
+            self._save_manual()
+
+    def clear_manual(self):
+        self._manual = {}
+        self._save_manual()
+
+    def _manual_sltp_loop(self):
+        """Luồng riêng: kiểm tra SL/TP nội bộ và cắt market khi chạm.
+        BUY quan sát BID; SELL quan sát ASK (= bid + spread)."""
+        if not mt5h.connect():
+            return
+        while self.is_running:
+            try:
+                for s in strategy_manager.get_all_strategy_objects():
+                    if not getattr(s, "manual_sltp", False):
+                        continue
+                    magic = int(getattr(s, "magic", 0))
+                    meta = self._manual.get(magic)
+                    pos = mt5h.get_open_position(config.SYMBOL, magic)
+                    if pos is not None and meta:
+                        self._manual_warned.discard(magic)
+                        tick = mt5h.get_tick(config.SYMBOL)
+                        if tick is None:
+                            continue
+                        price = tick.bid if pos.type == 0 else tick.ask
+                        sl = float(meta.get("sl") or 0.0)
+                        tp = float(meta.get("tp") or 0.0)
+                        hit = why = None
+                        if pos.type == 0:
+                            if sl > 0 and price <= sl:
+                                hit, why = True, "SL"
+                            elif tp > 0 and price >= tp:
+                                hit, why = True, "TP"
+                        else:
+                            if sl > 0 and price >= sl:
+                                hit, why = True, "SL"
+                            elif tp > 0 and price <= tp:
+                                hit, why = True, "TP"
+                        if hit:
+                            logger.info(
+                                f"🎯 [MANUAL {why}] {s.name} | ticket={pos.ticket} | price={price}"
+                            )
+                            # Chỉ xóa SL/TP nội bộ khi đóng THÀNH CÔNG (nếu lỗi giữ lại để thử tiếp)
+                            if mt5h.close_position(pos, magic, f"manual {why}"):
+                                self._clear_manual(magic)
+                    elif pos is not None and not meta:
+                        # Có vị thế nhưng KHÔNG có SL/TP nội bộ -> cảnh báo (không thể tự cắt)
+                        if magic not in self._manual_warned:
+                            self._manual_warned.add(magic)
+                            logger.warning(
+                                f"⚠️ [MANUAL SLTP] {s.name} đang có vị thế nhưng THIẾU SL/TP nội bộ "
+                                f"(ticket={pos.ticket}) — cần đặt SL/TP thủ công hoặc đóng lệnh!"
+                            )
+                    elif pos is None:
+                        if not mt5h.get_pending_orders(config.SYMBOL, magic) and magic in self._manual:
+                            self._clear_manual(magic)
+                        self._manual_warned.discard(magic)
+            except Exception as e:
+                logger.error(f"[MANUAL SLTP] loop error: {e}")
+            time.sleep(max(0.3, float(getattr(config, "MANUAL_SLTP_POLL_SEC", 1) or 1)))
+
     def _cancel_other_pending(self):
         """Hủy mọi lệnh CHỜ của các chiến lược KHÁC khi vào PP chạy liên tục (hedging)."""
         cur = strategy_manager.get_current_strategy()
@@ -332,8 +440,12 @@ class BotEngine:
                 if sl and tp:
                     lot = getattr(strategy, "lot", config.FIXED_LOT)
                     comment = getattr(strategy, "comment", "Bot")
+                    manual = getattr(strategy, "manual_sltp", False)
+                    send_sl, send_tp = (0.0, 0.0) if manual else (sl, tp)
                     logger.info(f"⚡ EXECUTE {signal} | Strategy: {strategy.name} | Price: {price} | SL: {sl} | TP: {tp}")
-                    mt5h.open_position(config.SYMBOL, signal, lot, sl, tp, magic, comment)
+                    ticket = mt5h.open_position(config.SYMBOL, signal, lot, send_sl, send_tp, magic, comment)
+                    if manual and ticket:
+                        self._set_manual(magic, signal, sl, tp)
 
     def _manage_position(self, strategy, magic, position):
         #   1) Chốt một phần (partial TP) khi đạt partial_at_r × R
@@ -410,6 +522,7 @@ class BotEngine:
                 for o in orders:
                     mt5h.cancel_pending_order(o.ticket)
                 self._pending.pop(magic, None)
+                self._clear_manual(magic)
                 logger.info(f"⏹️ HỦY LỆNH CHỜ | {strategy.name} | hết hạn / quá killzone")
             return
 
@@ -437,8 +550,11 @@ class BotEngine:
 
         lot = getattr(strategy, "lot", config.FIXED_LOT)
         comment = getattr(strategy, "comment", "Bot")
+        manual = getattr(strategy, "manual_sltp", False)
+        # Ẩn SL/TP khỏi sàn: không gửi kèm lệnh chờ; bot tự quản lý nội bộ
+        send_sl, send_tp = (0.0, 0.0) if manual else (sl, tp)
         ticket = mt5h.place_limit_order(
-            config.SYMBOL, typ, lot, price, sl, tp, magic, comment,
+            config.SYMBOL, typ, lot, price, send_sl, send_tp, magic, comment,
             expire_minutes=int(wait_min),
         )
         if ticket:
@@ -446,9 +562,12 @@ class BotEngine:
                 "ticket": ticket,
                 "expire_ts": time.time() + wait_min * 60.0,
             }
+            if manual:
+                self._set_manual(magic, typ, sl, tp)
             logger.info(
                 f"📌 LỆNH CHỜ {typ} | {strategy.name} | "
                 f"level={price:.2f} | SL={sl:.2f} | TP={tp:.2f} | ticket={ticket}"
+                + ("  [ẩn SL/TP trên sàn]" if manual else "")
             )
 
 bot_engine = BotEngine()

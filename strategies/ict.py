@@ -108,6 +108,7 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
         self.comment = config.ICT_COMMENT
         self.timeframe = "M5"
         self.warmup_bars = config.ICT_WARMUP_BARS
+        self.manual_sltp = bool(getattr(config, "ICT_MANUAL_SLTP", False))
 
     # ------------------------------------------------------------------
     # Chỉ báo

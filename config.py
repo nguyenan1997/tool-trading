@@ -52,6 +52,13 @@ ICT_REQUIRE_FVG   = True     # True = bắt buộc có FVG, bỏ qua setup khôn
 ICT_ENTRY_FRAC    = 0.5      # 0 = mép gần, 0.5 = CE, ~0.62–0.79 = OTE (điểm vào sâu hơn)
 ICT_ENTRY_MODE    = "limit"  # "limit" = chờ hồi về vùng | "market" = vào ngay khi CHoCH
 
+# --- Ẩn SL/TP khỏi sàn: chỉ bot biết, tự cắt bằng MARKET khi chạm điểm ---
+# True = KHÔNG gửi SL/TP lên broker (sàn không thấy); bot theo dõi nội bộ và
+# đóng lệnh bằng market khi giá chạm SL/TP (BUY theo BID, SELL theo ASK = bid+spread).
+ICT_MANUAL_SLTP      = True
+MANUAL_SLTP_POLL_SEC = 1      # chu kỳ kiểm tra SL/TP (giây)
+MANUAL_SLTP_FILE     = "logs/manual_sltp.json"  # lưu SL/TP để tiếp quản khi restart
+
 # --- Quản lý rủi ro / TP ---
 ICT_SL_BUF_ATR    = 0.2      # SL = điểm quét ± bội ATR(M5)
 ICT_MIN_R_ATR     = 0.0      # Bỏ setup nếu SL quá hẹp (< bội ATR). 0 = tắt

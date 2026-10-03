@@ -272,6 +272,7 @@ def register_routes(app):
         closed = mt5h.close_all_positions(config.SYMBOL, magics, "close all (UI)")
         canceled = mt5h.cancel_all_pending(config.SYMBOL, magics)
         hedging_engine.reset()
+        bot_engine.clear_manual()
         logger.info(f"[CLOSE-ALL] đóng {closed} vị thế, hủy {canceled} lệnh chờ (bot_running={was_running})")
         return jsonify({
             "closed": closed,

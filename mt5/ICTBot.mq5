@@ -35,11 +35,16 @@ input int    InpPendMin     = 120;        // Lệnh chờ hết hạn (phút)
 input double InpPartialFrac = 0.0;        // Chốt % khi +1R (0 = tắt)
 input double InpPartialAtR  = 1.0;        // Ngưỡng R chốt
 input int    InpMaxDevPts   = 30;         // Trượt tối đa (points)
-input int    InpPollMs      = 1000;       // Chu kỳ kiểm tra (ms)
+input int    InpPollMs      = 500;        // Chu kỳ kiểm tra (ms)
+input bool   InpManualSLTP  = true;       // Ẩn SL/TP khỏi sàn: tự cắt market khi chạm
+input string InpManualFile  = "ict_manual_sltp.txt"; // File lưu SL/TP nội bộ (MQL5/Files)
 
 CTrade trade;
 datetime g_lastBar = 0;
 ulong    g_partialDone = 0;
+double   g_manSL = 0.0;      // SL/TP nội bộ (không gửi lên sàn)
+double   g_manTP = 0.0;
+bool     g_manActive = false;
 
 //────────────────────────────── Helpers ──────────────────────────────
 int HourOf(datetime t) { MqlDateTime d; TimeToStruct(t, d); return d.hour; }
@@ -353,15 +358,108 @@ void PlaceLimit(int dir, double entry, double sl, double tp)
    if(dir < 0 && t >= e) return;
 
    datetime expire = TimeCurrent() + InpPendMin * 60;
+   // Ẩn SL/TP khỏi sàn: nếu bật, KHÔNG gửi SL/TP lên broker; bot tự cắt market khi chạm
+   double ordSL = InpManualSLTP ? 0.0 : s;
+   double ordTP = InpManualSLTP ? 0.0 : t;
    bool ok;
    if(dir > 0)
-      ok = trade.BuyLimit(InpLot, e, _Symbol, s, t, ORDER_TIME_SPECIFIED, expire, InpComment);
+      ok = trade.BuyLimit(InpLot, e, _Symbol, ordSL, ordTP, ORDER_TIME_SPECIFIED, expire, InpComment);
    else
-      ok = trade.SellLimit(InpLot, e, _Symbol, s, t, ORDER_TIME_SPECIFIED, expire, InpComment);
+      ok = trade.SellLimit(InpLot, e, _Symbol, ordSL, ordTP, ORDER_TIME_SPECIFIED, expire, InpComment);
    if(ok)
-      PrintFormat("[ICT] ĐẶT %s LIMIT | E=%.2f SL=%.2f TP=%.2f", dir > 0 ? "BUY" : "SELL", e, s, t);
+   {
+      if(InpManualSLTP) { g_manSL = s; g_manTP = t; g_manActive = true; SaveManual(); }
+      PrintFormat("[ICT] ĐẶT %s LIMIT | E=%.2f SL=%.2f TP=%.2f%s", dir > 0 ? "BUY" : "SELL",
+                  e, s, t, InpManualSLTP ? "  [ẩn SL/TP trên sàn]" : "");
+   }
    else
       PrintFormat("[ICT] Đặt lệnh thất bại: %d %s", trade.ResultRetcode(), trade.ResultRetcodeDescription());
+}
+
+//────────────────────────── Quản lý SL/TP nội bộ ──────────────────────────
+void SaveManual()
+{
+   int h = FileOpen(InpManualFile, FILE_WRITE | FILE_TXT | FILE_ANSI);
+   if(h == INVALID_HANDLE) return;
+   FileWrite(h, g_manActive ? 1 : 0);
+   FileWrite(h, g_manSL);
+   FileWrite(h, g_manTP);
+   FileClose(h);
+}
+void LoadManual()
+{
+   if(!FileIsExist(InpManualFile)) return;
+   int h = FileOpen(InpManualFile, FILE_READ | FILE_TXT | FILE_ANSI);
+   if(h == INVALID_HANDLE) return;
+   long act = (long)FileReadNumber(h);
+   double sl = FileReadNumber(h);
+   double tp = FileReadNumber(h);
+   FileClose(h);
+   if(act != 0 && sl > 0 && tp > 0)
+   {
+      g_manActive = true; g_manSL = sl; g_manTP = tp;
+      PrintFormat("[ICT] Tiep quan SL/TP noi bo: SL=%.2f TP=%.2f", g_manSL, g_manTP);
+   }
+}
+
+// Tìm vị thế của magic (1 lệnh). Trả true nếu có.
+bool FindOurPosition(ulong &tk, long &typ, double &entry)
+{
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+   {
+      ulong t = PositionGetTicket(i);
+      if(t == 0) continue;
+      if(PositionGetString(POSITION_SYMBOL) != _Symbol) continue;
+      if(PositionGetInteger(POSITION_MAGIC) != InpMagic) continue;
+      tk = t; typ = PositionGetInteger(POSITION_TYPE); entry = PositionGetDouble(POSITION_PRICE_OPEN);
+      return true;
+   }
+   return false;
+}
+
+// Kiểm tra và cắt market khi giá chạm SL/TP nội bộ (BUY theo BID, SELL theo ASK=bid+spread)
+void ManageManualSLTP()
+{
+   if(!InpManualSLTP) return;
+   ulong tk = 0; long typ = 0; double entry = 0.0;
+   bool havePos = FindOurPosition(tk, typ, entry);
+   if(havePos && g_manActive && g_manSL > 0 && g_manTP > 0)
+   {
+      MqlTick t; if(!SymbolInfoTick(_Symbol, t)) return;
+      double price = (typ == (long)POSITION_TYPE_BUY) ? t.bid : t.ask;  // SELL: cộng spread
+      bool hit = false; string why = "";
+      if(typ == (long)POSITION_TYPE_BUY)
+      {
+         if(price <= g_manSL) { hit = true; why = "SL"; }
+         else if(price >= g_manTP) { hit = true; why = "TP"; }
+      }
+      else
+      {
+         if(price >= g_manSL) { hit = true; why = "SL"; }
+         else if(price <= g_manTP) { hit = true; why = "TP"; }
+      }
+      if(hit)
+      {
+         if(trade.PositionClose(tk, (ulong)InpMaxDevPts))
+         {
+            PrintFormat("[ICT] MANUAL %s | ticket=%I64u | price=%.2f", why, tk, price);
+            g_manActive = false; SaveManual();
+         }
+      }
+   }
+   else if(!havePos)
+   {
+      // không còn vị thế: nếu cũng không còn lệnh chờ -> xóa SL/TP nội bộ
+      bool hasPend = false;
+      for(int i = OrdersTotal() - 1; i >= 0; i--)
+      {
+         ulong o = OrderGetTicket(i);
+         if(o == 0) continue;
+         if(OrderGetString(ORDER_SYMBOL) != _Symbol) continue;
+         if(OrderGetInteger(ORDER_MAGIC) == InpMagic) { hasPend = true; break; }
+      }
+      if(!hasPend && g_manActive) { g_manActive = false; SaveManual(); }
+   }
 }
 
 //─ Quản lý vị thế: chốt một phần tại 1R ─
@@ -417,20 +515,26 @@ int OnInit()
       Print("[ICT] Không tạo được ATR handle");
       return INIT_FAILED;
    }
+   LoadManual();
    EventSetMillisecondTimer(InpPollMs);
-   PrintFormat("[ICT] Khởi động %s M5 | lot=%.2f | minFvgATR=%.2f", _Symbol, InpLot, InpMinFvgATR);
+   PrintFormat("[ICT] Khởi động %s M5 | lot=%.2f | minFvgATR=%.2f | manualSLTP=%s",
+               _Symbol, InpLot, InpMinFvgATR, InpManualSLTP ? "ON" : "OFF");
    return INIT_SUCCEEDED;
 }
 
 void OnDeinit(const int reason)
 {
    EventKillTimer();
+   SaveManual();
    if(g_hATR != INVALID_HANDLE) IndicatorRelease(g_hATR);
 }
 
 void OnTimer()
 {
-   // chỉ xử lý khi có nến M5 mới đóng
+   // Kiểm tra SL/TP nội bộ MỖI lần poll (kể cả trong nến)
+   ManageManualSLTP();
+
+   // chỉ xử lý tín hiệu khi có nến M5 mới đóng
    datetime t1 = iTime(_Symbol, PERIOD_M5, 1);
    if(t1 == 0 || t1 == g_lastBar) { ManagePosition(); return; }
    g_lastBar = t1;
