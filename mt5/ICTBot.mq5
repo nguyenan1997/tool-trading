@@ -196,14 +196,23 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
       int q = j - k;
       if(q >= k && q + k < n)
       {
-         bool ph = true, pl = true;
-         for(int x = q - k; x <= q + k; x++)
-         {
-            if(H[x] > H[q]) ph = false;
-            if(L[x] < L[q]) pl = false;
-         }
-         if(ph) curH = H[q];
-         if(pl) curL = L[q];
+         // Khớp Python: high[j] >= max(window) AND high[j] > max(left) AND high[j] >= max(right)
+         double wmax = H[q];
+         for(int x = q - k; x <= q + k; x++) if(H[x] > wmax) wmax = H[x];
+         double lmax = H[q - 1];
+         for(int x = q - k; x <= q - 1; x++) if(H[x] > lmax) lmax = H[x];
+         double rmax = H[q + 1];
+         for(int x = q + 1; x <= q + k; x++) if(H[x] > rmax) rmax = H[x];
+         if(H[q] >= wmax && H[q] > lmax && H[q] >= rmax) curH = H[q];
+
+         // low[j] <= min(window) AND low[j] < min(left) AND low[j] <= min(right)
+         double wmin = L[q];
+         for(int x = q - k; x <= q + k; x++) if(L[x] < wmin) wmin = L[x];
+         double lmin = L[q - 1];
+         for(int x = q - k; x <= q - 1; x++) if(L[x] < lmin) lmin = L[x];
+         double rmin = L[q + 1];
+         for(int x = q + 1; x <= q + k; x++) if(L[x] < rmin) rmin = L[x];
+         if(L[q] <= wmin && L[q] < lmin && L[q] <= rmin) curL = L[q];
       }
       lastSH[j] = curH; lastSL[j] = curL;
    }
