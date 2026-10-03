@@ -1,10 +1,15 @@
 //@version=5
 // ============================================================================
-//  ICT — Killzone → Liquidity Sweep → Displacement/CHoCH → FVG (+ lọc size)
-//  Hiển thị ĐIỂM VÀO LỆNH + HỘP FVG, khớp strategies/ict.py (XAUUSD M5).
-//  Tín hiệu chốt theo NẾN ĐÓNG. Khuyến nghị khung M5.
+//  ICT — Killzone → Sweep → Displacement/CHoCH → FVG
+//  MÔ PHỎNG KHỚP LIMIT THẬT (giống bot strategies/ict.py):
+//    - Phát hiện setup tại nến CHoCH.
+//    - Đặt LIMIT tại entry (CE/OTE của FVG), hết hạn sau `pendMin` phút.
+//    - Khi giá hồi tới entry -> ĐÁNH DẤU ĐÚNG NẾN KHỚP + vẽ Entry/SL/TP.
+//    - Theo dõi tới khi chạm TP hoặc SL -> đánh dấu WIN/LOSS.
+//  Giờ theo BROKER (đặt `brokerOff` = offset broker; LiteFinance +3 hè / +2 đông).
+//  Khuyến nghị khung M5.
 // ============================================================================
-indicator("ICT KZ-Sweep-FVG (signal)", overlay=true, max_lines_count=500, max_boxes_count=500, max_labels_count=500)
+indicator("ICT KZ-Sweep-FVG (LIMIT fill)", overlay=true, max_lines_count=500, max_boxes_count=500, max_labels_count=500)
 
 // ───────────────────────────── Inputs ─────────────────────────────
 grpT = "Thời gian (giờ broker)"
@@ -37,10 +42,11 @@ maxRATR   = input.float(6.0, "R tối đa (x ATR)", 0.1, 50.0, 0.1, group=grpR)
 tpMode    = input.string("DOL", "Chế độ TP", options=["DOL", "R"], group=grpR)
 tpR       = input.float(3.0, "TP (x R) khi chế độ R", 0.5, 20.0, 0.5, group=grpR)
 tpMinR    = input.float(0.0, "TP DOL tối thiểu (x R)", 0.0, 10.0, 0.25, group=grpR)
+pendMin   = input.int(120, "Lệnh LIMIT hết hạn sau (phút)", 5, 1440, group=grpR)
 
 grpD = "Hiển thị"
-showFVG    = input.bool(true, "Vẽ hộp FVG", group=grpD)
-showLevels = input.bool(true, "Vẽ Entry/SL/TP", group=grpD)
+showTrades = input.bool(true, "Vẽ ENTRY/SL/TP khi khớp + WIN/LOSS", group=grpD)
+showStats  = input.bool(true, "Bảng thống kê WIN/LOSS", group=grpD)
 showAsia   = input.bool(true, "Vẽ biên vùng Á", group=grpD)
 showPDPD   = input.bool(true, "Vẽ PDH/PDL", group=grpD)
 
@@ -52,6 +58,7 @@ bday     = int(bms / 86400000)
 inAsia   = bh >= asiaStart and bh <= asiaEnd
 asiaDone = bh > asiaEnd
 inKZ     = (bh >= kz1s and bh < kz1e) or (bh >= kz2s and bh < kz2e)
+expireBars = math.max(1, int(math.round(pendMin * 60 / timeframe.in_seconds())))
 
 // ─────────────────────── Tích lũy theo ngày ───────────────────────
 var float dayHi = na
@@ -103,7 +110,7 @@ if not na(ph)
 if not na(pl)
     lastSL := pl
 
-// ───────────────────── Tiện ích FVG (lọc size) & TP ─────────────────────
+// ───────────────────── Tiện ích FVG & TP ─────────────────────
 f_fvgBull(lb) =>
     float zl = na
     float zh = na
@@ -164,6 +171,22 @@ f_sweptHigh(need) =>
         hit := true
     hit
 
+drawTrade(isBuy, x1, x2, e, sl, tp, win) =>
+    line.new(x1, e,  x2, e,  color=color.new(color.blue, 0),  width=1)
+    line.new(x1, sl, x2, sl, color=color.new(color.red, 0),   width=1, style=line.style_dashed)
+    line.new(x1, tp, x2, tp, color=color.new(color.green, 0), width=1, style=line.style_dashed)
+    label.new(x2, win ? tp : sl, win ? "TP" : "SL",
+              style = win ? label.style_label_down : label.style_label_up,
+              color = win ? color.new(color.green, 0) : color.new(color.red, 0),
+              textcolor=color.white, size=size.tiny)
+
+drawFill(isBuy, x, e, sl, tp) =>
+    txt = (isBuy ? "BUY ENTRY" : "SELL ENTRY") + "\nE " + str.tostring(e, format.mintick) + "\nSL " + str.tostring(sl, format.mintick) + "\nTP " + str.tostring(tp, format.mintick)
+    label.new(x, isBuy ? low - atr * 0.6 : high + atr * 0.6, txt,
+              style = isBuy ? label.style_label_up : label.style_label_down,
+              color = isBuy ? color.new(color.teal, 0) : color.new(color.maroon, 0),
+              textcolor=color.white, size=size.small)
+
 // ───────────────────────── Trạng thái ─────────────────────────
 var bool actB = false
 var bool actS = false
@@ -175,6 +198,34 @@ var float refHigh = na
 var float refLow = na
 var int startB = na
 var int startS = na
+
+var bool bHavePend = false
+var float bPE = na
+var float bPSL = na
+var float bPTP = na
+var int bPB = na
+var int bPX = na
+var bool bInPos = false
+var float bE = na
+var float bSL = na
+var float bTP = na
+var int bFB = na
+
+var bool sHavePend = false
+var float sPE = na
+var float sPSL = na
+var float sPTP = na
+var int sPB = na
+var int sPX = na
+var bool sInPos = false
+var float sE = na
+var float sSL = na
+var float sTP = na
+var int sFB = na
+
+var int nWin = 0
+var int nLoss = 0
+var int nSet = 0
 
 if newDay
     actB := false
@@ -188,28 +239,76 @@ if newDay
     startB := na
     startS := na
 
-// ───────────────────── Xử lý tín hiệu (nến đóng) ─────────────────────
-bool buySig = false
-bool sellSig = false
-float buyEntry = na
-float buySL = na
-float buyTP = na
-float buyZL = na
-float buyZH = na
-float sellEntry = na
-float sellSL = na
-float sellTP = na
-float sellZL = na
-float sellZH = na
+// ───────────────────── QUẢN LÝ LỆNH (chạy trước phát hiện) ─────────────────────
+if barstate.isconfirmed
+    // ===== BUY =====
+    if bInPos
+        if low <= bSL
+            drawTrade(true, bFB, bar_index, bE, bSL, bTP, false)
+            nLoss += 1
+            bInPos := false
+        else if high >= bTP
+            drawTrade(true, bFB, bar_index, bE, bSL, bTP, true)
+            nWin += 1
+            bInPos := false
+    else if bHavePend
+        if bar_index > bPX
+            bHavePend := false
+        else if low <= bPE
+            bE := bPE
+            bSL := bPSL
+            bTP := bPTP
+            bFB := bar_index
+            bInPos := true
+            bHavePend := false
+            drawFill(true, bar_index, bE, bSL, bTP)
+            alert("ICT BUY FILL | Entry " + str.tostring(bE, format.mintick) + " | SL " + str.tostring(bSL, format.mintick) + " | TP " + str.tostring(bTP, format.mintick), alert.freq_once_per_bar_close)
+            if low <= bSL
+                drawTrade(true, bFB, bar_index, bE, bSL, bTP, false)
+                nLoss += 1
+                bInPos := false
+            else if high >= bTP
+                drawTrade(true, bFB, bar_index, bE, bSL, bTP, true)
+                nWin += 1
+                bInPos := false
 
-allowBuy  = biasMode == "none" or bias > 0
-allowSell = biasMode == "none" or bias < 0
+    // ===== SELL =====
+    if sInPos
+        if high >= sSL
+            drawTrade(false, sFB, bar_index, sE, sSL, sTP, false)
+            nLoss += 1
+            sInPos := false
+        else if low <= sTP
+            drawTrade(false, sFB, bar_index, sE, sSL, sTP, true)
+            nWin += 1
+            sInPos := false
+    else if sHavePend
+        if bar_index > sPX
+            sHavePend := false
+        else if high >= sPE
+            sE := sPE
+            sSL := sPSL
+            sTP := sPTP
+            sFB := bar_index
+            sInPos := true
+            sHavePend := false
+            drawFill(false, bar_index, sE, sSL, sTP)
+            alert("ICT SELL FILL | Entry " + str.tostring(sE, format.mintick) + " | SL " + str.tostring(sSL, format.mintick) + " | TP " + str.tostring(sTP, format.mintick), alert.freq_once_per_bar_close)
+            if high >= sSL
+                drawTrade(false, sFB, bar_index, sE, sSL, sTP, false)
+                nLoss += 1
+                sInPos := false
+            else if low <= sTP
+                drawTrade(false, sFB, bar_index, sE, sSL, sTP, true)
+                nWin += 1
+                sInPos := false
 
+// ───────────────────── PHÁT HIỆN SETUP (nến đóng, cần inKZ) ─────────────────────
 if barstate.isconfirmed and inKZ and not na(atr) and atr > 0
     need = minSweep * atr
 
     // ---------- BUY ----------
-    if allowBuy and not doneB
+    if (biasMode == "none" or bias > 0) and not doneB
         if actB
             if bar_index - startB > chochWait
                 actB := false
@@ -221,14 +320,16 @@ if barstate.isconfirmed and inKZ and not na(atr) and atr > 0
                     sl    = math.min(sweepLow, okFvg ? zl : sweepLow) - slBufATR * atr
                     R     = entry - sl
                     if R > 0 and entry < close and R >= minRATR * atr and R <= maxRATR * atr
-                        buyEntry := entry
-                        buySL    := sl
-                        buyTP    := f_tp(true, entry, R)
-                        buyZL    := zl
-                        buyZH    := zh
-                        buySig   := true
-                        doneB    := true
-                        actB     := false
+                        doneB := true
+                        actB  := false
+                        nSet  += 1
+                        bHavePend := true
+                        bPE := entry
+                        bPSL := sl
+                        bPTP := f_tp(true, entry, R)
+                        bPB := bar_index
+                        bPX := bar_index + expireBars
+                        alert("ICT BUY setup | Entry " + str.tostring(entry, format.mintick) + " | SL " + str.tostring(sl, format.mintick) + " | TP " + str.tostring(f_tp(true, entry, R), format.mintick), alert.freq_once_per_bar_close)
         if not actB and not doneB
             if f_sweptLow(need)
                 actB     := true
@@ -237,7 +338,7 @@ if barstate.isconfirmed and inKZ and not na(atr) and atr > 0
                 startB   := bar_index
 
     // ---------- SELL ----------
-    if allowSell and not doneS
+    if (biasMode == "none" or bias < 0) and not doneS
         if actS
             if bar_index - startS > chochWait
                 actS := false
@@ -249,14 +350,16 @@ if barstate.isconfirmed and inKZ and not na(atr) and atr > 0
                     sl    = math.max(sweepHigh, okFvg ? zh : sweepHigh) + slBufATR * atr
                     R     = sl - entry
                     if R > 0 and entry > close and R >= minRATR * atr and R <= maxRATR * atr
-                        sellEntry := entry
-                        sellSL    := sl
-                        sellTP    := f_tp(false, entry, R)
-                        sellZL    := zl
-                        sellZH    := zh
-                        sellSig   := true
-                        doneS     := true
-                        actS      := false
+                        doneS := true
+                        actS  := false
+                        nSet  += 1
+                        sHavePend := true
+                        sPE := entry
+                        sPSL := sl
+                        sPTP := f_tp(false, entry, R)
+                        sPB := bar_index
+                        sPX := bar_index + expireBars
+                        alert("ICT SELL setup | Entry " + str.tostring(entry, format.mintick) + " | SL " + str.tostring(sl, format.mintick) + " | TP " + str.tostring(f_tp(false, entry, R), format.mintick), alert.freq_once_per_bar_close)
         if not actS and not doneS
             if f_sweptHigh(need)
                 actS      := true
@@ -264,36 +367,22 @@ if barstate.isconfirmed and inKZ and not na(atr) and atr > 0
                 refLow    := lastSL
                 startS    := bar_index
 
-// ─────────────────────────  Vẽ  ─────────────────────────
-if buySig
-    if showFVG and not na(buyZL)
-        box.new(bar_index - zoneLB, buyZH, bar_index + 20, buyZL, border_color=color.new(color.green, 40), bgcolor=color.new(color.green, 88))
-    if showLevels
-        line.new(bar_index, buyEntry, bar_index + 30, buyEntry, color=color.blue,  width=1, style=line.style_solid)
-        line.new(bar_index, buySL,    bar_index + 30, buySL,    color=color.red,   width=1, style=line.style_dashed)
-        line.new(bar_index, buyTP,    bar_index + 30, buyTP,    color=color.green, width=1, style=line.style_dashed)
-    label.new(bar_index, buySL - atr * 0.5, "BUY\nE " + str.tostring(buyEntry, format.mintick) + "\nSL " + str.tostring(buySL, format.mintick) + "\nTP " + str.tostring(buyTP, format.mintick), style=label.style_label_up, color=color.new(color.green, 0), textcolor=color.white, size=size.small)
-
-if sellSig
-    if showFVG and not na(sellZL)
-        box.new(bar_index - zoneLB, sellZH, bar_index + 20, sellZL, border_color=color.new(color.red, 40), bgcolor=color.new(color.red, 88))
-    if showLevels
-        line.new(bar_index, sellEntry, bar_index + 30, sellEntry, color=color.blue,  width=1, style=line.style_solid)
-        line.new(bar_index, sellSL,    bar_index + 30, sellSL,    color=color.red,   width=1, style=line.style_dashed)
-        line.new(bar_index, sellTP,    bar_index + 30, sellTP,    color=color.green, width=1, style=line.style_dashed)
-    label.new(bar_index, sellSL + atr * 0.5, "SELL\nE " + str.tostring(sellEntry, format.mintick) + "\nSL " + str.tostring(sellSL, format.mintick) + "\nTP " + str.tostring(sellTP, format.mintick), style=label.style_label_down, color=color.new(color.red, 0), textcolor=color.white, size=size.small)
-
 // ─────────────────────────  Vẽ mức nền  ─────────────────────────
 plot(showAsia and asiaDone ? aHi : na, "Asia High", color=color.new(color.orange, 30), style=plot.style_stepline)
 plot(showAsia and asiaDone ? aLo : na, "Asia Low",  color=color.new(color.orange, 30), style=plot.style_stepline)
 plot(showPDPD ? pdh : na, "PDH", color=color.new(color.gray, 20), style=plot.style_stepline)
 plot(showPDPD ? pdl : na, "PDL", color=color.new(color.gray, 20), style=plot.style_stepline)
 
-// ─────────────────────────  Cảnh báo  ─────────────────────────
-alertcondition(buySig,  "ICT BUY",  "ICT BUY setup (KZ-Sweep-FVG)")
-alertcondition(sellSig, "ICT SELL", "ICT SELL setup (KZ-Sweep-FVG)")
-
-if buySig
-    alert("ICT BUY | Entry " + str.tostring(buyEntry, format.mintick) + " | SL " + str.tostring(buySL, format.mintick) + " | TP " + str.tostring(buyTP, format.mintick), alert.freq_once_per_bar_close)
-if sellSig
-    alert("ICT SELL | Entry " + str.tostring(sellEntry, format.mintick) + " | SL " + str.tostring(sellSL, format.mintick) + " | TP " + str.tostring(sellTP, format.mintick), alert.freq_once_per_bar_close)
+// ─────────────────────────  Bảng thống kê  ─────────────────────────
+var table statTbl = table.new(position.top_right, 2, 4, border_width=1)
+if showStats and barstate.islast
+    tot = nWin + nLoss
+    wr = tot > 0 ? (nWin / tot * 100) : 0.0
+    table.cell(statTbl, 0, 0, "Setup",   text_color=color.white, bgcolor=color.new(color.gray, 40), text_size=size.small)
+    table.cell(statTbl, 1, 0, str.tostring(nSet), text_color=color.white, bgcolor=color.new(color.gray, 40), text_size=size.small)
+    table.cell(statTbl, 0, 1, "WIN",     text_color=color.white, bgcolor=color.new(color.green, 40), text_size=size.small)
+    table.cell(statTbl, 1, 1, str.tostring(nWin), text_color=color.white, bgcolor=color.new(color.green, 40), text_size=size.small)
+    table.cell(statTbl, 0, 2, "LOSS",    text_color=color.white, bgcolor=color.new(color.red, 40), text_size=size.small)
+    table.cell(statTbl, 1, 2, str.tostring(nLoss), text_color=color.white, bgcolor=color.new(color.red, 40), text_size=size.small)
+    table.cell(statTbl, 0, 3, "Win%",    text_color=color.white, bgcolor=color.new(color.blue, 40), text_size=size.small)
+    table.cell(statTbl, 1, 3, str.tostring(wr, "#.#") + "%", text_color=color.white, bgcolor=color.new(color.blue, 40), text_size=size.small)
