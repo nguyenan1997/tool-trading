@@ -81,7 +81,7 @@ bool SweptHigh(int i, const double &H[], const double &C[], double a,
 }
 
 // FVG tăng: low[m] > high[m-2] và low[m] < close[i]; lọc size >= k*ATR
-bool BullZone(int i, int n, const double &H[], const double &L[], const double &C[], double atrI,
+bool BullZone(int i, const double &H[], const double &L[], const double &C[], double atrI,
               double &zl, double &zh)
 {
    int lo = i - InpZoneLB; if(lo < 2) lo = 2;
@@ -96,7 +96,7 @@ bool BullZone(int i, int n, const double &H[], const double &L[], const double &
    }
    return false;
 }
-bool BearZone(int i, int n, const double &H[], const double &L[], const double &C[], double atrI,
+bool BearZone(int i, const double &H[], const double &L[], const double &C[], double atrI,
               double &zl, double &zh)
 {
    int lo = i - InpZoneLB; if(lo < 2) lo = 2;
@@ -135,10 +135,9 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
 {
    int nb = InpHistoryBars; if(nb < 60) nb = 60;
    double O[], H[], L[], C[], A[];
-   datetime TT[];
    int HH[], DD[];
    ArrayResize(O, nb); ArrayResize(H, nb); ArrayResize(L, nb);
-   ArrayResize(C, nb); ArrayResize(A, nb); ArrayResize(TT, nb);
+   ArrayResize(C, nb); ArrayResize(A, nb);
    ArrayResize(HH, nb); ArrayResize(DD, nb);
 
    int n = 0;
@@ -151,7 +150,7 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
       L[n] = iLow(_Symbol, PERIOD_M5, s);
       C[n] = iClose(_Symbol, PERIOD_M5, s);
       A[n] = ATR(s);
-      TT[n] = t; HH[n] = HourOf(t); DD[n] = DayId(t);
+      HH[n] = HourOf(t); DD[n] = DayId(t);
       n++;
    }
    if(n < 60) return false;
@@ -253,7 +252,7 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
             else if(refHigh > 0 && C[i] > refHigh && (C[i] - O[i]) >= InpDispATR * a)
             {
                double zl, zh;
-               if(BullZone(i, n, H, L, C, a, zl, zh))
+               if(BullZone(i, H, L, C, a, zl, zh))
                {
                   double e = zh - InpEntryFrac * (zh - zl);
                   double s = MathMin(sweepLow, zl) - InpSlBufATR * a;
@@ -284,7 +283,7 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
             else if(refLow > 0 && C[i] < refLow && (O[i] - C[i]) >= InpDispATR * a)
             {
                double zl, zh;
-               if(BearZone(i, n, H, L, C, a, zl, zh))
+               if(BearZone(i, H, L, C, a, zl, zh))
                {
                   double e = zl + InpEntryFrac * (zh - zl);
                   double s = MathMax(sweepHigh, zh) + InpSlBufATR * a;
