@@ -10,7 +10,6 @@ from datetime import datetime, timezone, timedelta
 import config
 from . import mt5_handler as mt5h
 from .hedging_engine import hedging_engine
-from .basket_dca_engine import basket_dca_engine
 from strategies.manager import strategy_manager
 
 logger = logging.getLogger(__name__)
@@ -99,7 +98,7 @@ class BotEngine:
         """Trạng thái phiên + đếm ngược, hiển thị theo GIỜ VIỆT NAM (UTC+7).
         Phiên định nghĩa theo giờ broker của CHIẾN LƯỢC ĐANG CHỌN; ở đây quy đổi để hiển thị."""
         strategy = strategy_manager.get_current_strategy()
-        if getattr(strategy, "is_hedging", False) or getattr(strategy, "is_basket", False):
+        if getattr(strategy, "is_hedging", False):
             vn_off = int(getattr(config, "VN_UTC_OFFSET", 7))
             vn_now = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=vn_off)
             return {
@@ -184,21 +183,6 @@ class BotEngine:
                     time.sleep(max(0.2, float(getattr(config, "HEDGE_POLL_SEC", 1) or 1)))
                     continue
 
-                # Dynamic Basket DCA cũng chạy vòng lặp riêng, poll theo giây
-                if getattr(strategy_manager.get_current_strategy(), "is_basket", False):
-                    try:
-                        cur_key = strategy_manager.get_current_key()
-                        if self._hedge_cleared_key != cur_key:
-                            self._hedge_cleared_key = cur_key
-                            self._cancel_other_pending()
-                        self._maybe_log_session()
-                        basket_dca_engine.process(strategy_manager.get_current_strategy())
-                    except Exception as e:
-                        logger.error(f"Error in basket_dca: {e}")
-                        time.sleep(5)
-                    time.sleep(max(0.2, float(getattr(config, "BASKET_POLL_SEC", 0.5) or 0.5)))
-                    continue
-
                 # 1. Chờ nến mới
                 tf = self._active_timeframe()
                 tf_seconds = {"M1": 60, "M5": 300, "M15": 900, "H1": 3600}.get(tf, 60)
@@ -272,7 +256,7 @@ class BotEngine:
                 logger.warning(f"🚫 ĐÃ HỦY lệnh chờ ngoài bot  |  ticket={o.ticket}")
 
     def _cancel_other_pending(self):
-        """Hủy mọi lệnh CHỜ của các chiến lược KHÁC khi vào PP chạy liên tục (hedging/basket)."""
+        """Hủy mọi lệnh CHỜ của các chiến lược KHÁC khi vào PP chạy liên tục (hedging)."""
         cur = strategy_manager.get_current_strategy()
         for s in strategy_manager.get_all_strategy_objects():
             if s is cur:

@@ -113,47 +113,8 @@ HEDGE_SKIP_HOURS_VN      = []
 HEDGE_CLOSE_BEFORE_HOURS = 2   # (không dùng)
 HEDGE_TRADING_HOURS_ENABLED = False
 
-# ============================================================
-#  DYNAMIC BASKET DCA (port từ EA "Dynamic_Basket_DCA_V1", XAUUSD)
-# ------------------------------------------------------------
-# Straddle BUY STOP + SELL STOP → bên nào khớp trước thì vào lệnh, hủy bên kia.
-# Giá đi NGƯỢC BASKET_STEP thì nhồi thêm, lot theo FIBONACCI (0.01,0.02,0.03,0.05...).
-# TP động = giá vào BÌNH QUÂN ± BASKET_TP_BASKET (lệnh đơn ± BASKET_TP_INITIAL).
-# KHÔNG Stop Loss.
-# ⚠️ Martingale không SL — rủi ro cháy cực lớn khi giá trend 1 chiều. CHỈ DEMO.
-# ============================================================
-BASKET_ENABLED       = True
-MAGIC_BASKET         = 20261010
-BASKET_COMMENT       = "PyBasketDCA"
-BASKET_LOT0          = 0.01    # lot lệnh đầu
-BASKET_INIT_DIST     = 0.50    # khoảng cách BUY STOP / SELL STOP so với giá (tổng 2 đầu = 1.0)
-BASKET_STEP          = 1.25    # giá đi ngược để nhồi DCA (EA gốc: "Distance from last same-direction entry")
-BASKET_BE_CURRENCY   = 0.1     # "Account currency, 0 = near breakeven" (USD)
-BASKET_EXTRA_SAFETY  = 0.05    # "Extra safety profit" (USD)
-BASKET_PROFIT_USD    = 0.15    # = be + extra: mục tiêu lãi rổ; TP = wavg ± 0.15/(tổng lot×100)
-BASKET_MAX_LEVELS    = 20      # EA gốc: MaxDcaLevels = 20 (0 = KHÔNG giới hạn)
-BASKET_MAX_TOTAL_LOT = 0.0     # 0 = không giới hạn tổng lot
-BASKET_POLL_SEC      = 0.5     # chu kỳ vòng lặp
-BASKET_DEVIATION_PTS = 30      # trượt giá tối đa mỗi lệnh
-BASKET_REPOSITION    = True    # "RepositionPending": đặt lại straddle khi giá chạy
-BASKET_MOVE_FRAMEWORK = 0.5    # "Move pending framework": giá chạy bao nhiêu thì reposition
-# --- Tránh giờ tin (GIỜ VIỆT NAM, UTC+7) ---
-# Khung (h1,m1,h2,m2): trong khoảng này KHÔNG mở straddle mới (hủy lệnh chờ).
-# 19:20–19:45 VN = tin Mỹ 8:30 ET (CPI/NFP/PPI); 00:50–01:30 VN = Fed/FOMC (2pm ET).
-BASKET_NEWS_FILTER     = True
-# --- Nguồn lịch kinh tế (Forex Factory, miễn phí, không cần API key) ---
-BASKET_NEWS_SOURCE        = "forexfactory"
-BASKET_NEWS_CURRENCIES    = ["USD"]   # tin ảnh hưởng tới vàng
-BASKET_NEWS_MIN_IMPACT    = "High"    # High | Medium | Low
-BASKET_NEWS_BUFFER_BEFORE = 15        # phút chặn TRƯỚC tin
-BASKET_NEWS_BUFFER_AFTER  = 15        # phút chặn SAU tin
-BASKET_NEWS_REFRESH_HOURS = 6         # tải lại lịch mỗi N giờ
-# Cửa sổ thủ công thêm ngoài lịch: (h1,m1,h2,m2) hoặc (h1,m1,h2,m2,[các thứ]); rỗng = tắt
-BASKET_NEWS_WINDOWS_VN    = []
-BASKET_NEWS_BLOCK_DCA     = True       # True = cũng KHÔNG nhồi DCA trong giờ tin
-
 # Chiến lược chạy mặc định khi khởi động chương trình.
-# "hedging" | "ict" | "basket_dca"
+# "hedging" | "ict"
 DEFAULT_STRATEGY = "hedging"
 
 # ============================================================

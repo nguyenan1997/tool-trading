@@ -12,13 +12,11 @@ import os
 import re
 from core.bot_engine import bot_engine
 from core.hedging_engine import hedging_engine
-from core.basket_dca_engine import basket_dca_engine
 from strategies.manager import strategy_manager
 from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data, get_with_warmup
 from strategies.ict import ICTKillzoneFVGStrategy
 from strategies.hedging import HedgingStrategy
-from strategies.basket_dca import BasketDCAStrategy
 
 logger = logging.getLogger(__name__)
 
@@ -52,16 +50,6 @@ def _build_strategy(data):
             tp_usd=_num(data, "hedge_tp_usd", config.HEDGE_TP_USD),
             lot=_num(data, "hedge_lot", config.HEDGE_LOT),
         ), "hedging"
-
-    if sid == "basket_dca":
-        return BasketDCAStrategy(
-            lot0=_num(data, "basket_lot", config.BASKET_LOT0),
-            init_dist=_num(data, "basket_init_dist", config.BASKET_INIT_DIST),
-            step=_num(data, "basket_step", config.BASKET_STEP),
-            be_currency=_num(data, "basket_be_currency", config.BASKET_BE_CURRENCY),
-            extra_safety=_num(data, "basket_extra_safety", config.BASKET_EXTRA_SAFETY),
-            max_levels=_num(data, "basket_max_levels", config.BASKET_MAX_LEVELS, int),
-        ), "basket_dca"
 
     return ICTKillzoneFVGStrategy(
         swing_k=_num(data, "ict_swing_k", config.ICT_SWING_K, int),
@@ -119,7 +107,7 @@ def register_routes(app):
         
         # Khởi tạo chiến lược (ICT tự chạy khung M5; các PP khác theo UI)
         strategy, sid = _build_strategy(data)
-        tf = "M1" if sid == "basket_dca" else getattr(strategy, "timeframe", tf)
+        tf = getattr(strategy, "timeframe", tf)
 
         # Lấy dữ liệu (kèm warmup để chỉ báo hội tụ; engine sẽ bỏ qua phần warmup)
         warmup = int(getattr(strategy, "warmup_bars", 0) or 0)
@@ -284,7 +272,6 @@ def register_routes(app):
         closed = mt5h.close_all_positions(config.SYMBOL, magics, "close all (UI)")
         canceled = mt5h.cancel_all_pending(config.SYMBOL, magics)
         hedging_engine.reset()
-        basket_dca_engine.reset()
         logger.info(f"[CLOSE-ALL] đóng {closed} vị thế, hủy {canceled} lệnh chờ (bot_running={was_running})")
         return jsonify({
             "closed": closed,

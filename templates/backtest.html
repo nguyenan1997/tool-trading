@@ -282,12 +282,6 @@
                         <span><span class="tag tag-mtf">M5 · H4 bias</span></span>
                         <p>Bias H4 → quét thanh khoản trong killzone London/NY → CHoCH + FVG → vào OTE/CE. TP theo draw-on-liquidity. Chỉ chạy khung M5.</p>
                     </label>
-                    <label class="strat-card" onclick="selectStrategy('basket_dca', this)">
-                        <input type="radio" name="strategy" value="basket_dca">
-                        <b>Dynamic Basket DCA (martingale)</b>
-                        <span><span class="tag tag-mtf">M1 · không SL</span></span>
-                        <p>Straddle BUY/SELL STOP → bên nào khớp thì nhồi DCA lot Fibonacci, TP động theo giá bình quân. Không SL — rủi ro cháy cao.</p>
-                    </label>
                 </div>
 
                 <div class="section">
@@ -346,20 +340,6 @@
                         </div>
                     </div>
 
-                    <div id="params-basket_dca" style="display:none;">
-                        <div class="param-block">
-                            <div class="label">Basket DCA (martingale — KHÔNG SL)</div>
-                            <div class="col2">
-                                <div><label>Lot lệnh đầu</label><input type="number" id="basket_lot" step="0.01" value="0.01" min="0.01"></div>
-                                <div><label>Khoảng cách stop 2 đầu</label><input type="number" id="basket_init_dist" step="0.1" value="0.5" min="0.1"></div>
-                                <div><label>Bước nhồi DCA</label><input type="number" id="basket_step" step="0.1" value="1.0" min="0.1"></div>
-                                <div><label>Account currency (0=near BE)</label><input type="number" id="basket_be_currency" step="0.01" value="0.1" min="0"></div>
-                                <div><label>Extra safety profit</label><input type="number" id="basket_extra_safety" step="0.01" value="0.05" min="0"></div>
-                                <div><label>Max cấp (0 = vô hạn)</label><input type="number" id="basket_max_levels" value="0" min="0"></div>
-                            </div>
-                            <div class="hint">⚠️ Không SL. Backtest dùng M1 + mô phỏng stop-out margin. Đặt "Max cấp" &gt; 0 để an toàn hơn.</div>
-                        </div>
-                    </div>
                 </div>
 
                 <button id="run-btn" class="btn" onclick="runBacktest()">
@@ -479,12 +459,6 @@
                 ict_tp_mode: document.getElementById('ict_tp_mode').value,
                 ict_require_fvg: document.getElementById('ict_require_fvg').checked ? 1 : 0,
                 ict_entry_mode: document.getElementById('ict_entry_mode').value,
-                basket_lot: document.getElementById('basket_lot').value,
-                basket_init_dist: document.getElementById('basket_init_dist').value,
-                basket_step: document.getElementById('basket_step').value,
-                basket_be_currency: document.getElementById('basket_be_currency').value,
-                basket_extra_safety: document.getElementById('basket_extra_safety').value,
-                basket_max_levels: document.getElementById('basket_max_levels').value,
             };
 
             try {
@@ -509,7 +483,7 @@
             }
         }
 
-        const strategyNames = { 'ict': 'ICT KZ→Sweep→FVG', 'basket_dca': 'Dynamic Basket DCA' };
+        const strategyNames = { 'ict': 'ICT KZ→Sweep→FVG' };
 
         /* ── Tính thêm chỉ số từ danh sách lệnh ── */
         function computeStats(data) {
