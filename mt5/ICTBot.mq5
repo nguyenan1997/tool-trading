@@ -23,9 +23,10 @@ input int    InpKz2s        = 0;          // Killzone 2 bắt đầu (0,0 = tắ
 input int    InpKz2e        = 0;          // Killzone 2 kết thúc
 input int    InpSwingK      = 2;          // Swing K (fractal)
 input double InpMinSweepATR = 0.3;        // Độ sâu quét (×ATR)
-input int    InpChochWait   = 24;         // Chờ CHoCH tối đa (nến M5)
+input int    InpChochWait   = 36;         // Chờ CHoCH tối đa (nến M5) = 3h
 input double InpDispATR     = 0.4;        // Displacement (×ATR)
 input int    InpZoneLB      = 12;         // Tìm FVG trong (nến)
+input int    InpHistoryBars = 5000;       // Nến M5 nạp để tính swing/thanh khoản (khớp ICT_HISTORY_BARS)
 input double InpMinFvgATR   = 0.3;        // Lọc FVG size >= k×ATR (0=tắt)
 input double InpEntryFrac   = 0.5;        // Vào tại (0.5=CE)
 input double InpSlBufATR    = 0.2;        // SL buffer (×ATR)
@@ -132,35 +133,28 @@ double DolTp(bool isBuy, double entry, double R, double pdh, double pdl,
 //────────────────── Đánh giá tín hiệu tại nến ĐÓNG cuối cùng ──────────────────
 bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
 {
-   datetime t1 = iTime(_Symbol, PERIOD_M5, 1);
-   if(t1 == 0) return false;
-   int dId = DayId(t1);
-   int maxs = 1500, cnt = 0;
-   for(int s = 1; s < maxs; s++)
+   int nb = InpHistoryBars; if(nb < 60) nb = 60;
+   double O[], H[], L[], C[], A[];
+   datetime TT[];
+   int HH[], DD[];
+   ArrayResize(O, nb); ArrayResize(H, nb); ArrayResize(L, nb);
+   ArrayResize(C, nb); ArrayResize(A, nb); ArrayResize(TT, nb);
+   ArrayResize(HH, nb); ArrayResize(DD, nb);
+
+   int n = 0;
+   for(int s = nb; s >= 1; s--)        // già -> mới (s=1 = nến đóng gần nhất)
    {
       datetime t = iTime(_Symbol, PERIOD_M5, s);
-      if(t == 0) break;
-      if(DayId(t) != dId) break;
-      cnt++;
+      if(t == 0) continue;
+      O[n] = iOpen(_Symbol, PERIOD_M5, s);
+      H[n] = iHigh(_Symbol, PERIOD_M5, s);
+      L[n] = iLow(_Symbol, PERIOD_M5, s);
+      C[n] = iClose(_Symbol, PERIOD_M5, s);
+      A[n] = ATR(s);
+      TT[n] = t; HH[n] = HourOf(t); DD[n] = DayId(t);
+      n++;
    }
-   if(cnt < 12) return false;
-
-   double O[], H[], L[], C[], A[]; int HH[], SH[], SLi[];
-   datetime TT[];
-   ArrayResize(O, cnt); ArrayResize(H, cnt); ArrayResize(L, cnt);
-   ArrayResize(C, cnt); ArrayResize(A, cnt); ArrayResize(HH, cnt); ArrayResize(TT, cnt);
-   for(int j = 0; j < cnt; j++)
-   {
-      int s = cnt - j;                 // s: cnt..1 → thời gian tăng dần
-      O[j] = iOpen(_Symbol, PERIOD_M5, s);
-      H[j] = iHigh(_Symbol, PERIOD_M5, s);
-      L[j] = iLow(_Symbol, PERIOD_M5, s);
-      C[j] = iClose(_Symbol, PERIOD_M5, s);
-      A[j] = ATR(s);
-      TT[j] = iTime(_Symbol, PERIOD_M5, s);
-      HH[j] = HourOf(TT[j]);
-   }
-   int n = cnt;
+   if(n < 60) return false;
 
    // PDH/PDL + bias prevday (nến ngày hôm trước)
    double pdh = iHigh(_Symbol, PERIOD_D1, 1);
@@ -169,46 +163,61 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
    double d1c = iClose(_Symbol, PERIOD_D1, 1);
    int bias = (d1c > d1o) ? 1 : ((d1c < d1o) ? -1 : 0);
 
-   // Vùng Á hôm nay
-   double aHi = 0, aLo = 0;
-   for(int j = 0; j < n; j++)
-      if(HH[j] >= InpAsiaStart && HH[j] <= InpAsiaEnd)
+   // Vùng Á theo TỪNG NGÀY (chỉ dùng sau khi phiên Á kết thúc; 0 = chưa có)
+   double asiaHi[], asiaLo[];
+   ArrayResize(asiaHi, n); ArrayResize(asiaLo, n);
+   for(int i = 0; i < n; )
+   {
+      int d = DD[i]; int j2 = i;
+      double hi = 0, lo = 0;
+      while(j2 < n && DD[j2] == d)
       {
-         if(aHi == 0 || H[j] > aHi) aHi = H[j];
-         if(aLo == 0 || L[j] < aLo) aLo = L[j];
+         if(HH[j2] >= InpAsiaStart && HH[j2] <= InpAsiaEnd)
+         {
+            if(hi == 0 || H[j2] > hi) hi = H[j2];
+            if(lo == 0 || L[j2] < lo) lo = L[j2];
+         }
+         j2++;
       }
+      for(int x = i; x < j2; x++)
+      {
+         if(HH[x] > InpAsiaEnd) { asiaHi[x] = hi; asiaLo[x] = lo; }
+         else { asiaHi[x] = 0; asiaLo[x] = 0; }
+      }
+      i = j2;
+   }
 
-   // Swing fractal + last swing
+   // Swing fractal + last swing (toàn bộ lịch sử nạp -> giống Python)
    int k = InpSwingK;
-   ArrayResize(SH, n); ArrayResize(SLi, n);
-   for(int j = 0; j < n; j++) { SH[j] = 0; SLi[j] = 0; }
-   double lastSH[1500], lastSL[1500];
+   double lastSH[], lastSL[];
+   ArrayResize(lastSH, n); ArrayResize(lastSL, n);
    double curH = 0, curL = 0;
    for(int j = 0; j < n; j++)
    {
       int q = j - k;
-      if(q >= k)
+      if(q >= k && q + k < n)
       {
          bool ph = true, pl = true;
          for(int x = q - k; x <= q + k; x++)
          {
-            if(x < 0 || x >= n) { ph = pl = false; break; }
             if(H[x] > H[q]) ph = false;
             if(L[x] < L[q]) pl = false;
          }
-         if(ph) { curH = H[q]; SH[q] = 1; }
-         if(pl) { curL = L[q]; SLi[q] = 1; }
+         if(ph) curH = H[q];
+         if(pl) curL = L[q];
       }
       lastSH[j] = curH; lastSL[j] = curL;
    }
 
    // Killzone
-   bool inKZ[1500];
+   bool inKZ[];
+   ArrayResize(inKZ, n);
    for(int j = 0; j < n; j++)
       inKZ[j] = (HH[j] >= InpKz1s && HH[j] < InpKz1e) || (HH[j] >= InpKz2s && HH[j] < InpKz2e);
    int maxKZend = (InpKz1e > InpKz2e) ? InpKz1e : InpKz2e;
 
-   // State machine (giống Python)
+   // State machine (reset theo ngày, giống Python)
+   int curDate = -1;
    bool doneB = false, doneS = false, actB = false, actS = false;
    double sweepLow = 0, sweepHigh = 0, refHigh = 0, refLow = 0;
    int startB = -1, startS = -1;
@@ -216,6 +225,14 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
 
    for(int i = 0; i < n; i++)
    {
+      if(DD[i] != curDate)
+      {
+         curDate = DD[i];
+         doneB = doneS = false;
+         actB = actS = false;
+         sweepLow = sweepHigh = 0; refHigh = refLow = 0;
+         startB = startS = -1;
+      }
       if(!inKZ[i])
       {
          if(HH[i] >= maxKZend) { actB = false; actS = false; }
@@ -224,8 +241,8 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
       double a = A[i];
       if(!(a > 0)) continue;
 
-      bool allowB = (bias >= 0);
-      bool allowS = (bias <= 0);
+      bool allowB = (bias > 0);
+      bool allowS = (bias < 0);
 
       // ---- BUY ----
       if(allowB && !doneB)
@@ -243,7 +260,7 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
                   double R = e - s;
                   if(R > 0 && e < C[i] && R <= InpMaxRATR * a)
                   {
-                     double tpv = DolTp(true, e, R, pdh, pdl, aHi, aLo, lastSH[i], lastSL[i]);
+                     double tpv = DolTp(true, e, R, pdh, pdl, asiaHi[i], asiaLo[i], lastSH[i], lastSL[i]);
                      if(i == n - 1) { dir = 1; entry = e; sl = s; tp = tpv; return true; }
                      doneB = true; actB = false;
                   }
@@ -253,7 +270,7 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
          if(!actB && !doneB)
          {
             bool asiaOk = HH[i] > InpAsiaEnd;
-            if(SweptLow(i, L, C, a, aLo, pdl, lastSL[i], asiaOk))
+            if(SweptLow(i, L, C, a, asiaLo[i], pdl, lastSL[i], asiaOk))
             { actB = true; sweepLow = L[i]; refHigh = lastSH[i]; startB = i; }
          }
       }
@@ -274,7 +291,7 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
                   double R = s - e;
                   if(R > 0 && e > C[i] && R <= InpMaxRATR * a)
                   {
-                     double tpv = DolTp(false, e, R, pdh, pdl, aHi, aLo, lastSH[i], lastSL[i]);
+                     double tpv = DolTp(false, e, R, pdh, pdl, asiaHi[i], asiaLo[i], lastSH[i], lastSL[i]);
                      if(i == n - 1) { dir = -1; entry = e; sl = s; tp = tpv; return true; }
                      doneS = true; actS = false;
                   }
@@ -284,7 +301,7 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
          if(!actS && !doneS)
          {
             bool asiaOk = HH[i] > InpAsiaEnd;
-            if(SweptHigh(i, H, C, a, aHi, pdh, lastSH[i], asiaOk))
+            if(SweptHigh(i, H, C, a, asiaHi[i], pdh, lastSH[i], asiaOk))
             { actS = true; sweepHigh = H[i]; refLow = lastSL[i]; startS = i; }
          }
       }
