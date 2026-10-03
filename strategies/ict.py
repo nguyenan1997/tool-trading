@@ -308,10 +308,10 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
         if self.bias_mode == "h4ema":
             tmp = base[["ts", "close"]].set_index("ts")
             h4 = tmp.resample("4h").agg({"close": "last"}).dropna()
-            h4["ema"] = h4["close"].ewm(span=self.bias_ema, adjust=False).mean().shift(1)
+            h4["bias_ema_v"] = h4["close"].ewm(span=self.bias_ema, adjust=False).mean().shift(1)
             h4 = h4.reset_index().rename(columns={"index": "ts"})
-            base = pd.merge_asof(base, h4[["ts", "ema"]], on="ts", direction="backward")
-            ema = base["ema"].to_numpy()
+            base = pd.merge_asof(base, h4[["ts", "bias_ema_v"]], on="ts", direction="backward")
+            ema = base["bias_ema_v"].to_numpy()
             cl = base["close"].to_numpy()
             base["bias"] = np.where(cl > ema, 1, np.where(cl < ema, -1, 0))
         elif self.bias_mode == "prevday":

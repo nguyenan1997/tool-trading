@@ -45,7 +45,7 @@ ICT_USE_SWING_LIQ = True     # Swing low/high gần nhất
 ICT_MIN_SWEEP_ATR = 0.3      # Phải quét vượt mức ≥ bội ATR(M5) này rồi reclaim
 
 # --- Displacement / vùng vào lệnh ---
-ICT_CHOCH_WAIT    = 24       # Chờ tối đa bao nhiêu nến M5 để có CHoCH sau khi quét
+ICT_CHOCH_WAIT    = 36       # Chờ tối đa bao nhiêu nến M5 để có CHoCH sau khi quét (36 nến = 3h)
 ICT_DISP_ATR      = 0.4      # Thân nến CHoCH tối thiểu (bội ATR) để xác nhận displacement
 ICT_ZONE_LOOKBACK = 12       # Tìm FVG trong bao nhiêu nến trước nến CHoCH
 ICT_REQUIRE_FVG   = True     # True = bắt buộc có FVG, bỏ qua setup không có FVG

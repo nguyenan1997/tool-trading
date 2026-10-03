@@ -79,7 +79,7 @@ rồi **đóng nến reclaim** trở lại phía trong.
 - SELL: đối xứng.
 
 ### Bước 4 — Displacement + CHoCH
-Trong tối đa **24 nến M5** (2h) sau cú quét: có nến đóng **phá swing đối diện** với
+Trong tối đa **36 nến M5** (3h) sau cú quét: có nến đóng **phá swing đối diện** với
 **thân nến ≥ 0.4×ATR** (displacement). Đây chính là "xác nhận" của ICT — cấu trúc +
 displacement, **không dùng mẫu nến xác nhận riêng**.
 
@@ -121,7 +121,7 @@ displacement, **không dùng mẫu nến xác nhận riêng**.
 | Bias | **prevday** | hướng nến ngày trước |
 | Swing K | 2 | fractal |
 | Độ sâu quét tối thiểu | 0.3 × ATR | `ICT_MIN_SWEEP_ATR` |
-| Chờ CHoCH | 24 nến | `ICT_CHOCH_WAIT` |
+| Chờ CHoCH | 36 nến | `ICT_CHOCH_WAIT` |
 | Displacement | 0.4 × ATR | `ICT_DISP_ATR` |
 | Vùng vào lệnh | FVG bắt buộc | `ICT_REQUIRE_FVG = True` |
 | Tìm vùng | 12 nến | `ICT_ZONE_LOOKBACK` |
