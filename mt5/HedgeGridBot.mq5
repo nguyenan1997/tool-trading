@@ -187,16 +187,17 @@ bool OpenPair()
 
    NormalizeTP();
 
-   if(!okBuy && !okSell)
+   int ok = (okBuy ? 1 : 0) + (okSell ? 1 : 0);
+   if(ok < 2)   // khớp Python: chỉ mở được < 2 chân -> kiểm tra margin
    {
       double need = 0.0, freeMargin = AccountInfoDouble(ACCOUNT_MARGIN_FREE);
       if(OrderCalcMargin(ORDER_TYPE_BUY, _Symbol, lot, SymbolInfoDouble(_Symbol, SYMBOL_ASK), need))
          g_noMoney = (freeMargin < need + 0.01);
    }
 
-   g_sessionOrders += (okBuy ? 1 : 0) + (okSell ? 1 : 0);
+   g_sessionOrders += ok;
    PrintFormat("[HEDGE] Mo cap: BUY=%s SELL=%s lot=%.2f", okBuy ? "OK" : "FAIL", okSell ? "OK" : "FAIL", lot);
-   return (okBuy || okSell);
+   return (ok > 0);
 }
 
 // Đóng toàn bộ vị thế của magic
