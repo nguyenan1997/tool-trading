@@ -4,8 +4,8 @@
 //  MÔ PHỎNG KHỚP LIMIT THẬT (giống bot strategies/ict.py):
 //    - Phát hiện setup tại nến CHoCH.
 //    - Đặt LIMIT tại entry (CE/OTE của FVG), hết hạn sau `pendMin` phút.
-//    - Khi giá hồi tới entry -> ĐÁNH DẤU ĐÚNG NẾN KHỚP + vẽ Entry/SL/TP.
-//    - Theo dõi tới khi chạm TP hoặc SL -> đánh dấu WIN/LOSS.
+//    - Khi giá hồi tới entry -> ĐÁNH DẤU NẾN KHỚP + VẼ NGAY Entry/SL/TP
+//      và KÉO DÀI các đường này mỗi nến cho tới khi chạm TP/SL.
 //  Giờ theo BROKER (đặt `brokerOff` = offset broker; LiteFinance +3 hè / +2 đông).
 //  Khuyến nghị khung M5.
 // ============================================================================
@@ -171,21 +171,18 @@ f_sweptHigh(need) =>
         hit := true
     hit
 
-drawTrade(isBuy, x1, x2, e, sl, tp, win) =>
-    line.new(x1, e,  x2, e,  color=color.new(color.blue, 0),  width=1)
-    line.new(x1, sl, x2, sl, color=color.new(color.red, 0),   width=1, style=line.style_dashed)
-    line.new(x1, tp, x2, tp, color=color.new(color.green, 0), width=1, style=line.style_dashed)
-    label.new(x2, win ? tp : sl, win ? "TP" : "SL",
-              style = win ? label.style_label_down : label.style_label_up,
-              color = win ? color.new(color.green, 0) : color.new(color.red, 0),
-              textcolor=color.white, size=size.tiny)
-
 drawFill(isBuy, x, e, sl, tp) =>
     txt = (isBuy ? "BUY ENTRY" : "SELL ENTRY") + "\nE " + str.tostring(e, format.mintick) + "\nSL " + str.tostring(sl, format.mintick) + "\nTP " + str.tostring(tp, format.mintick)
     label.new(x, isBuy ? low - atr * 0.6 : high + atr * 0.6, txt,
               style = isBuy ? label.style_label_up : label.style_label_down,
               color = isBuy ? color.new(color.teal, 0) : color.new(color.maroon, 0),
               textcolor=color.white, size=size.small)
+
+drawExit(win, x, price) =>
+    label.new(x, price, win ? "TP" : "SL",
+              style = win ? label.style_label_down : label.style_label_up,
+              color = win ? color.new(color.green, 0) : color.new(color.red, 0),
+              textcolor=color.white, size=size.tiny)
 
 // ───────────────────────── Trạng thái ─────────────────────────
 var bool actB = false
@@ -199,6 +196,7 @@ var float refLow = na
 var int startB = na
 var int startS = na
 
+// BUY: pending + position + 3 đường
 var bool bHavePend = false
 var float bPE = na
 var float bPSL = na
@@ -210,7 +208,11 @@ var float bE = na
 var float bSL = na
 var float bTP = na
 var int bFB = na
+var line bLE = na
+var line bLSL = na
+var line bLTP = na
 
+// SELL
 var bool sHavePend = false
 var float sPE = na
 var float sPSL = na
@@ -222,6 +224,9 @@ var float sE = na
 var float sSL = na
 var float sTP = na
 var int sFB = na
+var line sLE = na
+var line sLSL = na
+var line sLTP = na
 
 var int nWin = 0
 var int nLoss = 0
@@ -243,12 +248,18 @@ if newDay
 if barstate.isconfirmed
     // ===== BUY =====
     if bInPos
+        if not na(bLE)
+            line.set_x2(bLE, bar_index)
+        if not na(bLSL)
+            line.set_x2(bLSL, bar_index)
+        if not na(bLTP)
+            line.set_x2(bLTP, bar_index)
         if low <= bSL
-            drawTrade(true, bFB, bar_index, bE, bSL, bTP, false)
+            drawExit(false, bar_index, bSL)
             nLoss += 1
             bInPos := false
         else if high >= bTP
-            drawTrade(true, bFB, bar_index, bE, bSL, bTP, true)
+            drawExit(true, bar_index, bTP)
             nWin += 1
             bInPos := false
     else if bHavePend
@@ -261,25 +272,34 @@ if barstate.isconfirmed
             bFB := bar_index
             bInPos := true
             bHavePend := false
+            bLE  := line.new(bar_index, bE,  bar_index + 1, bE,  color=color.new(color.blue, 0),  width=1)
+            bLSL := line.new(bar_index, bSL, bar_index + 1, bSL, color=color.new(color.red, 0),   width=1, style=line.style_dashed)
+            bLTP := line.new(bar_index, bTP, bar_index + 1, bTP, color=color.new(color.green, 0), width=1, style=line.style_dashed)
             drawFill(true, bar_index, bE, bSL, bTP)
             alert("ICT BUY FILL | Entry " + str.tostring(bE, format.mintick) + " | SL " + str.tostring(bSL, format.mintick) + " | TP " + str.tostring(bTP, format.mintick), alert.freq_once_per_bar_close)
             if low <= bSL
-                drawTrade(true, bFB, bar_index, bE, bSL, bTP, false)
+                drawExit(false, bar_index, bSL)
                 nLoss += 1
                 bInPos := false
             else if high >= bTP
-                drawTrade(true, bFB, bar_index, bE, bSL, bTP, true)
+                drawExit(true, bar_index, bTP)
                 nWin += 1
                 bInPos := false
 
     // ===== SELL =====
     if sInPos
+        if not na(sLE)
+            line.set_x2(sLE, bar_index)
+        if not na(sLSL)
+            line.set_x2(sLSL, bar_index)
+        if not na(sLTP)
+            line.set_x2(sLTP, bar_index)
         if high >= sSL
-            drawTrade(false, sFB, bar_index, sE, sSL, sTP, false)
+            drawExit(false, bar_index, sSL)
             nLoss += 1
             sInPos := false
         else if low <= sTP
-            drawTrade(false, sFB, bar_index, sE, sSL, sTP, true)
+            drawExit(true, bar_index, sTP)
             nWin += 1
             sInPos := false
     else if sHavePend
@@ -292,14 +312,17 @@ if barstate.isconfirmed
             sFB := bar_index
             sInPos := true
             sHavePend := false
+            sLE  := line.new(bar_index, sE,  bar_index + 1, sE,  color=color.new(color.blue, 0),  width=1)
+            sLSL := line.new(bar_index, sSL, bar_index + 1, sSL, color=color.new(color.red, 0),   width=1, style=line.style_dashed)
+            sLTP := line.new(bar_index, sTP, bar_index + 1, sTP, color=color.new(color.green, 0), width=1, style=line.style_dashed)
             drawFill(false, bar_index, sE, sSL, sTP)
             alert("ICT SELL FILL | Entry " + str.tostring(sE, format.mintick) + " | SL " + str.tostring(sSL, format.mintick) + " | TP " + str.tostring(sTP, format.mintick), alert.freq_once_per_bar_close)
             if high >= sSL
-                drawTrade(false, sFB, bar_index, sE, sSL, sTP, false)
+                drawExit(false, bar_index, sSL)
                 nLoss += 1
                 sInPos := false
             else if low <= sTP
-                drawTrade(false, sFB, bar_index, sE, sSL, sTP, true)
+                drawExit(true, bar_index, sTP)
                 nWin += 1
                 sInPos := false
 
