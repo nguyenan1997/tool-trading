@@ -29,13 +29,14 @@ ICT_WARMUP_BARS   = 600
 
 # --- Cấu trúc / thời gian ---
 ICT_SWING_K       = 2        # Bán kính fractal xác định swing high/low
-ICT_KILLZONES     = [(7, 20)]  # Giờ broker: London + New York (7–19h59)
+# Đã tối ưu (real-tick): thu hẹp về đúng London (7-10h59) + NY (12-15h59) → PF 1.19→1.62.
+ICT_KILLZONES     = [(7, 11), (12, 16)]  # Giờ broker: London open + New York open
 ICT_ASIA          = (0, 6)   # Vùng tích lũy Á (0–5:59 giờ broker)
 
 # --- Bias khung lớn (chỉ trade cùng chiều) ---
-# Đã kiểm chứng: "prevday" (bias = hướng nến ngày hôm trước) bền vững nhất
-# (train PF 3.12 · OOS 4.51 · walk-forward mọi fold dương). "none" = nhiều lệnh hơn.
-ICT_BIAS_MODE     = "prevday"  # "prevday" | "h4ema" | "none"
+# Tối ưu lại trên mô hình realistic + MT5 real-tick: "h4ema" (giá vs EMA50 H4)
+# vượt trội hơn "prevday" (MT5: PF 1.19→2.22, DD 1.96%→0.72%). "none" = nhiều lệnh hơn.
+ICT_BIAS_MODE     = "h4ema"   # "prevday" | "h4ema" | "none"
 ICT_BIAS_EMA      = 50       # Chu kỳ EMA H4 khi bias_mode = "h4ema"
 
 # --- Mức thanh khoản bị quét ---
@@ -46,10 +47,10 @@ ICT_MIN_SWEEP_ATR = 0.3      # Phải quét vượt mức ≥ bội ATR(M5) này
 
 # --- Displacement / vùng vào lệnh ---
 ICT_CHOCH_WAIT    = 36       # Chờ tối đa bao nhiêu nến M5 để có CHoCH sau khi quét (36 nến = 3h)
-ICT_DISP_ATR      = 0.4      # Thân nến CHoCH tối thiểu (bội ATR) để xác nhận displacement
+ICT_DISP_ATR      = 0.5      # Thân nến CHoCH tối thiểu (bội ATR) để xác nhận displacement (tối ưu: 0.4→0.5)
 ICT_ZONE_LOOKBACK = 12       # Tìm FVG trong bao nhiêu nến trước nến CHoCH
 ICT_REQUIRE_FVG   = True     # True = bắt buộc có FVG, bỏ qua setup không có FVG
-ICT_ENTRY_FRAC    = 0.5      # 0 = mép gần, 0.5 = CE, ~0.62–0.79 = OTE (điểm vào sâu hơn)
+ICT_ENTRY_FRAC    = 0.62     # 0 = mép gần, 0.5 = CE, ~0.62–0.79 = OTE (tối ưu: 0.5→0.62)
 ICT_ENTRY_MODE    = "limit"  # "limit" = chờ hồi về vùng | "market" = vào ngay khi CHoCH
 
 # --- Ẩn SL/TP khỏi sàn: chỉ bot biết, tự cắt bằng MARKET khi chạm điểm ---

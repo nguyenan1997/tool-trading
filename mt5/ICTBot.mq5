@@ -6,7 +6,7 @@
 //|  Gắn vào chart XAUUSD khung M5, bật AutoTrading.                   |
 //+------------------------------------------------------------------+
 #property copyright "tool-trading"
-#property version   "1.00"
+#property version   "1.01"
 #property description "ICT KZ-Sweep-CHoCH-FVG (XAUUSD M5)"
 
 #include <Trade\Trade.mqh>
@@ -14,21 +14,23 @@
 //────────────────────────────── Inputs ──────────────────────────────
 input long   InpMagic       = 20260927;   // Magic
 input string InpComment     = "ICT_Bot";  // Comment
+input string InpBiasMode    = "h4ema";    // Bias: prevday | h4ema | none
+input int    InpBiasEma     = 50;         // EMA H4 (khi bias = h4ema)
 input double InpLot         = 0.02;       // Lot
 input int    InpAsiaStart   = 0;          // Vùng Á - bắt đầu (giờ broker)
 input int    InpAsiaEnd     = 6;          // Vùng Á - kết thúc
-input int    InpKz1s        = 7;          // Killzone 1 bắt đầu
-input int    InpKz1e        = 20;         // Killzone 1 kết thúc
-input int    InpKz2s        = 0;          // Killzone 2 bắt đầu (0,0 = tắt)
-input int    InpKz2e        = 0;          // Killzone 2 kết thúc
+input int    InpKz1s        = 7;          // Killzone 1 bắt đầu (London open)
+input int    InpKz1e        = 11;         // Killzone 1 kết thúc
+input int    InpKz2s        = 12;         // Killzone 2 bắt đầu (NY open)
+input int    InpKz2e        = 16;         // Killzone 2 kết thúc
 input int    InpSwingK      = 2;          // Swing K (fractal)
 input double InpMinSweepATR = 0.3;        // Độ sâu quét (×ATR)
 input int    InpChochWait   = 36;         // Chờ CHoCH tối đa (nến M5) = 3h
-input double InpDispATR     = 0.4;        // Displacement (×ATR)
+input double InpDispATR     = 0.5;        // Displacement (×ATR)
 input int    InpZoneLB      = 12;         // Tìm FVG trong (nến)
 input int    InpHistoryBars = 5000;       // Nến M5 nạp để tính swing/thanh khoản (khớp ICT_HISTORY_BARS)
 input double InpMinFvgATR   = 0.3;        // Lọc FVG size >= k×ATR (0=tắt)
-input double InpEntryFrac   = 0.5;        // Vào tại (0.5=CE)
+input double InpEntryFrac   = 0.62;       // Vào tại (0.5=CE, 0.62=OTE)
 input double InpSlBufATR    = 0.2;        // SL buffer (×ATR)
 input double InpMaxRATR     = 6.0;        // R tối đa (×ATR)
 input int    InpPendMin     = 120;        // Lệnh chờ hết hạn (phút)
@@ -45,6 +47,8 @@ ulong    g_partialDone = 0;
 double   g_manSL = 0.0;      // SL/TP nội bộ (không gửi lên sàn)
 double   g_manTP = 0.0;
 bool     g_manActive = false;
+string   g_biasMode = "prevday";
+int      g_hH4ema = INVALID_HANDLE;
 
 //────────────────────────────── Helpers ──────────────────────────────
 int HourOf(datetime t) { MqlDateTime d; TimeToStruct(t, d); return d.hour; }
@@ -56,6 +60,17 @@ double ATR(int shift)
    if(g_hATR == INVALID_HANDLE) return 0.0;
    double b[];
    if(CopyBuffer(g_hATR, 0, shift, 1, b) != 1) return 0.0;
+   return b[0];
+}
+
+// EMA H4 của nến H4 ĐÃ ĐÓNG liền trước nến H4 chứa thời điểm t — khớp Python _add_bias(h4ema)
+double H4EmaAt(datetime t)
+{
+   if(g_hH4ema == INVALID_HANDLE) return 0.0;
+   int hs = iBarShift(_Symbol, PERIOD_H4, t, false);
+   if(hs < 0) return 0.0;
+   double b[];
+   if(CopyBuffer(g_hH4ema, 0, hs + 1, 1, b) != 1) return 0.0;
    return b[0];
 }
 
@@ -139,10 +154,10 @@ double DolTp(bool isBuy, double entry, double R, double pdh, double pdl,
 bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
 {
    int nb = InpHistoryBars; if(nb < 60) nb = 60;
-   double O[], H[], L[], C[], A[];
+   double O[], H[], L[], C[], A[], BE[];
    int HH[], DD[];
    ArrayResize(O, nb); ArrayResize(H, nb); ArrayResize(L, nb);
-   ArrayResize(C, nb); ArrayResize(A, nb);
+   ArrayResize(C, nb); ArrayResize(A, nb); ArrayResize(BE, nb);
    ArrayResize(HH, nb); ArrayResize(DD, nb);
 
    int n = 0;
@@ -155,6 +170,7 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
       L[n] = iLow(_Symbol, PERIOD_M5, s);
       C[n] = iClose(_Symbol, PERIOD_M5, s);
       A[n] = ATR(s);
+      BE[n] = (g_biasMode == "h4ema") ? H4EmaAt(t) : 0.0;
       HH[n] = HourOf(t); DD[n] = DayId(t);
       n++;
    }
@@ -254,8 +270,13 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
       double a = A[i];
       if(!(a > 0)) continue;
 
-      bool allowB = (bias > 0);
-      bool allowS = (bias < 0);
+      int barBias;
+      if(g_biasMode == "h4ema")
+         barBias = (BE[i] > 0) ? (C[i] > BE[i] ? 1 : (C[i] < BE[i] ? -1 : 0)) : 0;
+      else
+         barBias = bias;   // prevday
+      bool allowB = (g_biasMode == "none") || (barBias > 0);
+      bool allowS = (g_biasMode == "none") || (barBias < 0);
 
       // ---- BUY ----
       if(allowB && !doneB)
@@ -515,10 +536,21 @@ int OnInit()
       Print("[ICT] Không tạo được ATR handle");
       return INIT_FAILED;
    }
+   g_biasMode = InpBiasMode;
+   StringToLower(g_biasMode);
+   if(g_biasMode == "h4ema")
+   {
+      g_hH4ema = iMA(_Symbol, PERIOD_H4, InpBiasEma, 0, MODE_EMA, PRICE_CLOSE);
+      if(g_hH4ema == INVALID_HANDLE)
+      {
+         Print("[ICT] Không tạo được EMA H4 handle");
+         return INIT_FAILED;
+      }
+   }
    LoadManual();
    EventSetMillisecondTimer(InpPollMs);
-   PrintFormat("[ICT] Khởi động %s M5 | lot=%.2f | minFvgATR=%.2f | manualSLTP=%s",
-               _Symbol, InpLot, InpMinFvgATR, InpManualSLTP ? "ON" : "OFF");
+   PrintFormat("[ICT] Khởi động %s M5 | lot=%.2f | bias=%s | minFvgATR=%.2f | manualSLTP=%s",
+               _Symbol, InpLot, g_biasMode, InpMinFvgATR, InpManualSLTP ? "ON" : "OFF");
    return INIT_SUCCEEDED;
 }
 
@@ -527,6 +559,7 @@ void OnDeinit(const int reason)
    EventKillTimer();
    SaveManual();
    if(g_hATR != INVALID_HANDLE) IndicatorRelease(g_hATR);
+   if(g_hH4ema != INVALID_HANDLE) IndicatorRelease(g_hH4ema);
 }
 
 void OnTimer()

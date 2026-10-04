@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 class Backtester:
     def __init__(self, strategy: BaseStrategy, initial_balance=1000, lot_size=0.1, digits=5, spread=0.30,
-                 volume_min=0.01, volume_step=0.01):
+                 volume_min=0.01, volume_step=0.01, realistic_fills=False):
         self.strategy = strategy
         self.initial_balance = initial_balance
         self.balance = initial_balance
@@ -32,6 +32,9 @@ class Backtester:
         self.spread = spread  # Spread dự phòng (price) nếu nến không có cột 'spread'
         self.volume_min = volume_min
         self.volume_step = volume_step
+        # True = mô phỏng thực tế hơn: nến khớp lệnh chờ KHÔNG được tính TP trong
+        # cùng nến đó (tránh lợi thế ảo do OHLC không biết thứ tự tick trong nến).
+        self.realistic_fills = realistic_fills
         self.trades = []
         self.current_position = None  # None | {"type": "BUY/SELL", "entry": float, "sl": float, "tp": float, "time": datetime}
         self.pending = None           # lệnh chờ limit: {"type","level","sl","tp","expire_bar"}
@@ -102,12 +105,13 @@ class Backtester:
             candle = df.iloc[k]
 
             # 0. Lệnh chờ limit (entry hồi giá): kiểm tra khớp trong nến k
+            just_opened = False
             if self.current_position is None and self.pending is not None:
-                self._try_fill_pending(candle, k)
+                just_opened = self._try_fill_pending(candle, k)
 
             # 1. Sàn theo dõi SL/TP liên tục trong nến k (BUY khớp BID, SELL khớp ASK)
             if self.current_position is not None:
-                self._check_sl_tp(candle)
+                self._check_sl_tp(candle, just_opened=just_opened)
 
             # 2. Lúc nến k đóng, bot xét chốt một phần + dời SL hòa vốn tại giá close
             if self.current_position is not None:
@@ -170,10 +174,10 @@ class Backtester:
         trong nến giá tới mức vào thì lệnh phải khớp (giống sàn thật)."""
         p = self.pending
         if p is None:
-            return
+            return False
         if k > p["expire_bar"]:
             self.pending = None
-            return
+            return False
 
         bid_high = candle["high"]
         bid_low = candle["low"]
@@ -187,6 +191,7 @@ class Backtester:
                 self.pending = None
                 if entry - sl > 0:
                     self._open_from_pending("BUY", entry, sl, tp, candle)
+                    return True
         else:
             if bid_high >= p["level"]:
                 entry = round(p["level"], self.digits)
@@ -195,6 +200,8 @@ class Backtester:
                 self.pending = None
                 if sl - entry > 0:
                     self._open_from_pending("SELL", entry, sl, tp, candle)
+                    return True
+        return False
 
     def _open_from_pending(self, typ, entry, sl, tp, candle):
         self.current_position = {
@@ -210,12 +217,17 @@ class Backtester:
             "entry_time": candle.name if hasattr(candle, 'name') else "N/A",
         }
 
-    def _check_sl_tp(self, candle):
+    def _check_sl_tp(self, candle, just_opened=False):
         """Sàn khớp SL/TP TRONG nến. BUY theo BID, SELL theo ASK.
         Ưu tiên xử lý gap ở giá open, rồi mới tới high/low. Nếu 1 nến chạm cả SL
-        lẫn TP thì chọn SL (kịch bản bất lợi) cho an toàn."""
+        lẫn TP thì chọn SL (kịch bản bất lợi) cho an toàn.
+
+        `just_opened=True` (lệnh chờ vừa khớp trong nến này): với realistic_fills,
+        KHÔNG tính TP trong cùng nến (OHLC không cho biết high/low đến trước hay
+        sau lúc khớp → tránh lợi thế ảo); chỉ xét SL (bất lợi)."""
         pos = self.current_position
         d = self.digits
+        allow_tp = not (self.realistic_fills and just_opened)
 
         # Nến là BID; ASK = BID + spread
         bid_open = candle["open"]
@@ -230,21 +242,21 @@ class Backtester:
             # BUY đóng ở BID: SL khi bid <= sl, TP khi bid >= tp
             if bid_open <= pos["sl"]:
                 self._close_position(bid_open, candle)
-            elif bid_open >= pos["tp"]:
+            elif allow_tp and bid_open >= pos["tp"]:
                 self._close_position(bid_open, candle)
             elif bid_low <= pos["sl"]:
                 self._close_position(pos["sl"], candle)
-            elif bid_high >= pos["tp"]:
+            elif allow_tp and bid_high >= pos["tp"]:
                 self._close_position(pos["tp"], candle)
         else:
             # SELL đóng ở ASK: SL khi ask >= sl, TP khi ask <= tp
             if ask_open >= pos["sl"]:
                 self._close_position(ask_open, candle)
-            elif ask_open <= pos["tp"]:
+            elif allow_tp and ask_open <= pos["tp"]:
                 self._close_position(ask_open, candle)
             elif ask_high >= pos["sl"]:
                 self._close_position(pos["sl"], candle)
-            elif ask_low <= pos["tp"]:
+            elif allow_tp and ask_low <= pos["tp"]:
                 self._close_position(pos["tp"], candle)
 
     def _manage_position(self, candle):
