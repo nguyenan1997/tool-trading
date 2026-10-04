@@ -11,7 +11,7 @@
 //|   - Lưu mốc phiên ra file, tiếp quản vị thế khi khởi động lại     |
 //+------------------------------------------------------------------+
 #property copyright "tool-trading"
-#property version   "1.20"
+#property version   "1.21"
 #property description "Hedging Grid: cap BUY+SELL, TP tung lenh, mo lai khi TP, muc tieu phien, can bang BUY/SELL, khong SL."
 
 #include <Trade\Trade.mqh>
@@ -30,6 +30,9 @@ input int    InpPollMs          = 500;            // Chu kỳ xử lý (ms)
 input string InpStateFile       = "hedge_session.txt"; // File lưu phiên (MQL5/Files)
 input int    InpBalanceMinOrders = 400;           // Từ số lệnh này mới xét cân bằng BUY/SELL (0 = tắt)
 input double InpBalancePct       = 0.05;          // |BUY-SELL| <= PCT*max(BUY,SELL) -> cân bằng -> đóng phiên
+input bool   InpTradingHoursEnabled = false;      // Giới hạn giờ giao dịch (giờ VN) — khớp HEDGE_TRADING_HOURS_ENABLED
+input string InpSkipHoursVN      = "";            // Khung giờ VN bị chặn, vd "0-6,23-24" — khớp HEDGE_SKIP_HOURS_VN
+input int    InpVNUtcOffset      = 7;             // Múi giờ VN (UTC+7) — khớp VN_UTC_OFFSET
 
 //────────────────────────────── Trạng thái ──────────────────────────────
 CTrade   trade;
@@ -64,6 +67,40 @@ bool IsMarketOpen()
    if(!g_mktInit) { g_mktInit = true; g_lastBid = t.bid; g_lastChangeMs = now; return false; }
    if(t.bid != g_lastBid) { g_lastBid = t.bid; g_lastChangeMs = now; return true; }
    return (now - g_lastChangeMs) < 300000;   // tick đứng yên > 5 phút -> coi như đóng
+}
+
+// Giờ Việt Nam hiện tại — khớp Python _vn_now() = UTC + VN_UTC_OFFSET
+int VNHour()
+{
+   datetime vn = TimeGMT() + InpVNUtcOffset * 3600;
+   MqlDateTime d;
+   TimeToStruct(vn, d);
+   return d.hour;
+}
+
+// True nếu giờ VN hiện tại nằm trong khung bị chặn — khớp HEDGE_SKIP_HOURS_VN
+bool InSkipHours()
+{
+   if(!InpTradingHoursEnabled) return false;
+   if(StringLen(InpSkipHoursVN) == 0) return false;
+   int h = VNHour();
+   string parts[];
+   string sepP = ",";
+   int k = StringSplit(InpSkipHoursVN, StringGetCharacter(sepP, 0), parts);
+   for(int i = 0; i < k; i++)
+   {
+      string a = parts[i];
+      StringTrimLeft(a);
+      StringTrimRight(a);
+      if(StringLen(a) == 0) continue;
+      string se[];
+      string sepD = "-";
+      if(StringSplit(a, StringGetCharacter(sepD, 0), se) != 2) continue;
+      int s = (int)StringToInteger(se[0]);
+      int e = (int)StringToInteger(se[1]);
+      if(h >= s && h < e) return true;
+   }
+   return false;
 }
 
 double NormLot(double lot)
@@ -158,6 +195,21 @@ void NormalizeTP()
    }
 }
 
+// Neo TP cho MỘT vị thế theo giá khớp thực tế — khớp Python _open_pair phase 2
+void NormalizeTpTicket(ulong tk)
+{
+   if(!PositionSelectByTicket(tk)) return;
+   int d = (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS);
+   double open = PositionGetDouble(POSITION_PRICE_OPEN);
+   long   typ  = PositionGetInteger(POSITION_TYPE);
+   double want = (typ == (long)POSITION_TYPE_BUY) ? NormalizeDouble(open + InpTPUSD, d)
+                                                  : NormalizeDouble(open - InpTPUSD, d);
+   double cur  = PositionGetDouble(POSITION_TP);
+   double pt   = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+   if(MathAbs(cur - want) > pt * 0.5)
+      trade.PositionModify(tk, PositionGetDouble(POSITION_SL), want);
+}
+
 // Mở 1 cặp BUY + SELL
 bool OpenPair()
 {
@@ -165,6 +217,8 @@ bool OpenPair()
    int d = (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS);
    bool okBuy = false, okSell = false;
    int tries = (int)MathMax(1, InpOpenRetries);
+   ulong opened[];
+   int nOpen = 0;
 
    for(int attempt = 0; attempt < tries; attempt++)
    {
@@ -173,19 +227,28 @@ bool OpenPair()
       if(!okBuy)
       {
          if(trade.Buy(lot, _Symbol, 0.0, 0.0, NormalizeDouble(t.ask + InpTPUSD, d), InpComment))
+         {
             okBuy = true;
+            ArrayResize(opened, nOpen + 1);
+            opened[nOpen++] = (ulong)trade.ResultOrder();
+         }
       }
       if(!okSell)
       {
          if(SymbolInfoTick(_Symbol, t) &&
             trade.Sell(lot, _Symbol, 0.0, 0.0, NormalizeDouble(t.bid - InpTPUSD, d), InpComment))
+         {
             okSell = true;
+            ArrayResize(opened, nOpen + 1);
+            opened[nOpen++] = (ulong)trade.ResultOrder();
+         }
       }
       if(okBuy && okSell) break;
       Sleep(300);
    }
 
-   NormalizeTP();
+   // Neo TP theo giá khớp thực tế — CHỈ các chân vừa mở (khớp Python _open_pair phase 2)
+   for(int i = 0; i < nOpen; i++) NormalizeTpTicket(opened[i]);
 
    int ok = (okBuy ? 1 : 0) + (okSell ? 1 : 0);
    if(ok < 2)   // khớp Python: chỉ mở được < 2 chân -> kiểm tra margin
@@ -310,6 +373,22 @@ void Process()
       }
    }
 
+   // 2b) Giới hạn giờ giao dịch (giờ VN): chỉ chặn MỞ lệnh mới — khớp Python
+   if(InSkipHours())
+   {
+      if(n > 0)
+      {
+         CopyTickets(g_known, current);
+         g_fresh = false;
+      }
+      else
+      {
+         ArrayResize(g_known, 0);
+         g_fresh = true;
+      }
+      return;
+   }
+
    // 3) Lần đầu của magic: mở cặp đầu HOẶC tiếp quản
    if(g_fresh)
    {
@@ -389,6 +468,6 @@ void OnTimer()
 
 void OnTick()
 {
-   Process();
+   // (Trống) — xử lý trong OnTimer, khớp Python poll mỗi HEDGE_POLL_SEC
 }
 //+------------------------------------------------------------------+
