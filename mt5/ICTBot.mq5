@@ -34,8 +34,9 @@ input double InpEntryFrac   = 0.62;       // Vào tại (0.5=CE, 0.62=OTE)
 input double InpSlBufATR    = 0.2;        // SL buffer (×ATR)
 input double InpMaxRATR     = 6.0;        // R tối đa (×ATR)
 input int    InpPendMin     = 120;        // Lệnh chờ hết hạn (phút)
-input double InpPartialFrac = 0.0;        // Chốt % khi +1R (0 = tắt)
+input double InpPartFracPct = 0.5;        // Chốt % khi +1R (0 = tắt)
 input double InpPartialAtR  = 1.0;        // Ngưỡng R chốt
+input double InpBeAtR       = 0.0;        // Dời SL về hòa vốn khi đạt bội R (0 = tắt)
 input int    InpMaxDevPts   = 30;         // Trượt tối đa (points)
 input int    InpPollMs      = 500;        // Chu kỳ kiểm tra (ms)
 input bool   InpManualSLTP  = true;       // Ẩn SL/TP khỏi sàn: tự cắt market khi chạm
@@ -47,6 +48,8 @@ ulong    g_partialDone = 0;
 double   g_manSL = 0.0;      // SL/TP nội bộ (không gửi lên sàn)
 double   g_manTP = 0.0;
 bool     g_manActive = false;
+double   g_manR = 0.0;       // R ban đầu của vị thế (cho BE)
+bool     g_beDone = false;   // đã dời SL về hòa vốn chưa
 string   g_biasMode = "prevday";
 int      g_hH4ema = INVALID_HANDLE;
 
@@ -493,10 +496,11 @@ void ManagePosition()
       if(PositionGetString(POSITION_SYMBOL) != _Symbol) continue;
       if(PositionGetInteger(POSITION_MAGIC) != InpMagic) continue;
       if(tk == g_partialDone) continue;
-      if(InpPartialFrac <= 0 || InpPartialAtR <= 0) continue;
+      if(InpPartFracPct <= 0 || InpPartialAtR <= 0) continue;
 
       double entry = PositionGetDouble(POSITION_PRICE_OPEN);
-      double sl = PositionGetDouble(POSITION_SL);
+      double sl = (InpManualSLTP && g_manActive && g_manSL > 0) ? g_manSL
+                                                                 : PositionGetDouble(POSITION_SL);
       double R = MathAbs(entry - sl);
       if(R <= 0) continue;
       double price = (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY)
@@ -508,7 +512,7 @@ void ManagePosition()
          double vol = PositionGetDouble(POSITION_VOLUME);
          double step = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP);
          double vmin = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
-         double part = MathFloor((vol * InpPartialFrac) / step + 1e-9) * step;
+         double part = MathFloor((vol * InpPartFracPct) / step + 1e-9) * step;
          double rem = NormalizeDouble(vol - part, 2);
          if(part >= vmin - 1e-9 && rem >= vmin - 1e-9)
          {
@@ -521,6 +525,43 @@ void ManagePosition()
          else g_partialDone = tk;   // không chia được -> đánh dấu để không thử lại
       }
    }
+}
+
+//─ Dời SL về hòa vốn (BE) khi giá đi được InpBeAtR×R ─
+void ManageBreakEven()
+{
+   if(InpBeAtR <= 0) return;
+   ulong tk = 0; long typ = 0; double entry = 0.0;
+   if(!FindOurPosition(tk, typ, entry))
+   {
+      g_manR = 0.0; g_beDone = false;
+      return;
+   }
+   double sl = (InpManualSLTP && g_manActive && g_manSL > 0) ? g_manSL
+                                                             : PositionGetDouble(POSITION_SL);
+   if(sl <= 0) return;
+   if(g_manR <= 0) g_manR = MathAbs(entry - sl);
+   if(g_manR <= 0) return;
+
+   MqlTick t; if(!SymbolInfoTick(_Symbol, t)) return;
+   double price = (typ == (long)POSITION_TYPE_BUY) ? t.bid : t.ask;
+   double fav = (typ == (long)POSITION_TYPE_BUY) ? (price - entry) : (entry - price);
+   if(g_beDone || fav < InpBeAtR * g_manR) return;
+
+   if(InpManualSLTP)
+   {
+      if(!g_manActive) return;
+      if(typ == (long)POSITION_TYPE_BUY && entry > g_manSL) { g_manSL = entry; SaveManual(); }
+      else if(typ == (long)POSITION_TYPE_SELL && entry < g_manSL) { g_manSL = entry; SaveManual(); }
+   }
+   else
+   {
+      double tp = PositionGetDouble(POSITION_TP);
+      double newsl = NormalizeDouble(entry, (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS));
+      trade.PositionModify(tk, newsl, tp);
+   }
+   g_beDone = true;
+   PrintFormat("[ICT] BE@%.2fR | ticket=%I64u | entry=%.2f", InpBeAtR, tk, entry);
 }
 
 //────────────────────────────── Events ──────────────────────────────
@@ -549,8 +590,8 @@ int OnInit()
    }
    LoadManual();
    EventSetMillisecondTimer(InpPollMs);
-   PrintFormat("[ICT] Khởi động %s M5 | lot=%.2f | bias=%s | minFvgATR=%.2f | manualSLTP=%s",
-               _Symbol, InpLot, g_biasMode, InpMinFvgATR, InpManualSLTP ? "ON" : "OFF");
+   PrintFormat("[ICT] Khởi động %s M5 | lot=%.2f | bias=%s | minFvgATR=%.2f | partial=%.2f@%.1fR | be=%.1fR | manualSLTP=%s",
+               _Symbol, InpLot, g_biasMode, InpMinFvgATR, InpPartFracPct, InpPartialAtR, InpBeAtR, InpManualSLTP ? "ON" : "OFF");
    return INIT_SUCCEEDED;
 }
 
@@ -566,6 +607,7 @@ void OnTimer()
 {
    // Kiểm tra SL/TP nội bộ MỖI lần poll (kể cả trong nến)
    ManageManualSLTP();
+   ManageBreakEven();
 
    // chỉ xử lý tín hiệu khi có nến M5 mới đóng
    datetime t1 = iTime(_Symbol, PERIOD_M5, 1);
