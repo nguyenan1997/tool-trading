@@ -1,11 +1,14 @@
 //@version=5
 // ============================================================================
 //  ICT — Killzone → Sweep → Displacement/CHoCH → FVG
-//  MÔ PHỎNG KHỚP LIMIT THẬT (giống bot strategies/ict.py):
+//  MÔ PHỎNG KHỚP LIMIT THẬT (giống bot strategies/ict.py / EA ICTBot.mq5):
 //    - Phát hiện setup tại nến CHoCH.
-//    - Đặt LIMIT tại entry (CE/OTE của FVG), hết hạn sau `pendMin` phút.
+//    - Đặt LIMIT tại entry (OTE của FVG), hết hạn sau `pendMin` phút.
 //    - Khi giá hồi tới entry -> ĐÁNH DẤU NẾN KHỚP + VẼ NGAY Entry/SL/TP
 //      và KÉO DÀI các đường này mỗi nến cho tới khi chạm TP/SL.
+//    - Chốt một phần 50% @1R (giống bot mới) -> đánh dấu "TP1".
+//  Tham số mặc định đã khớp bản tối ưu: bias h4ema, KZ London(7-11)+NY(12-16),
+//  disp 0.5xATR, entry OTE 0.62.
 //  Giờ theo BROKER (đặt `brokerOff` = offset broker; LiteFinance +3 hè / +2 đông).
 //  Khuyến nghị khung M5.
 // ============================================================================
@@ -16,26 +19,26 @@ grpT = "Thời gian (giờ broker)"
 brokerOff = input.int(3, "Broker = UTC + (giờ)", -12, 14, group=grpT)
 asiaStart = input.int(0,  "Vùng Á - giờ bắt đầu", 0, 23, group=grpT)
 asiaEnd   = input.int(6,  "Vùng Á - giờ kết thúc", 0, 23, group=grpT)
-kz1s      = input.int(7,  "Killzone 1 - bắt đầu", 0, 23, group=grpT)
-kz1e      = input.int(20, "Killzone 1 - kết thúc", 0, 23, group=grpT)
-kz2s      = input.int(0,  "Killzone 2 - bắt đầu (0,0 = tắt)", 0, 23, group=grpT)
-kz2e      = input.int(0,  "Killzone 2 - kết thúc", 0, 23, group=grpT)
+kz1s      = input.int(7,  "Killzone 1 - bắt đầu (London)", 0, 23, group=grpT)
+kz1e      = input.int(11, "Killzone 1 - kết thúc", 0, 23, group=grpT)
+kz2s      = input.int(12, "Killzone 2 - bắt đầu (NY; 0,0 = tắt)", 0, 23, group=grpT)
+kz2e      = input.int(16, "Killzone 2 - kết thúc", 0, 23, group=grpT)
 
 grpB = "Bias khung lớn"
-biasMode = input.string("prevday", "Bias", options=["prevday", "h4ema", "none"], group=grpB)
+biasMode = input.string("h4ema", "Bias", options=["prevday", "h4ema", "none"], group=grpB)
 biasEma  = input.int(50, "EMA H4 (khi bias = h4ema)", 5, 400, group=grpB)
 
 grpS = "Cấu trúc"
 swingK     = input.int(2, "Swing K (fractal)", 1, 10, group=grpS)
 minSweep   = input.float(0.3, "Độ sâu quét (x ATR)", 0.0, 5.0, 0.05, group=grpS)
 chochWait  = input.int(36, "Chờ CHoCH tối đa (nến)", 1, 200, group=grpS)
-dispATR    = input.float(0.4, "Displacement (x ATR)", 0.0, 5.0, 0.05, group=grpS)
+dispATR    = input.float(0.5, "Displacement (x ATR)", 0.0, 5.0, 0.05, group=grpS)
 zoneLB     = input.int(12, "Tìm FVG trong (nến)", 2, 100, group=grpS)
 minFvgATR  = input.float(0.3, "Lọc FVG size >= k x ATR", 0.0, 5.0, 0.05, group=grpS)
 requireFVG = input.bool(true, "Bắt buộc FVG", group=grpS)
 
 grpR = "Vào / Thoát"
-entryFrac = input.float(0.5, "Vào tại (0=mép, 0.5=CE, ~0.7=OTE)", 0.0, 1.0, 0.05, group=grpR)
+entryFrac = input.float(0.62, "Vào tại (0=mép, 0.5=CE, ~0.62=OTE)", 0.0, 1.0, 0.05, group=grpR)
 slBufATR  = input.float(0.2, "SL buffer (x ATR)", 0.0, 5.0, 0.05, group=grpR)
 minRATR   = input.float(0.0, "R tối thiểu (x ATR)", 0.0, 10.0, 0.1, group=grpR)
 maxRATR   = input.float(6.0, "R tối đa (x ATR)", 0.1, 50.0, 0.1, group=grpR)
@@ -43,6 +46,8 @@ tpMode    = input.string("DOL", "Chế độ TP", options=["DOL", "R"], group=gr
 tpR       = input.float(3.0, "TP (x R) khi chế độ R", 0.5, 20.0, 0.5, group=grpR)
 tpMinR    = input.float(0.0, "TP DOL tối thiểu (x R)", 0.0, 10.0, 0.25, group=grpR)
 pendMin   = input.int(120, "Lệnh LIMIT hết hạn sau (phút)", 5, 1440, group=grpR)
+partialFrac = input.float(0.5, "Chốt một phần khi +1R (0 = tắt)", 0.0, 1.0, 0.05, group=grpR)
+partialAtR  = input.float(1.0, "Ngưỡng chốt một phần (x R)", 0.1, 10.0, 0.1, group=grpR)
 
 grpD = "Hiển thị"
 showTrades = input.bool(true, "Vẽ ENTRY/SL/TP khi khớp + WIN/LOSS", group=grpD)
@@ -204,6 +209,7 @@ var float bPTP = na
 var int bPB = na
 var int bPX = na
 var bool bInPos = false
+var bool bPartDone = false
 var float bE = na
 var float bSL = na
 var float bTP = na
@@ -220,6 +226,7 @@ var float sPTP = na
 var int sPB = na
 var int sPX = na
 var bool sInPos = false
+var bool sPartDone = false
 var float sE = na
 var float sSL = na
 var float sTP = na
@@ -230,6 +237,7 @@ var line sLTP = na
 
 var int nWin = 0
 var int nLoss = 0
+var int nBE = 0
 var int nSet = 0
 
 if newDay
@@ -237,6 +245,8 @@ if newDay
     actS := false
     doneB := false
     doneS := false
+    bPartDone := false
+    sPartDone := false
     sweepLow := na
     sweepHigh := na
     refHigh := na
@@ -254,9 +264,22 @@ if barstate.isconfirmed
             line.set_x2(bLSL, bar_index)
         if not na(bLTP)
             line.set_x2(bLTP, bar_index)
+        if partialFrac > 0 and not bPartDone and high >= bE + partialAtR * (bE - bSL)
+            bPartDone := true
+            label.new(bar_index, high, "TP1 " + str.tostring(partialFrac * 100, "#") + "%",
+                      style=label.style_label_down, color=color.new(color.green, 0),
+                      textcolor=color.white, size=size.tiny)
         if low <= bSL
             drawExit(false, bar_index, bSL)
-            nLoss += 1
+            if bPartDone
+                if partialFrac > 0.5
+                    nWin += 1
+                else if partialFrac < 0.5
+                    nLoss += 1
+                else
+                    nBE += 1
+            else
+                nLoss += 1
             bInPos := false
         else if high >= bTP
             drawExit(true, bar_index, bTP)
@@ -271,6 +294,7 @@ if barstate.isconfirmed
             bTP := bPTP
             bFB := bar_index
             bInPos := true
+            bPartDone := false
             bHavePend := false
             bLE  := line.new(bar_index, bE,  bar_index + 1, bE,  color=color.new(color.blue, 0),  width=1)
             bLSL := line.new(bar_index, bSL, bar_index + 1, bSL, color=color.new(color.red, 0),   width=1, style=line.style_dashed)
@@ -294,9 +318,22 @@ if barstate.isconfirmed
             line.set_x2(sLSL, bar_index)
         if not na(sLTP)
             line.set_x2(sLTP, bar_index)
+        if partialFrac > 0 and not sPartDone and low <= sE - partialAtR * (sSL - sE)
+            sPartDone := true
+            label.new(bar_index, low, "TP1 " + str.tostring(partialFrac * 100, "#") + "%",
+                      style=label.style_label_up, color=color.new(color.green, 0),
+                      textcolor=color.white, size=size.tiny)
         if high >= sSL
             drawExit(false, bar_index, sSL)
-            nLoss += 1
+            if sPartDone
+                if partialFrac > 0.5
+                    nWin += 1
+                else if partialFrac < 0.5
+                    nLoss += 1
+                else
+                    nBE += 1
+            else
+                nLoss += 1
             sInPos := false
         else if low <= sTP
             drawExit(true, bar_index, sTP)
@@ -311,6 +348,7 @@ if barstate.isconfirmed
             sTP := sPTP
             sFB := bar_index
             sInPos := true
+            sPartDone := false
             sHavePend := false
             sLE  := line.new(bar_index, sE,  bar_index + 1, sE,  color=color.new(color.blue, 0),  width=1)
             sLSL := line.new(bar_index, sSL, bar_index + 1, sSL, color=color.new(color.red, 0),   width=1, style=line.style_dashed)
@@ -397,9 +435,9 @@ plot(showPDPD ? pdh : na, "PDH", color=color.new(color.gray, 20), style=plot.sty
 plot(showPDPD ? pdl : na, "PDL", color=color.new(color.gray, 20), style=plot.style_stepline)
 
 // ─────────────────────────  Bảng thống kê  ─────────────────────────
-var table statTbl = table.new(position.top_right, 2, 4, border_width=1)
+var table statTbl = table.new(position.top_right, 2, 5, border_width=1)
 if showStats and barstate.islast
-    tot = nWin + nLoss
+    tot = nWin + nLoss + nBE
     wr = tot > 0 ? (nWin / tot * 100) : 0.0
     table.cell(statTbl, 0, 0, "Setup",   text_color=color.white, bgcolor=color.new(color.gray, 40), text_size=size.small)
     table.cell(statTbl, 1, 0, str.tostring(nSet), text_color=color.white, bgcolor=color.new(color.gray, 40), text_size=size.small)
@@ -409,3 +447,5 @@ if showStats and barstate.islast
     table.cell(statTbl, 1, 2, str.tostring(nLoss), text_color=color.white, bgcolor=color.new(color.red, 40), text_size=size.small)
     table.cell(statTbl, 0, 3, "Win%",    text_color=color.white, bgcolor=color.new(color.blue, 40), text_size=size.small)
     table.cell(statTbl, 1, 3, str.tostring(wr, "#.#") + "%", text_color=color.white, bgcolor=color.new(color.blue, 40), text_size=size.small)
+    table.cell(statTbl, 0, 4, "Hòa",     text_color=color.white, bgcolor=color.new(color.gray, 40), text_size=size.small)
+    table.cell(statTbl, 1, 4, str.tostring(nBE), text_color=color.white, bgcolor=color.new(color.gray, 40), text_size=size.small)
