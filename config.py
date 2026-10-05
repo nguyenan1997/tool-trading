@@ -157,6 +157,14 @@ TRADE_HOURS     = []        # [] = no restriction
 # --- Backtest ---
 BACKTEST_CACHE_HOURS = 0.1  # Cache cũ hơn bao nhiêu giờ thì tự tải lại (0.1 ≈ 6 phút; đặt 0 = luôn tải lại)
 
+# --- Backtest realism (mô phỏng sát thực tế) ---
+BACKTEST_EXEC_TF            = "M1"   # Nến nhỏ hơn để xác định THỨ TỰ chạm SL/TP trong nến ("" = tắt, dùng OHLC nến tín hiệu)
+BACKTEST_REALISTIC_FILLS    = True   # Nến khớp lệnh chờ không tính TP trong cùng nến (SL trước)
+BACKTEST_COMMISSION_PER_LOT = 0.0    # Phí mỗi lot MỖI CHIỀU (USD). Vd sàn thu $3.5/lot/lần => 3.5
+BACKTEST_SLIPPAGE_POINTS    = 0      # Trượt giá bất lợi (points; XAUUSD 1 point = 0.01)
+BACKTEST_SPREAD_MULT        = 1.0    # Nhân spread thật của nến (mô phỏng spread dãn lúc biến động)
+BACKTEST_SPREAD_MIN         = 0.0    # Sàn spread (price). Vd 0.30
+
 # --- Hiển thị giờ trên UI ---
 VN_UTC_OFFSET     = 7       # Múi giờ Việt Nam (UTC+7) để hiển thị
 BROKER_UTC_OFFSET = 0       # Dự phòng khi chưa đọc được giờ broker từ MT5 (0 = coi là UTC)
