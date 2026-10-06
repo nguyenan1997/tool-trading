@@ -8,10 +8,11 @@
 //|   - KHÔNG SL (rủi ro vô hạn khi giá đi một chiều)                  |
 //|   - Đạt lãi phiên (equity - đầu phiên >= InpTargetUSD) -> đóng hết |
 //|   - Từ InpBalanceMinOrders lệnh: nếu BUY ≈ SELL -> đóng cả phiên   |
+//|   - Đóng phiên (mục tiêu/cân bằng/hết margin) -> mở lại ĐÚNG 1 cặp |
 //|   - Lưu mốc phiên ra file, tiếp quản vị thế khi khởi động lại     |
 //+------------------------------------------------------------------+
 #property copyright "tool-trading"
-#property version   "1.21"
+#property version   "1.22"
 #property description "Hedging Grid: cap BUY+SELL, TP tung lenh, mo lai khi TP, muc tieu phien, can bang BUY/SELL, khong SL."
 
 #include <Trade\Trade.mqh>
