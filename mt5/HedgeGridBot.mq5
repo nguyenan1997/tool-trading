@@ -279,6 +279,10 @@ void CloseAll()
       }
       Sleep(200);
    }
+   // Khớp Python _close_all: xóa danh sách theo dõi + về trạng thái "phiên mới"
+   // (nếu không, vòng Process kế tiếp thấy g_known cũ -> mở bù hàng loạt cặp)
+   ArrayResize(g_known, 0);
+   g_fresh = true;
    PrintFormat("[HEDGE] Da dong toan bo vi the");
 }
 
