@@ -121,8 +121,63 @@ HEDGE_SKIP_HOURS_VN      = []
 HEDGE_CLOSE_BEFORE_HOURS = 2   # (không dùng)
 HEDGE_TRADING_HOURS_ENABLED = False
 
+# ============================================================
+#  RANKED FVG SIGNALS (port từ TradingView indicator)
+# ------------------------------------------------------------
+# Quy tắc:
+#   1. FVG 3 nến: bull low>high[2] | bear high<low[2]; lọc size >= k×ATR.
+#   2. Điểm mạnh = gap(40)+vol(30)+trend(20)+candle(10), clamp 0..100.
+#   3. Theo dõi lấp (mitigation); lấp >=1 -> xoá vùng.
+#   4. Tín hiệu khi giá CHẠM vùng FVG + bộ lọc + xác nhận (EMA cross / nến đảo chiều).
+#      Entry = biên gần; SL = sau khối FVG + buffer; TP = biên gần FVG đối diện;
+#      chỉ lấy khi R:R >= ngưỡng.
+# ============================================================
+RANKED_FVG_ENABLED   = True
+MAGIC_RANKED_FVG     = 20261007
+RANKED_FVG_COMMENT   = "RankedFVG"
+RANKED_FVG_TF        = "M5"
+RANKED_FVG_LOT       = 0.02
+RANKED_FVG_HISTORY_BARS = 5000
+RANKED_FVG_WARMUP_BARS  = 600
+
+# --- Phát hiện / xếp hạng ---
+RANKED_FVG_MAX_STORED    = 80      # Số vùng FVG lưu nội bộ
+RANKED_FVG_MIN_SIZE_ATR  = 0.3     # Lọc FVG nhỏ hơn k×ATR (0 = tắt)
+RANKED_FVG_VOL_LEN       = 20      # Volume MA
+RANKED_FVG_TREND_LEN     = 50      # Trend EMA
+RANKED_FVG_SORT          = "newest"  # newest | quality
+
+# --- Tín hiệu ---
+RANKED_FVG_WAIT_BARS     = 1       # Chờ N nến sau khi tạo FVG
+RANKED_FVG_MIN_RR        = 1.0     # R:R tối thiểu
+RANKED_FVG_SL_BUF_ATR    = 0.1     # Buffer SL (×ATR)
+RANKED_FVG_REQUIRE_OPP   = True    # Bắt buộc có FVG đối diện làm TP
+RANKED_FVG_FALLBACK_RR   = 2.0     # TP dự phòng (R) khi không có FVG đối diện
+RANKED_FVG_TP_CAP_R      = 2.0     # Giới hạn TP tối đa (bội R). 0 = tắt. Chốt 2R (cải thiện WR + bền OOS)
+RANKED_FVG_ONCE_ZONE     = True    # Mỗi FVG chỉ 1 tín hiệu
+RANKED_FVG_ENTRY_MODE    = "market"  # "limit" = chờ hồi về biên FVG | "market" = vào ngay tại tín hiệu
+RANKED_FVG_PEND_MIN      = 120      # Số phút lệnh LIMIT chờ khớp trước khi hủy (khi entry_mode=limit)
+
+# --- Bộ lọc chất lượng ---
+RANKED_FVG_MIN_STRENGTH  = 65      # Sức mạnh FVG tối thiểu (0-100, 0=tắt) — chốt 65 (bền nhất train/OOS)
+RANKED_FVG_TREND_FILTER  = False   # Chỉ lấy FVG cùng chiều EMA
+RANKED_FVG_ONLY_FRESH    = False   # Chỉ lấy FVG chưa bị chạm (tươi)
+
+# --- Killzone (giờ broker) + bias đa khung ---
+RANKED_FVG_USE_KILLZONE  = False             # Chỉ lấy tín hiệu trong killzone
+RANKED_FVG_KILLZONES     = [(7, 11), (12, 16)]  # London open + New York open
+RANKED_FVG_BIAS_MODE     = "none"            # "none" | "prevday" | "h4ema"
+RANKED_FVG_BIAS_EMA      = 50
+
+# --- Xác nhận điểm vào (chọn 1) ---
+RANKED_FVG_ENTRY_CONFIRM = "ema"   # "ema" = cắt EMA | "candle" = nến đảo chiều
+RANKED_FVG_EMA_LEN       = 9       # Độ dài EMA khi entry_confirm = "ema"
+
+# --- Ẩn SL/TP khỏi sàn (như ICT) ---
+RANKED_FVG_MANUAL_SLTP   = True
+
 # Chiến lược chạy mặc định khi khởi động chương trình.
-# "hedging" | "ict"
+# "hedging" | "ict" | "ranked_fvg"
 DEFAULT_STRATEGY = "hedging"
 
 # ============================================================

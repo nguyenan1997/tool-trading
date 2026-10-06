@@ -282,6 +282,12 @@
                         <span><span class="tag tag-mtf">M5 · H4 bias</span></span>
                         <p>Bias H4 → quét thanh khoản trong killzone London/NY → CHoCH + FVG → vào OTE/CE. TP theo draw-on-liquidity. Chỉ chạy khung M5.</p>
                     </label>
+                    <label class="strat-card" onclick="selectStrategy('ranked_fvg', this)">
+                        <input type="radio" name="strategy" value="ranked_fvg">
+                        <b>Ranked FVG Signals</b>
+                        <span><span class="tag tag-mtf">M5 · EMA + lọc sức mạnh</span></span>
+                        <p>FVG 3 nến + chấm điểm → tín hiệu khi giá hồi về FVG, xác nhận EMA/nến đảo chiều. SL sau khối, TP tới FVG đối diện (có cap R). Chỉ chạy khung M5.</p>
+                    </label>
                 </div>
 
                 <div class="section">
@@ -337,6 +343,56 @@
                             <label style="display:flex; gap:0.5rem; align-items:center; margin-top:0.6rem;">
                                 <input type="checkbox" id="ict_require_fvg" checked style="width:auto;"> Bắt buộc có FVG
                             </label>
+                        </div>
+                    </div>
+
+                    <div id="params-ranked_fvg" style="display:none;">
+                        <div class="param-block">
+                            <div class="label">Lọc chất lượng FVG</div>
+                            <div class="col2">
+                                <div><label>Sức mạnh tối thiểu (0-100)</label><input type="number" id="rfg_min_strength" value="65" min="0" max="100"></div>
+                                <div><label>Lọc FVG nhỏ hơn (× ATR)</label><input type="number" id="rfg_min_size_atr" step="0.1" value="0.3" min="0"></div>
+                            </div>
+                        </div>
+                        <div class="param-block">
+                            <div class="label">Tín hiệu / Xác nhận điểm vào</div>
+                            <div class="col2">
+                                <div><label>Cách vào lệnh</label>
+                                    <select id="rfg_entry_mode" style="width:100%;">
+                                        <option value="market" selected>Market tại tín hiệu</option>
+                                        <option value="limit">Limit tại biên FVG</option>
+                                    </select>
+                                </div>
+                                <div><label>Xác nhận (chọn 1)</label>
+                                    <select id="rfg_entry_confirm" style="width:100%;">
+                                        <option value="ema" selected>EMA cross</option>
+                                        <option value="candle">Nến đảo chiều</option>
+                                    </select>
+                                </div>
+                                <div><label>EMA độ dài</label><input type="number" id="rfg_ema_len" value="9" min="2" max="100"></div>
+                                <div><label>R:R tối thiểu</label><input type="number" id="rfg_min_rr" step="0.1" value="1.0" min="0"></div>
+                            </div>
+                        </div>
+                        <div class="param-block">
+                            <div class="label">SL / TP</div>
+                            <div class="col2">
+                                <div><label>SL buffer (× ATR)</label><input type="number" id="rfg_sl_buf_atr" step="0.05" value="0.1" min="0"></div>
+                                <div><label>Cap TP tối đa (× R, 0=tắt)</label><input type="number" id="rfg_tp_cap_r" step="0.5" value="2.0" min="0"></div>
+                            </div>
+                        </div>
+                        <div class="param-block">
+                            <div class="label">Bộ lọc thêm (mặc định tắt — thường làm OOS tệ hơn)</div>
+                            <label style="display:flex; gap:0.5rem; align-items:center; margin-top:0.4rem;">
+                                <input type="checkbox" id="rfg_use_killzone" style="width:auto;"> Chỉ lấy tín hiệu trong killzone (London/NY)
+                            </label>
+                            <div class="input-group" style="margin-top:0.5rem;">
+                                <label>Bias đa khung</label>
+                                <select id="rfg_bias_mode" style="width:100%;">
+                                    <option value="none" selected>Không dùng</option>
+                                    <option value="prevday">Nến ngày trước</option>
+                                    <option value="h4ema">EMA H4</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -402,7 +458,7 @@
             if (block) block.style.display = 'block';
             // ICT chỉ chạy M5; các PP còn lại chạy M1
             const tfSel = document.getElementById('timeframe');
-            if (key === 'ict') { tfSel.value = 'M5'; }
+            if (key === 'ict' || key === 'ranked_fvg') { tfSel.value = 'M5'; }
             else { tfSel.value = 'M1'; }
             updateCountHint();
         }
@@ -459,6 +515,16 @@
                 ict_tp_mode: document.getElementById('ict_tp_mode').value,
                 ict_require_fvg: document.getElementById('ict_require_fvg').checked ? 1 : 0,
                 ict_entry_mode: document.getElementById('ict_entry_mode').value,
+                rfg_min_strength: document.getElementById('rfg_min_strength').value,
+                rfg_min_size_atr: document.getElementById('rfg_min_size_atr').value,
+                rfg_entry_mode: document.getElementById('rfg_entry_mode').value,
+                rfg_entry_confirm: document.getElementById('rfg_entry_confirm').value,
+                rfg_ema_len: document.getElementById('rfg_ema_len').value,
+                rfg_min_rr: document.getElementById('rfg_min_rr').value,
+                rfg_sl_buf_atr: document.getElementById('rfg_sl_buf_atr').value,
+                rfg_tp_cap_r: document.getElementById('rfg_tp_cap_r').value,
+                rfg_use_killzone: document.getElementById('rfg_use_killzone').checked ? 1 : 0,
+                rfg_bias_mode: document.getElementById('rfg_bias_mode').value,
             };
 
             try {
@@ -483,7 +549,7 @@
             }
         }
 
-        const strategyNames = { 'ict': 'ICT KZ→Sweep→FVG' };
+        const strategyNames = { 'ict': 'ICT KZ→Sweep→FVG', 'ranked_fvg': 'Ranked FVG Signals' };
 
         /* ── Tính thêm chỉ số từ danh sách lệnh ── */
         function computeStats(data) {

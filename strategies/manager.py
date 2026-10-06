@@ -5,6 +5,7 @@ Quản lý việc lựa chọn và truy xuất chiến lược.
 
 from .ict import ICTKillzoneFVGStrategy
 from .hedging import HedgingStrategy
+from .ranked_fvg import RankedFVGStrategy
 
 import config
 
@@ -13,6 +14,7 @@ class StrategyManager:
         self._strategies = {
             "hedging": HedgingStrategy(),
             "ict": ICTKillzoneFVGStrategy(),
+            "ranked_fvg": RankedFVGStrategy(),
         }
         # PP chạy mặc định khi khởi động (config.DEFAULT_STRATEGY).
         default = getattr(config, "DEFAULT_STRATEGY", "hedging")
