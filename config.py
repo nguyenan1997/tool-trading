@@ -158,7 +158,7 @@ BIGMOUSE_STOP_AFTER_BASKET = False # True = dừng bot sau khi đóng basket có
 
 # Chiến lược chạy mặc định khi khởi động chương trình.
 # "hedging" | "bigmouse" | "ict"
-DEFAULT_STRATEGY = "hedging"
+DEFAULT_STRATEGY = "bigmouse"
 
 # ============================================================
 #  GUARD — chặn/đóng lệnh KHÔNG do bot mở

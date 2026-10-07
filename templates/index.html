@@ -475,8 +475,8 @@
 
                 // 4. Update strategy name highlight
                 const stratSelect = document.getElementById('strategy-select');
-                if (stratSelect.value === "") {
-                    // Update dropdown once
+                if (!strategiesLoaded) {
+                    strategiesLoaded = true;
                     loadStrategies(status.current_strategy);
                 }
 
@@ -488,29 +488,36 @@
             }
         }
 
+        let strategiesLoaded = false;
+
         async function loadStrategies(currentKey) {
             const res = await fetch(`${API_BASE}/strategies`);
             const strategies = await res.json();
             const select = document.getElementById('strategy-select');
-            select.innerHTML = strategies.map(s => 
-                `<option value="${s.id}" ${s.id === currentKey ? 'selected' : ''}>${s.name}</option>`
-            ).join('');
-            
+            const opts = ['<option value="">-- Chọn phương pháp --</option>']
+                .concat(strategies.map(s =>
+                    `<option value="${s.id}" ${s.id === currentKey ? 'selected' : ''}>${s.name}</option>`));
+            select.innerHTML = opts.join('');
+
             document.getElementById('active-strategy-name').innerText = strategies.find(s => s.id === currentKey)?.name || "---";
         }
 
         document.getElementById('strategy-select').onchange = async (e) => {
-            const id = e.target.id;
+            if (!e.target.value) return;
             await fetch(`${API_BASE}/strategy`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ strategy_id: e.target.value })
             });
+            document.getElementById('active-strategy-name').innerText =
+                e.target.options[e.target.selectedIndex].text;
             refreshData();
         };
 
         async function toggleBot() {
-            await fetch(`${API_BASE}/toggle-bot`, { method: 'POST' });
+            const res = await fetch(`${API_BASE}/toggle-bot`, { method: 'POST' });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok && data.error) { alert(data.error); return; }
             refreshData();
         }
 

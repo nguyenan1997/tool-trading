@@ -324,5 +324,8 @@ def register_routes(app):
         if bot_engine.is_running:
             bot_engine.stop()
         else:
+            # Bắt buộc phải chọn phương pháp trước khi bắt đầu
+            if not strategy_manager.has_selection():
+                return jsonify({"success": False, "error": "Chưa chọn phương pháp. Hãy chọn phương pháp rồi bấm Start."}), 400
             bot_engine.start()
         return jsonify({"bot_running": bot_engine.is_running})

@@ -7,7 +7,6 @@ from .ict import ICTKillzoneFVGStrategy
 from .hedging import HedgingStrategy
 from .bigmouse import BigMouseStrategy
 
-import config
 
 class StrategyManager:
     def __init__(self):
@@ -16,11 +15,10 @@ class StrategyManager:
             "bigmouse": BigMouseStrategy(),
             "ict": ICTKillzoneFVGStrategy(),
         }
-        # PP chạy mặc định khi khởi động (config.DEFAULT_STRATEGY).
-        default = getattr(config, "DEFAULT_STRATEGY", "hedging")
-        self._current_key = default if default in self._strategies else "hedging"
+        # KHÔNG tự chọn PP khi khởi động. Người dùng phải chọn trên UI rồi bấm Start.
+        self._current_key = None
         # Chọn PP nào thì CHỈ chạy PP đó (loại trừ nhau).
-        self._enabled = {k: (k == self._current_key) for k in self._strategies}
+        self._enabled = {k: False for k in self._strategies}
 
     def get_active_strategies(self):
         """Chỉ trả về chiến lược đang được chọn trên UI."""
@@ -38,10 +36,15 @@ class StrategyManager:
         return False
 
     def get_current_strategy(self):
+        if self._current_key is None:
+            return None
         return self._strategies[self._current_key]
-    
+
     def get_current_key(self):
         return self._current_key
+
+    def has_selection(self) -> bool:
+        return self._current_key in self._strategies
 
     def get_all_strategies(self):
         return [{"id": k, "name": v.name, "magic": v.magic} for k, v in self._strategies.items()]

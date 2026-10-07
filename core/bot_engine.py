@@ -111,6 +111,15 @@ class BotEngine:
         """Trạng thái phiên + đếm ngược, hiển thị theo GIỜ VIỆT NAM (UTC+7).
         Phiên định nghĩa theo giờ broker của CHIẾN LƯỢC ĐANG CHỌN; ở đây quy đổi để hiển thị."""
         strategy = strategy_manager.get_current_strategy()
+        if strategy is None:
+            vn_off = int(getattr(config, "VN_UTC_OFFSET", 7))
+            vn_now = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=vn_off)
+            return {
+                "in_session": False, "now": vn_now.strftime("%H:%M"),
+                "session": "-", "seconds_to_open": 0, "open_at": None,
+                "strategy": "(chưa chọn)",
+                "label": "Chưa chọn phương pháp — hãy chọn phương pháp rồi bấm Start Bot.",
+            }
         if getattr(strategy, "is_hedging", False) or getattr(strategy, "is_bigmouse", False):
             vn_off = int(getattr(config, "VN_UTC_OFFSET", 7))
             vn_now = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=vn_off)
@@ -177,8 +186,14 @@ class BotEngine:
 
         try:
             while self.is_running:
-                # Chiến lược chạy liên tục (hedging / bigmouse) có vòng lặp riêng, poll theo giây
+                # Chưa chọn phương pháp -> không làm gì, chờ người dùng chọn + bấm Start
                 _cur = strategy_manager.get_current_strategy()
+                if _cur is None:
+                    self.status = "Running (chưa chọn PP)"
+                    time.sleep(1)
+                    continue
+                self.status = "Running"
+                # Chiến lược chạy liên tục (hedging / bigmouse) có vòng lặp riêng, poll theo giây
                 if getattr(_cur, "is_hedging", False) or getattr(_cur, "is_bigmouse", False):
                     is_bm = getattr(_cur, "is_bigmouse", False)
                     try:
