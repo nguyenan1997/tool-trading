@@ -12,7 +12,6 @@ from datetime import datetime, timezone, timedelta
 import config
 from . import mt5_handler as mt5h
 from .hedging_engine import hedging_engine
-from .bigmouse_engine import bigmouse_engine
 from strategies.manager import strategy_manager
 
 logger = logging.getLogger(__name__)
@@ -47,9 +46,7 @@ class BotEngine:
             self.status = "Running"
             # Chỉ reset engine của PP đang chọn -> tránh log "tiếp tục phiên cũ" gây nhầm
             _cur = strategy_manager.get_current_strategy()
-            if getattr(_cur, "is_bigmouse", False):
-                bigmouse_engine.reset()
-            elif getattr(_cur, "is_hedging", False):
+            if getattr(_cur, "is_hedging", False):
                 hedging_engine.reset()
             self._thread = threading.Thread(target=self._run_loop, daemon=True)
             self._thread.start()
@@ -124,7 +121,7 @@ class BotEngine:
                 "strategy": "(chưa chọn)",
                 "label": "Chưa chọn phương pháp — hãy chọn phương pháp rồi bấm Start Bot.",
             }
-        if getattr(strategy, "is_hedging", False) or getattr(strategy, "is_bigmouse", False):
+        if getattr(strategy, "is_hedging", False):
             vn_off = int(getattr(config, "VN_UTC_OFFSET", 7))
             vn_now = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=vn_off)
             return {
@@ -197,36 +194,23 @@ class BotEngine:
                     time.sleep(1)
                     continue
                 self.status = "Running"
-                # Chiến lược chạy liên tục (hedging / bigmouse) có vòng lặp riêng, poll theo giây
-                if getattr(_cur, "is_hedging", False) or getattr(_cur, "is_bigmouse", False):
-                    is_bm = getattr(_cur, "is_bigmouse", False)
+                # Chiến lược chạy liên tục (hedging) có vòng lặp riêng, poll theo giây
+                if getattr(_cur, "is_hedging", False):
                     try:
                         cur_key = strategy_manager.get_current_key()
                         if self._hedge_cleared_key != cur_key:
                             self._hedge_cleared_key = cur_key
                             self._cancel_other_pending()
                         self._maybe_log_session()
-                        if is_bm:
-                            bigmouse_engine.process(strategy_manager.get_current_strategy())
-                            stop_req = bigmouse_engine.stop_requested
-                        else:
-                            hedging_engine.process(strategy_manager.get_current_strategy())
-                            stop_req = hedging_engine.stop_requested
-                        if stop_req:
-                            logger.info(
-                                f"[{'BIGMOUSE' if is_bm else 'HEDGE'}] Đã đạt mục tiêu & cấu hình dừng bot"
-                            )
+                        hedging_engine.process(strategy_manager.get_current_strategy())
+                        if hedging_engine.stop_requested:
+                            logger.info("[HEDGE] Đã đạt mục tiêu lãi & cấu hình dừng bot")
                             self.stop()
                             break
                     except Exception as e:
-                        logger.error(f"Error in {'bigmouse' if is_bm else 'hedging'}: {e}")
+                        logger.error(f"Error in hedging: {e}")
                         time.sleep(5)
-                    poll = getattr(
-                        config,
-                        "BIGMOUSE_POLL_SEC" if is_bm else "HEDGE_POLL_SEC",
-                        1,
-                    )
-                    time.sleep(max(0.2, float(poll or 1)))
+                    time.sleep(max(0.2, float(getattr(config, "HEDGE_POLL_SEC", 1) or 1)))
                     continue
 
                 # 1. Chờ nến mới

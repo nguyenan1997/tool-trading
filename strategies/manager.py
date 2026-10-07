@@ -5,14 +5,12 @@ Quản lý việc lựa chọn và truy xuất chiến lược.
 
 from .ict import ICTKillzoneFVGStrategy
 from .hedging import HedgingStrategy
-from .bigmouse import BigMouseStrategy
 
 
 class StrategyManager:
     def __init__(self):
         self._strategies = {
             "hedging": HedgingStrategy(),
-            "bigmouse": BigMouseStrategy(),
             "ict": ICTKillzoneFVGStrategy(),
         }
         # KHÔNG tự chọn PP khi khởi động. Người dùng phải chọn trên UI rồi bấm Start.
