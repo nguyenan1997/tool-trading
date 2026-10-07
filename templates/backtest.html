@@ -282,6 +282,12 @@
                         <span><span class="tag tag-mtf">M5 · H4 bias</span></span>
                         <p>Bias H4 → quét thanh khoản trong killzone London/NY → CHoCH + FVG → vào OTE/CE. TP theo draw-on-liquidity. Chỉ chạy khung M5.</p>
                     </label>
+                    <label class="strat-card" onclick="selectStrategy('sgh', this)">
+                        <input type="radio" name="strategy" value="sgh">
+                        <b>Smart Gold Hunter</b>
+                        <span><span class="tag tag-m1">M15 · breakout</span></span>
+                        <p>Single-entry / One Shot: phá vỡ kênh Donchian + lọc EMA, SL/TP thật + Break Even + trailing. Không grid/martingale. Có nhiều profile.</p>
+                    </label>
                 </div>
 
                 <div class="section">
@@ -336,6 +342,57 @@
                             </div>
                             <label style="display:flex; gap:0.5rem; align-items:center; margin-top:0.6rem;">
                                 <input type="checkbox" id="ict_require_fvg" checked style="width:auto;"> Bắt buộc có FVG
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="params-sgh" style="display:none;">
+                        <div class="param-block">
+                            <div class="label">Profile (đè lên tham số bên dưới)</div>
+                            <div class="input-group" style="margin:0;">
+                                <select id="sgh_profile" style="width:100%;">
+                                    <option value="PRR Scalping" selected>PRR Scalping</option>
+                                    <option value="Striker">Striker</option>
+                                    <option value="Ultimate Scalper">Ultimate Scalper</option>
+                                    <option value="Swinger">Swinger</option>
+                                    <option value="Prop Scalper">Prop Scalper</option>
+                                    <option value="Custom">Custom (dùng tham số bên dưới)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="param-block">
+                            <div class="label">Vào lệnh (breakout Donchian + xác nhận)</div>
+                            <div class="col2">
+                                <div><label>Đỉnh/đáy N nến</label><input type="number" id="sgh_break_lookback" value="12" min="3"></div>
+                                <div><label>Buffer phá vỡ (× ATR)</label><input type="number" id="sgh_break_buf_atr" step="0.05" value="0.1" min="0"></div>
+                                <div><label>Thân nến tối thiểu (× ATR)</label><input type="number" id="sgh_min_body_atr" step="0.05" value="0.25" min="0"></div>
+                                <div><label>Lọc xu hướng</label>
+                                    <select id="sgh_trend_mode" style="width:100%;">
+                                        <option value="ema" selected>EMA</option>
+                                        <option value="none">Không</option>
+                                    </select>
+                                </div>
+                                <div><label>EMA chu kỳ</label><input type="number" id="sgh_ema" value="50" min="5"></div>
+                                <div><label>Số lệnh tối đa / ngày</label><input type="number" id="sgh_max_trades" value="4" min="1"></div>
+                            </div>
+                        </div>
+                        <div class="param-block">
+                            <div class="label">Thoát lệnh</div>
+                            <div class="col2">
+                                <div><label>SL (× ATR)</label><input type="number" id="sgh_sl_atr" step="0.1" value="1.0" min="0.1"></div>
+                                <div><label>TP (× khoảng SL)</label><input type="number" id="sgh_tp_r" step="0.5" value="2.0" min="0.5"></div>
+                            </div>
+                        </div>
+                        <div class="param-block">
+                            <div class="label">Bảo vệ</div>
+                            <div class="col2">
+                                <div><label>Spread tối đa (points)</label><input type="number" id="sgh_max_spread_points" value="40" min="0"></div>
+                                <div><label>Equity protection (%)</label><input type="number" id="sgh_equity_protection_pct" step="0.5" value="5.0" min="0"></div>
+                                <div><label>Lỗ ngày tối đa (%)</label><input type="number" id="sgh_daily_loss_limit_pct" step="0.5" value="3.0" min="0"></div>
+                                <div><label>Randomizer (points)</label><input type="number" id="sgh_entry_random_points" value="0" min="0"></div>
+                            </div>
+                            <label style="display:flex; gap:0.5rem; align-items:center; margin-top:0.6rem;">
+                                <input type="checkbox" id="sgh_hide_initial_sl" style="width:auto;"> Ẩn SL ban đầu khỏi sàn
                             </label>
                         </div>
                     </div>
@@ -400,9 +457,10 @@
             document.querySelectorAll('[id^="params-"]').forEach(b => b.style.display = 'none');
             const block = document.getElementById('params-' + key);
             if (block) block.style.display = 'block';
-            // ICT chỉ chạy M5; các PP còn lại chạy M1
+            // ICT chạy M5, SGH chạy M15; PP khác M1
             const tfSel = document.getElementById('timeframe');
             if (key === 'ict') { tfSel.value = 'M5'; }
+            else if (key === 'sgh') { tfSel.value = 'M15'; }
             else { tfSel.value = 'M1'; }
             updateCountHint();
         }
@@ -459,6 +517,20 @@
                 ict_tp_mode: document.getElementById('ict_tp_mode').value,
                 ict_require_fvg: document.getElementById('ict_require_fvg').checked ? 1 : 0,
                 ict_entry_mode: document.getElementById('ict_entry_mode').value,
+                sgh_profile: document.getElementById('sgh_profile').value,
+                sgh_break_lookback: document.getElementById('sgh_break_lookback').value,
+                sgh_break_buf_atr: document.getElementById('sgh_break_buf_atr').value,
+                sgh_min_body_atr: document.getElementById('sgh_min_body_atr').value,
+                sgh_trend_mode: document.getElementById('sgh_trend_mode').value,
+                sgh_ema: document.getElementById('sgh_ema').value,
+                sgh_sl_atr: document.getElementById('sgh_sl_atr').value,
+                sgh_tp_r: document.getElementById('sgh_tp_r').value,
+                sgh_max_trades: document.getElementById('sgh_max_trades').value,
+                sgh_max_spread_points: document.getElementById('sgh_max_spread_points').value,
+                sgh_equity_protection_pct: document.getElementById('sgh_equity_protection_pct').value,
+                sgh_daily_loss_limit_pct: document.getElementById('sgh_daily_loss_limit_pct').value,
+                sgh_entry_random_points: document.getElementById('sgh_entry_random_points').value,
+                sgh_hide_initial_sl: document.getElementById('sgh_hide_initial_sl').checked ? 1 : 0,
             };
 
             try {
@@ -483,7 +555,7 @@
             }
         }
 
-        const strategyNames = { 'ict': 'ICT KZ→Sweep→FVG' };
+        const strategyNames = { 'ict': 'ICT KZ→Sweep→FVG', 'sgh': 'Smart Gold Hunter' };
 
         /* ── Tính thêm chỉ số từ danh sách lệnh ── */
         function computeStats(data) {

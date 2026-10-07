@@ -69,6 +69,7 @@ def _build_strategy(data):
             entry_random_points=_num(data, "sgh_entry_random_points", config.SGH_ENTRY_RANDOM_POINTS, int),
             equity_protection_pct=_num(data, "sgh_equity_protection_pct", config.SGH_EQUITY_PROTECTION_PCT),
             daily_loss_limit_pct=_num(data, "sgh_daily_loss_limit_pct", config.SGH_DAILY_LOSS_LIMIT_PCT),
+            max_spread_points=_num(data, "sgh_max_spread_points", config.SGH_MAX_SPREAD_POINTS, int),
         ), "sgh"
 
     return ICTKillzoneFVGStrategy(
