@@ -17,7 +17,6 @@ from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data, get_with_warmup, _BAR_MINUTES
 from strategies.ict import ICTKillzoneFVGStrategy
 from strategies.hedging import HedgingStrategy
-from strategies.ranked_fvg import RankedFVGStrategy
 
 logger = logging.getLogger(__name__)
 
@@ -51,20 +50,6 @@ def _build_strategy(data):
             tp_usd=_num(data, "hedge_tp_usd", config.HEDGE_TP_USD),
             lot=_num(data, "hedge_lot", config.HEDGE_LOT),
         ), "hedging"
-
-    if sid == "ranked_fvg":
-        return RankedFVGStrategy(
-            min_size_atr=_num(data, "rfg_min_size_atr", config.RANKED_FVG_MIN_SIZE_ATR),
-            min_strength=_num(data, "rfg_min_strength", config.RANKED_FVG_MIN_STRENGTH, int),
-            min_rr=_num(data, "rfg_min_rr", config.RANKED_FVG_MIN_RR),
-            sl_buf_atr=_num(data, "rfg_sl_buf_atr", config.RANKED_FVG_SL_BUF_ATR),
-            tp_cap_r=_num(data, "rfg_tp_cap_r", config.RANKED_FVG_TP_CAP_R),
-            ema_len=_num(data, "rfg_ema_len", config.RANKED_FVG_EMA_LEN, int),
-            entry_confirm=(data.get("rfg_entry_confirm") or config.RANKED_FVG_ENTRY_CONFIRM),
-            entry_mode=(data.get("rfg_entry_mode") or config.RANKED_FVG_ENTRY_MODE),
-            use_killzone=_flag(data, "rfg_use_killzone", config.RANKED_FVG_USE_KILLZONE),
-            bias_mode=(data.get("rfg_bias_mode") or config.RANKED_FVG_BIAS_MODE),
-        ), "ranked_fvg"
 
     return ICTKillzoneFVGStrategy(
         swing_k=_num(data, "ict_swing_k", config.ICT_SWING_K, int),

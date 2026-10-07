@@ -20,7 +20,6 @@ import pandas as pd
 from backtest.engine import Backtester
 from backtest.data_loader import get_with_warmup, get_historical_data, _BAR_MINUTES
 from strategies.ict import ICTKillzoneFVGStrategy
-from strategies.ranked_fvg import RankedFVGStrategy
 from research.common import metrics
 import config
 
@@ -28,7 +27,6 @@ logging.basicConfig(level=logging.INFO)
 
 REGISTRY = {
     "ict": (ICTKillzoneFVGStrategy, "M5", 20000),
-    "ranked_fvg": (RankedFVGStrategy, "M5", 20000),
 }
 
 
