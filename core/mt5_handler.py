@@ -9,6 +9,7 @@ import numpy as np
 import logging
 import math
 import threading
+import time
 from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
@@ -691,6 +692,92 @@ def place_limit_order(
         f"📌 ĐẶT LỆNH CHỜ {order_type} LIMIT  |  Ticket={ticket}  |  "
         f"Price={price:.{digits}f}  |  SL={sl:.{digits}f}  |  TP={tp:.{digits}f}  |  "
         f"Lot={lot}  |  hết hạn={expire_minutes} phút"
+    )
+    return ticket
+
+
+def place_stop_order(
+    symbol: str,
+    order_type: str,   # "BUY" → buy_stop | "SELL" → sell_stop
+    lot: float,
+    price: float,
+    sl: float,
+    tp: float,
+    magic: int,
+    comment: str,
+    expire_minutes: int = None,
+) -> int | None:
+    """Đặt lệnh CHỜ STOP thật trên MT5. Trả về ticket, hoặc None nếu thất bại.
+
+    - BUY : buy_stop, chỉ hợp lệ khi price > ask hiện tại (breakout lên).
+    - SELL: sell_stop, chỉ hợp lệ khi price < bid hiện tại (breakout xuống).
+    - expire_minutes: nếu có, đặt thời gian hết hạn (giờ server); fallback GTC.
+    """
+    info = get_symbol_info(symbol)
+    tick = get_tick(symbol)
+    if info is None or tick is None:
+        return None
+
+    digits = info.digits
+    price = round(price, digits)
+    sl = round(sl, digits)
+    tp = round(tp, digits)
+
+    if order_type == "BUY":
+        if price <= tick.ask:
+            logger.warning(
+                f"BUY STOP bỏ qua: price {price} <= ask {tick.ask} "
+                f"(giá chưa vượt mức kích hoạt)"
+            )
+            return None
+        mt5_type = mt5.ORDER_TYPE_BUY_STOP
+    else:
+        if price >= tick.bid:
+            logger.warning(
+                f"SELL STOP bỏ qua: price {price} >= bid {tick.bid} "
+                f"(giá chưa vượt mức kích hoạt)"
+            )
+            return None
+        mt5_type = mt5.ORDER_TYPE_SELL_STOP
+
+    request = {
+        "action":       mt5.TRADE_ACTION_PENDING,
+        "symbol":       symbol,
+        "volume":       lot,
+        "type":         mt5_type,
+        "price":        price,
+        "sl":           sl,
+        "tp":           tp,
+        "magic":        magic,
+        "comment":      comment,
+        "type_filling": mt5.ORDER_FILLING_RETURN,
+    }
+
+    used_expiry = False
+    if expire_minutes and expire_minutes > 0:
+        server_now = datetime.utcfromtimestamp(tick.time)
+        request["type_time"] = mt5.ORDER_TIME_SPECIFIED
+        request["expiration"] = server_now + timedelta(minutes=int(expire_minutes))
+        used_expiry = True
+    else:
+        request["type_time"] = mt5.ORDER_TIME_GTC
+
+    result = _order_send(request, info)
+    if used_expiry and (result is None or result.retcode != mt5.TRADE_RETCODE_DONE):
+        request.pop("expiration", None)
+        request["type_time"] = mt5.ORDER_TIME_GTC
+        result = _order_send(request, info)
+
+    if result is None or result.retcode != mt5.TRADE_RETCODE_DONE:
+        code = result.retcode if result else "None"
+        msg = result.comment if result else "order_send returned None"
+        logger.error(f"place_stop_order FAILED  |  retcode={code}  |  {msg}")
+        return None
+
+    ticket = result.order
+    logger.info(
+        f"📌 ĐẶT LỆNH CHỜ {order_type} STOP  |  Ticket={ticket}  |  "
+        f"Price={price:.{digits}f}  |  TP={tp:.{digits}f}  |  Lot={lot}"
     )
     return ticket
 

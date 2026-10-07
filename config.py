@@ -121,8 +121,43 @@ HEDGE_SKIP_HOURS_VN      = []
 HEDGE_CLOSE_BEFORE_HOURS = 2   # (không dùng)
 HEDGE_TRADING_HOURS_ENABLED = False
 
+# ============================================================
+#  BIGMOUSE HEDGING (XAUUSD) — ANCHOR + HEDGE STOP + MARTINGALE
+# ------------------------------------------------------------
+# Mô phỏng lại EA "BigMouse Hedging" (MT5). Luật:
+#   1. Mở 1 lệnh MARKET "mỏ neo" (mặc định BUY) lot L, TP cách giá vào
+#      BIGMOUSE_TP_USD.
+#   2. ĐẶT LỆNH CHỜ STOP ngược chiều (SELL STOP) lot = L × MULT,
+#      cách giá vào BIGMOUSE_HEDGE_TRIGGER_USD (kích hoạt hedge khi giá đi ngược).
+#   3. Giá lên chạm TP mỏ neo -> hủy SELL STOP (thắng) -> mở chu kỳ mới.
+#   4. Giá xuống chạm mức stop -> SELL STOP khớp thành vị thế hedge (basket).
+#   5. Đóng cả basket khi tổng lãi nổi đạt BIGMOUSE_BASKET_TP_USD.
+#   6. MARTINGALE: sau chu kỳ LỖ -> nhân lot; sau chu kỳ LÃI -> về lot gốc.
+# KHÔNG SL cố định cho mỏ neo (hedge thay cho SL) → rủi ro cao khi trend mạnh.
+# Bot chỉ chạy khi chiến lược đang chọn trên UI là "bigmouse".
+# ============================================================
+BIGMOUSE_ENABLED    = True
+MAGIC_BIGMOUSE      = 20260602
+BIGMOUSE_COMMENT    = "BigMouse_Bot"
+BIGMOUSE_DIRECTION  = "BUY"    # "BUY" | "SELL" — hướng lệnh mỏ neo
+BIGMOUSE_LOT        = 0.01     # Lot mỏ neo (lot hedge = lot × MULT)
+BIGMOUSE_TP_USD     = 5.0      # TP mỏ neo cách giá vào (USD ≈ pip: XAUUSD 1$ = 10 pip)
+BIGMOUSE_HEDGE_TRIGGER_USD = 5.0   # Khoảng cách đặt STOP ngược chiều
+BIGMOUSE_HEDGE_TP_USD      = 10.0  # TP của vị thế hedge (tính từ giá khớp hedge)
+BIGMOUSE_HEDGE_LOT_MULT    = 2.0   # Lot hedge = lot mỏ neo × mult
+BIGMOUSE_BASKET_TP_USD     = 12.0  # Đóng cả basket khi tổng lãi nổi đạt mức này
+BIGMOUSE_MARTINGALE        = True  # Bật martingale sau chu kỳ lỗ
+BIGMOUSE_MARTINGALE_MULT   = 2.0   # Hệ số nhân lot
+BIGMOUSE_MARTINGALE_MAX_STEPS = 5  # Số bước martingale tối đa (vượt -> về lot gốc)
+BIGMOUSE_ONE_CYCLE_ONLY    = False # True = chỉ chạy 1 chu kỳ rồi dừng bot
+BIGMOUSE_POLL_SEC          = 1.0   # Chu kỳ poll (giây)
+BIGMOUSE_MAX_DEVIATION_PTS = 30    # Giới hạn trượt mỗi lệnh (points)
+BIGMOUSE_OPEN_RETRIES      = 3     # Số lần thử lại khi sàn từ chối
+BIGMOUSE_STATE_FILE        = "logs/bigmouse_state.json"  # Lưu bước martingale khi restart
+BIGMOUSE_STOP_AFTER_BASKET = False # True = dừng bot sau khi đóng basket có lãi
+
 # Chiến lược chạy mặc định khi khởi động chương trình.
-# "hedging" | "ict"
+# "hedging" | "bigmouse" | "ict"
 DEFAULT_STRATEGY = "hedging"
 
 # ============================================================

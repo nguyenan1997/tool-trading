@@ -12,11 +12,13 @@ import os
 import re
 from core.bot_engine import bot_engine
 from core.hedging_engine import hedging_engine
+from core.bigmouse_engine import bigmouse_engine
 from strategies.manager import strategy_manager
 from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data, get_with_warmup, _BAR_MINUTES
 from strategies.ict import ICTKillzoneFVGStrategy
 from strategies.hedging import HedgingStrategy
+from strategies.bigmouse import BigMouseStrategy
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +52,22 @@ def _build_strategy(data):
             tp_usd=_num(data, "hedge_tp_usd", config.HEDGE_TP_USD),
             lot=_num(data, "hedge_lot", config.HEDGE_LOT),
         ), "hedging"
+
+    if sid == "bigmouse":
+        # BigMouse cũng không mô phỏng được bằng Backtester hiện tại (mỏ neo +
+        # hedge stop + martingale) — chỉ chạy live.
+        return BigMouseStrategy(
+            direction=(data.get("bm_direction") or config.BIGMOUSE_DIRECTION),
+            lot=_num(data, "bm_lot", config.BIGMOUSE_LOT),
+            tp_usd=_num(data, "bm_tp_usd", config.BIGMOUSE_TP_USD),
+            hedge_trigger_usd=_num(data, "bm_hedge_trigger_usd", config.BIGMOUSE_HEDGE_TRIGGER_USD),
+            hedge_tp_usd=_num(data, "bm_hedge_tp_usd", config.BIGMOUSE_HEDGE_TP_USD),
+            hedge_lot_mult=_num(data, "bm_hedge_lot_mult", config.BIGMOUSE_HEDGE_LOT_MULT),
+            basket_tp_usd=_num(data, "bm_basket_tp_usd", config.BIGMOUSE_BASKET_TP_USD),
+            martingale=_flag(data, "bm_martingale", config.BIGMOUSE_MARTINGALE),
+            martingale_mult=_num(data, "bm_martingale_mult", config.BIGMOUSE_MARTINGALE_MULT),
+            martingale_max_steps=_num(data, "bm_martingale_max_steps", config.BIGMOUSE_MARTINGALE_MAX_STEPS, int),
+        ), "bigmouse"
 
     return ICTKillzoneFVGStrategy(
         swing_k=_num(data, "ict_swing_k", config.ICT_SWING_K, int),
@@ -291,6 +309,7 @@ def register_routes(app):
         closed = mt5h.close_all_positions(config.SYMBOL, magics, "close all (UI)")
         canceled = mt5h.cancel_all_pending(config.SYMBOL, magics)
         hedging_engine.reset()
+        bigmouse_engine.reset()
         bot_engine.clear_manual()
         logger.info(f"[CLOSE-ALL] đóng {closed} vị thế, hủy {canceled} lệnh chờ (bot_running={was_running})")
         return jsonify({
