@@ -25,6 +25,9 @@ class BotEngine:
         self._lock = threading.Lock()
         self._pos_r = {}          # ticket -> R ban đầu (khoảng cách entry→SL)
         self._partial_done = set()  # các ticket đã chốt một phần
+        self._pos_best = {}        # ticket -> giá tốt nhất đã đạt (trailing SL)
+        self._day_key = None       # ngày (UTC) cho giới hạn lãi/lỗ ngày
+        self._day_start_balance = None
         self._last_session_log = 0.0  # lần cuối ghi log phiên
         self._last_session_key = None # PP đã ghi log phiên lần cuối (đổi PP → log ngay)
         self._pending = {}        # magic -> meta lệnh CHỜ LIMIT thật {ticket, expire_ts}
@@ -427,6 +430,7 @@ class BotEngine:
             if t not in open_tickets:
                 self._pos_r.pop(t, None)
                 self._partial_done.discard(t)
+                self._pos_best.pop(t, None)
 
     def _process_strategy(self, strategy):
         magic = getattr(strategy, "magic", 0)
@@ -454,6 +458,8 @@ class BotEngine:
                 tick = mt5h.get_tick(config.SYMBOL)
                 if not info or not tick:
                     return
+                if self._entry_blocked(strategy, info):
+                    return
                 price = tick.ask if signal == "BUY" else tick.bid
                 sl, tp = strategy.get_sl_tp(df, price, info.digits, signal)
                 if sl and tp:
@@ -465,6 +471,34 @@ class BotEngine:
                     ticket = mt5h.open_position(config.SYMBOL, signal, lot, send_sl, send_tp, magic, comment)
                     if manual and ticket:
                         self._set_manual(magic, signal, sl, tp)
+
+    def _entry_blocked(self, strategy, info) -> bool:
+        """Chặn vào lệnh theo bảo vệ: spread cao / vượt giới hạn lãi-lỗ ngày."""
+        # --- Spread ---
+        msp = int(getattr(strategy, "max_spread_points", 0) or 0)
+        if msp > 0 and info is not None and int(getattr(info, "spread", 0) or 0) > msp:
+            logger.info(f"⛔ {strategy.name}: spread {info.spread}pts > {msp}pts → bỏ qua vào lệnh")
+            return True
+
+        # --- Giới hạn lãi/lỗ ngày ---
+        dl = float(getattr(strategy, "daily_loss_limit_pct", 0) or 0)
+        pt = float(getattr(strategy, "daily_profit_target_pct", 0) or 0)
+        if dl > 0 or pt > 0:
+            today = datetime.now(timezone.utc).date()
+            acct = mt5h.get_account_info()
+            if self._day_key != today:
+                self._day_key = today
+                self._day_start_balance = acct.balance if acct else None
+            base = self._day_start_balance
+            if acct is not None and base:
+                delta = acct.balance - base
+                if dl > 0 and delta <= -(dl / 100.0) * base:
+                    logger.info(f"⛔ {strategy.name}: lỗ ngày {delta:.2f}$ chạm giới hạn -{dl}% → nghỉ hôm nay")
+                    return True
+                if pt > 0 and delta >= (pt / 100.0) * base:
+                    logger.info(f"⛔ {strategy.name}: lãi ngày {delta:.2f}$ đạt mục tiêu +{pt}% → nghỉ hôm nay")
+                    return True
+        return False
 
     def _manage_position(self, strategy, magic, position):
         #   1) Chốt một phần (partial TP) khi đạt partial_at_r × R
@@ -519,6 +553,27 @@ class BotEngine:
                     config.SYMBOL, position.ticket,
                     sl=round(entry, digits), tp=position.tp,
                 )
+
+        # 3) Trailing SL: sau trail_at_r × R, bám cách giá tốt nhất trail_gap_r × R
+        trail_r = getattr(strategy, "trail_at_r", 0) or 0
+        trail_gap = getattr(strategy, "trail_gap_r", 1.0) or 0
+        if trail_r > 0 and trail_gap > 0 and R > 0:
+            tk = position.ticket
+            best = self._pos_best.get(tk, entry)
+            best = max(best, price) if position.type == 0 else min(best, price)
+            self._pos_best[tk] = best
+            excursion = (best - entry) if position.type == 0 else (entry - best)
+            if excursion >= trail_r * R:
+                new_sl = round(best - trail_gap * R, digits) if position.type == 0 \
+                    else round(best + trail_gap * R, digits)
+                improves = (new_sl > stop + 1e-9) if position.type == 0 \
+                    else (new_sl < stop - 1e-9)
+                if improves:
+                    logger.info(
+                        f"⚡ TRAIL-SL  |  ticket={tk}  |  "
+                        f"SL {stop:.{digits}f} → {new_sl:.{digits}f}"
+                    )
+                    mt5h.modify_position(config.SYMBOL, tk, sl=new_sl, tp=position.tp)
 
     def _process_pending(self, strategy, magic, df):
         """Quản lý lệnh CHỜ LIMIT THẬT đặt trên MT5.

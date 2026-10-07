@@ -20,6 +20,7 @@ import pandas as pd
 from backtest.engine import Backtester
 from backtest.data_loader import get_with_warmup, get_historical_data, _BAR_MINUTES
 from strategies.ict import ICTKillzoneFVGStrategy
+from strategies.sgh import SmartGoldHunterStrategy
 from research.common import metrics
 import config
 
@@ -27,6 +28,7 @@ logging.basicConfig(level=logging.INFO)
 
 REGISTRY = {
     "ict": (ICTKillzoneFVGStrategy, "M5", 20000),
+    "sgh": (SmartGoldHunterStrategy, "M15", 4000),
 }
 
 
