@@ -28,6 +28,7 @@ class BotEngine:
         self._pos_best = {}        # ticket -> giá tốt nhất đã đạt (trailing SL)
         self._day_key = None       # ngày (UTC) cho giới hạn lãi/lỗ ngày
         self._day_start_balance = None
+        self._eq_peak = None       # đỉnh equity trong ngày (equity protection)
         self._last_session_log = 0.0  # lần cuối ghi log phiên
         self._last_session_key = None # PP đã ghi log phiên lần cuối (đổi PP → log ngay)
         self._pending = {}        # magic -> meta lệnh CHỜ LIMIT thật {ticket, expire_ts}
@@ -35,6 +36,7 @@ class BotEngine:
         self._guard_thread: threading.Thread = None # type: ignore  # luồng chặn lệnh ngoài bot
         self._manual = {}          # magic -> {"side","sl","tp"} — SL/TP ẩn khỏi sàn
         self._manual_warned = set()  # magic đã cảnh báo "có vị thế nhưng thiếu SL/TP"
+        self._manual_best = {}     # magic -> giá tốt nhất (trailing cho SL nội bộ)
         self._manual_thread: threading.Thread = None # type: ignore
         self._load_manual()
 
@@ -349,6 +351,36 @@ class BotEngine:
                         if tick is None:
                             continue
                         price = tick.bid if pos.type == 0 else tick.ask
+
+                        # --- BE + trailing nội bộ (khi ẩn SL khỏi sàn) ---
+                        be_r = getattr(s, "be_move_at_r", 0) or 0
+                        trail_r = getattr(s, "trail_at_r", 0) or 0
+                        trail_gap = getattr(s, "trail_gap_r", 1.0) or 0
+                        entry = pos.price_open
+                        R = float(meta.get("r") or 0)
+                        if R <= 0 and meta.get("sl"):
+                            R = abs(entry - float(meta["sl"]))
+                            meta["r"] = R
+                        if R > 0:
+                            best = self._manual_best.get(magic, entry)
+                            best = max(best, price) if pos.type == 0 else min(best, price)
+                            self._manual_best[magic] = best
+                            cur_sl = float(meta.get("sl") or 0.0)
+                            new_sl = cur_sl
+                            if be_r > 0:
+                                reach = price >= entry + be_r * R if pos.type == 0 else price <= entry - be_r * R
+                                if reach:
+                                    new_sl = entry if pos.type == 0 else entry
+                            if trail_r > 0 and trail_gap > 0:
+                                exc = (best - entry) if pos.type == 0 else (entry - best)
+                                if exc >= trail_r * R:
+                                    t = best - trail_gap * R if pos.type == 0 else best + trail_gap * R
+                                    new_sl = max(new_sl, t) if pos.type == 0 else min(new_sl, t)
+                            improves = (new_sl > cur_sl + 1e-9) if pos.type == 0 else (new_sl < cur_sl - 1e-9)
+                            if improves:
+                                meta["sl"] = new_sl
+                                self._save_manual()
+
                         sl = float(meta.get("sl") or 0.0)
                         tp = float(meta.get("tp") or 0.0)
                         hit = why = None
@@ -381,6 +413,7 @@ class BotEngine:
                         if not mt5h.get_pending_orders(config.SYMBOL, magic) and magic in self._manual:
                             self._clear_manual(magic)
                         self._manual_warned.discard(magic)
+                        self._manual_best.pop(magic, None)
             except Exception as e:
                 logger.error(f"[MANUAL SLTP] loop error: {e}")
             time.sleep(max(0.3, float(getattr(config, "MANUAL_SLTP_POLL_SEC", 1) or 1)))
@@ -480,23 +513,33 @@ class BotEngine:
             logger.info(f"⛔ {strategy.name}: spread {info.spread}pts > {msp}pts → bỏ qua vào lệnh")
             return True
 
-        # --- Giới hạn lãi/lỗ ngày ---
+        # --- Giới hạn lãi/lỗ ngày + equity protection ---
         dl = float(getattr(strategy, "daily_loss_limit_pct", 0) or 0)
         pt = float(getattr(strategy, "daily_profit_target_pct", 0) or 0)
-        if dl > 0 or pt > 0:
+        ep = float(getattr(strategy, "equity_protection_pct", 0) or 0)
+        if dl > 0 or pt > 0 or ep > 0:
             today = datetime.now(timezone.utc).date()
             acct = mt5h.get_account_info()
             if self._day_key != today:
                 self._day_key = today
                 self._day_start_balance = acct.balance if acct else None
-            base = self._day_start_balance
-            if acct is not None and base:
+                self._eq_peak = acct.equity if acct else None
+            if acct is not None and self._day_start_balance:
+                base = self._day_start_balance
                 delta = acct.balance - base
                 if dl > 0 and delta <= -(dl / 100.0) * base:
                     logger.info(f"⛔ {strategy.name}: lỗ ngày {delta:.2f}$ chạm giới hạn -{dl}% → nghỉ hôm nay")
                     return True
                 if pt > 0 and delta >= (pt / 100.0) * base:
                     logger.info(f"⛔ {strategy.name}: lãi ngày {delta:.2f}$ đạt mục tiêu +{pt}% → nghỉ hôm nay")
+                    return True
+            if ep > 0 and acct is not None:
+                self._eq_peak = max(self._eq_peak or acct.equity, acct.equity)
+                if acct.equity <= self._eq_peak * (1.0 - ep / 100.0):
+                    logger.info(
+                        f"⛔ {strategy.name}: equity {acct.equity:.2f}$ giảm quá -{ep}% từ đỉnh "
+                        f"{self._eq_peak:.2f}$ → ngừng vào lệnh"
+                    )
                     return True
         return False
 

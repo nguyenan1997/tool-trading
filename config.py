@@ -164,8 +164,14 @@ SGH_NEWS_FILTER   = True
 SGH_NEWS_HOUR     = 12       # Tin mạnh ~12:30 (xấp xỉ)
 SGH_NEWS_MINUTE   = 30
 SGH_NEWS_SKIP_MIN = 45
+SGH_NEWS_TIMES    = []       # Thêm giờ tin "HH:MM" ngoài NFP, vd ["14:00","15:30"]
 SGH_DAILY_PROFIT_TARGET_PCT = 0.0   # Chạm mục tiêu lãi ngày (%) -> ngừng vào lệnh. 0 = tắt
 SGH_DAILY_LOSS_LIMIT_PCT    = 3.0   # Lỗ ngày vượt mức (%) -> ngừng vào lệnh. 0 = tắt
+SGH_EQUITY_PROTECTION_PCT   = 5.0   # Equity giảm quá X% từ đỉnh ngày -> ngừng vào lệnh. 0 = tắt
+# --- Kiểu SL / randomizer (giống bản gốc) ---
+SGH_SL_FROM_EXEC = True      # True = SL/TP tính từ GIÁ KHỚP thực tế
+SGH_HIDE_INITIAL_SL = False  # True = ẩn SL ban đầu khỏi sàn (bot tự cắt nội bộ)
+SGH_ENTRY_RANDOM_POINTS = 0  # Làm lệch SL/TP ngẫu nhiên ±N points (0 = tắt)
 
 # Chiến lược chạy mặc định khi khởi động chương trình.
 # "hedging" | "sgh" | "ict"  (phải chọn PP trên UI rồi bấm Start mới chạy)

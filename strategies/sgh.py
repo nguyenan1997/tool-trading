@@ -12,6 +12,7 @@ Bảo vệ (live): giới hạn lãi/lỗ ngày, spread, news, đóng lệnh th�
 """
 import numpy as np
 import pandas as pd
+import random
 
 import config
 from .base import BaseStrategy
@@ -69,8 +70,13 @@ class SmartGoldHunterStrategy(BaseStrategy):
         news_hour=config.SGH_NEWS_HOUR,
         news_minute=config.SGH_NEWS_MINUTE,
         news_skip_min=config.SGH_NEWS_SKIP_MIN,
+        news_times=config.SGH_NEWS_TIMES,
         daily_profit_target_pct=config.SGH_DAILY_PROFIT_TARGET_PCT,
         daily_loss_limit_pct=config.SGH_DAILY_LOSS_LIMIT_PCT,
+        equity_protection_pct=config.SGH_EQUITY_PROTECTION_PCT,
+        sl_from_exec=config.SGH_SL_FROM_EXEC,
+        hide_initial_sl=config.SGH_HIDE_INITIAL_SL,
+        entry_random_points=config.SGH_ENTRY_RANDOM_POINTS,
         history_bars=config.SGH_HISTORY_BARS,
         lot=config.SGH_LOT,
         magic=config.MAGIC_SGH,
@@ -105,8 +111,12 @@ class SmartGoldHunterStrategy(BaseStrategy):
         self.news_hour = int(news_hour)
         self.news_minute = int(news_minute)
         self.news_skip_min = int(news_skip_min)
+        self.news_times = self._parse_times(news_times)
         self.daily_profit_target_pct = daily_profit_target_pct
         self.daily_loss_limit_pct = daily_loss_limit_pct
+        self.equity_protection_pct = equity_protection_pct
+        self.sl_from_exec = bool(sl_from_exec)
+        self.entry_random_points = int(entry_random_points or 0)
         self.max_spread_points = int(max_spread_points or 0)
         self.history_bars = history_bars
         self.lot = lot
@@ -120,6 +130,19 @@ class SmartGoldHunterStrategy(BaseStrategy):
         self.be_move_at_r = be_at_r
         self.trail_at_r = trail_at_r
         self.trail_gap_r = trail_gap_r
+        self.manual_sltp = bool(hide_initial_sl)   # ẩn SL/TP khỏi sàn
+
+    @staticmethod
+    def _parse_times(times):
+        """['14:00','15:30'] -> [(14,0),(15,30)]."""
+        out = []
+        for t in (times or []):
+            try:
+                hh, mm = str(t).split(":")
+                out.append((int(hh), int(mm)))
+            except Exception:
+                continue
+        return out
 
     # ------------------------------------------------------------------
     def calculate_indicators(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -146,6 +169,7 @@ class SmartGoldHunterStrategy(BaseStrategy):
 
         sig_b = np.zeros(n, dtype=bool); sig_s = np.zeros(n, dtype=bool)
         sl_b = np.full(n, np.nan); sl_s = np.full(n, np.nan)
+        sld_b = np.full(n, np.nan); sld_s = np.full(n, np.nan)
 
         cur_date = None; trades_today = 0; last_idx = -10**9
         for i in range(1, n):
@@ -159,9 +183,13 @@ class SmartGoldHunterStrategy(BaseStrategy):
             # Bảo vệ thời gian / news
             if self.friday_close_hour < 24 and wd[i] == 4 and hour[i] >= self.friday_close_hour:
                 continue
-            if self.news_filter and wd[i] == 4 and hour[i] == self.news_hour and \
-                    abs(int(minute[i]) - self.news_minute) <= self.news_skip_min:
-                continue
+            if self.news_filter:
+                slots = list(self.news_times)
+                if wd[i] == 4:
+                    slots.append((self.news_hour, self.news_minute))
+                mod = int(hour[i]) * 60 + int(minute[i])
+                if any(abs(mod - (nh * 60 + nm)) <= self.news_skip_min for nh, nm in slots):
+                    continue
             if self.max_trades > 0 and trades_today >= self.max_trades:
                 continue
             if i - last_idx < self.min_bars_between:
@@ -176,21 +204,23 @@ class SmartGoldHunterStrategy(BaseStrategy):
             allow_sell = self.trend_mode != "ema" or close[i] < ema[i]
 
             if allow_buy and np.isfinite(H[i]) and close[i] >= H[i] + buff:
-                sl = close[i] - self.sl_atr * a
-                if close[i] - sl > 0:
-                    sl_b[i] = sl; sig_b[i] = True
+                dist = self.sl_atr * a
+                if dist > 0:
+                    sl_b[i] = close[i] - dist; sld_b[i] = dist; sig_b[i] = True
                     trades_today += 1; last_idx = i
                     continue
             if allow_sell and np.isfinite(L[i]) and close[i] <= L[i] - buff:
-                sl = close[i] + self.sl_atr * a
-                if sl - close[i] > 0:
-                    sl_s[i] = sl; sig_s[i] = True
+                dist = self.sl_atr * a
+                if dist > 0:
+                    sl_s[i] = close[i] + dist; sld_s[i] = dist; sig_s[i] = True
                     trades_today += 1; last_idx = i
 
         df["sgh_sig_buy"] = sig_b
         df["sgh_sl_buy"] = sl_b
+        df["sgh_sldist_buy"] = sld_b
         df["sgh_sig_sell"] = sig_s
         df["sgh_sl_sell"] = sl_s
+        df["sgh_sldist_sell"] = sld_s
         return df
 
     # ------------------------------------------------------------------
@@ -211,15 +241,33 @@ class SmartGoldHunterStrategy(BaseStrategy):
         if len(df) < 3:
             return None, None
         sig = df.iloc[-2]
+        pt = 10.0 ** (-int(digits))
         try:
             if order_type == "BUY":
-                sl = float(sig["sgh_sl_buy"]); R = entry_price - sl
+                dist = float(sig.get("sgh_sldist_buy", np.nan))
+                if self.sl_from_exec and np.isfinite(dist) and dist > 0:
+                    sl = entry_price - dist
+                else:
+                    sl = float(sig["sgh_sl_buy"])
+                R = entry_price - sl
                 tp = entry_price + self.tp_r * R
             else:
-                sl = float(sig["sgh_sl_sell"]); R = sl - entry_price
+                dist = float(sig.get("sgh_sldist_sell", np.nan))
+                if self.sl_from_exec and np.isfinite(dist) and dist > 0:
+                    sl = entry_price + dist
+                else:
+                    sl = float(sig["sgh_sl_sell"])
+                R = sl - entry_price
                 tp = entry_price - self.tp_r * R
         except Exception:
             return None, None
         if not all(np.isfinite((sl, tp))) or R <= 0:
             return None, None
+        # Entry Randomizer: lệch SL ngẫu nhiên ±N points rồi tính lại TP theo R:R
+        if self.entry_random_points > 0:
+            sl += random.uniform(-self.entry_random_points, self.entry_random_points) * pt
+            R = (entry_price - sl) if order_type == "BUY" else (sl - entry_price)
+            if R <= 0:
+                return None, None
+            tp = entry_price + self.tp_r * R if order_type == "BUY" else entry_price - self.tp_r * R
         return round(sl, int(digits)), round(tp, int(digits))

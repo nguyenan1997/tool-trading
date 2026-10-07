@@ -64,6 +64,11 @@ def _build_strategy(data):
             tp_r=_num(data, "sgh_tp_r", config.SGH_TP_R),
             max_trades=_num(data, "sgh_max_trades", config.SGH_MAX_TRADES_PER_DAY, int),
             lot=_num(data, "sgh_lot", config.SGH_LOT),
+            hide_initial_sl=_flag(data, "sgh_hide_initial_sl", config.SGH_HIDE_INITIAL_SL),
+            sl_from_exec=_flag(data, "sgh_sl_from_exec", config.SGH_SL_FROM_EXEC),
+            entry_random_points=_num(data, "sgh_entry_random_points", config.SGH_ENTRY_RANDOM_POINTS, int),
+            equity_protection_pct=_num(data, "sgh_equity_protection_pct", config.SGH_EQUITY_PROTECTION_PCT),
+            daily_loss_limit_pct=_num(data, "sgh_daily_loss_limit_pct", config.SGH_DAILY_LOSS_LIMIT_PCT),
         ), "sgh"
 
     return ICTKillzoneFVGStrategy(
