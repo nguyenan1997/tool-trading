@@ -295,6 +295,12 @@ def register_routes(app):
         data = request.json
         strategy_id = data.get("strategy_id")
         if strategy_manager.set_strategy(strategy_id):
+            # Reset engine của PP vừa chọn để tiếp quản đúng vị thế hiện có
+            s = strategy_manager.get_current_strategy()
+            if getattr(s, "is_bigmouse", False):
+                bigmouse_engine.reset()
+            elif getattr(s, "is_hedging", False):
+                hedging_engine.reset()
             return jsonify({"success": True})
         return jsonify({"success": False, "error": "Invalid strategy"}), 400
 

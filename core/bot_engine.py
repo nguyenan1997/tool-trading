@@ -45,8 +45,12 @@ class BotEngine:
                 return
             self.is_running = True
             self.status = "Running"
-            hedging_engine.reset()   # chạy lại -> tiếp quản vị thế hiện có
-            bigmouse_engine.reset()  # chạy lại -> tiếp quản vị thế hiện có
+            # Chỉ reset engine của PP đang chọn -> tránh log "tiếp tục phiên cũ" gây nhầm
+            _cur = strategy_manager.get_current_strategy()
+            if getattr(_cur, "is_bigmouse", False):
+                bigmouse_engine.reset()
+            elif getattr(_cur, "is_hedging", False):
+                hedging_engine.reset()
             self._thread = threading.Thread(target=self._run_loop, daemon=True)
             self._thread.start()
             self._guard_thread = threading.Thread(target=self._guard_loop, daemon=True)
