@@ -63,6 +63,11 @@ def main():
         m = get_historical_data(symbol, exec_tf, count=count * ratio + 2000)
         if m is not None and not m.empty:
             exec_df = m[m.index >= df.index[0]]
+    # Chỉ test vùng CÓ nến nhỏ để SL/TP khớp chính xác
+    if exec_df is not None and not exec_df.empty and exec_df.index[0] > df.index[0]:
+        before = len(df)
+        df = df[df.index >= exec_df.index[0]]
+        print(f"⚠️ {exec_tf} chỉ phủ từ {exec_df.index[0]} → cắt vùng test: {before} → {len(df)} nến {timeframe}")
 
     print(f"📅 Dữ liệu từ: {df.index[0]} đến {df.index[-1]}  ({len(df):,} nến {timeframe})")
     if exec_df is not None:

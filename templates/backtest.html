@@ -459,8 +459,12 @@
             if (block) block.style.display = 'block';
             // ICT chạy M5, SGH chạy M15; PP khác M1
             const tfSel = document.getElementById('timeframe');
-            if (key === 'ict') { tfSel.value = 'M5'; }
-            else if (key === 'sgh') { tfSel.value = 'M15'; }
+            if (key === 'sgh') {
+                tfSel.value = 'M15';
+                // Kho nến M1 ~100k nến => M15 tối đa ~6000 nến để có đủ nến nhỏ mô phỏng
+                const cEl = document.getElementById('count');
+                if (parseInt(cEl.value) > 6500) cEl.value = 6000;
+            } else if (key === 'ict') { tfSel.value = 'M5'; }
             else { tfSel.value = 'M1'; }
             updateCountHint();
         }

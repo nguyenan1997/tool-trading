@@ -148,6 +148,21 @@ def register_routes(app):
             except Exception as e:
                 logger.warning(f"[Backtest] exec_df lỗi ({e}), bỏ qua")
 
+        # Chỉ test vùng CÓ nến nhỏ (exec) để mô phỏng SL/TP chính xác.
+        # Nếu exec ngắn hơn vùng df → cắt df cho khớp (tránh kết quả sai do thiếu intrabar).
+        if exec_df is not None and not exec_df.empty:
+            covered_from = exec_df.index[0]
+            if covered_from > df.index[0]:
+                before = len(df)
+                df = df[df.index >= covered_from]
+                logger.warning(
+                    f"[Backtest] Dữ liệu {exec_tf} chỉ phủ từ {covered_from} → "
+                    f"cắt vùng test từ {before} xuống {len(df)} nến {tf} "
+                    f"(tránh mô phỏng thiếu nến nhỏ)."
+                )
+            if df.empty:
+                return jsonify({"error": f"Dữ liệu {exec_tf} không phủ vùng test. Giảm số nến hoặc đổi khung."}), 400
+
         tester = Backtester(
             strategy, initial_balance=balance, lot_size=lot, digits=digits, spread=spread,
             exec_df=exec_df,
