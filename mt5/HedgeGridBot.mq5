@@ -44,6 +44,8 @@ long     g_sessionOrders  = 0;
 bool     g_fresh          = true;
 bool     g_stopRequested  = false;
 bool     g_noMoney        = false;
+int      g_owedBuy        = 0;   // số chân BUY còn thiếu cần mở bù
+int      g_owedSell       = 0;   // số chân SELL còn thiếu cần mở bù
 ulong    g_known[];
 bool     g_mktInit        = false;
 double   g_lastBid        = 0.0;
@@ -64,6 +66,8 @@ bool IsMarketOpen()
    if(SymbolInfoInteger(_Symbol, SYMBOL_TRADE_MODE) != (long)SYMBOL_TRADE_MODE_FULL) return false;
    MqlTick t;
    if(!SymbolInfoTick(_Symbol, t) || t.bid <= 0.0) return false;
+   // Trong Strategy Tester: đồng hồ thật không phản ánh thời gian mô phỏng -> bỏ heuristic
+   if(MQLInfoInteger(MQL_TESTER)) return true;
    uint now = GetTickCount();
    if(!g_mktInit) { g_mktInit = true; g_lastBid = t.bid; g_lastChangeMs = now; return false; }
    if(t.bid != g_lastBid) { g_lastBid = t.bid; g_lastChangeMs = now; return true; }
@@ -175,11 +179,48 @@ void CopyTickets(ulong &dst[], const ulong &src[])
    for(int i = 0; i < n; i++) dst[i] = src[i];
 }
 
-// Đặt TP của mọi vị thế = giá mở ± InpTPUSD
-void NormalizeTP()
+// Tìm vé POSITION mới nhất theo type (tránh nhầm vé order)
+ulong NewestPositionTicket(long type)
 {
+   ulong best = 0; datetime bt = 0;
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+   {
+      ulong tk = PositionGetTicket(i);
+      if(tk == 0) continue;
+      if(PositionGetString(POSITION_SYMBOL) != _Symbol) continue;
+      if(PositionGetInteger(POSITION_MAGIC) != InpMagic) continue;
+      if(PositionGetInteger(POSITION_TYPE) != type) continue;
+      datetime tt = (datetime)PositionGetInteger(POSITION_TIME);
+      if(tt >= bt) { bt = tt; best = tk; }
+   }
+   return best;
+}
+
+// Đảm bảo 1 vị thế có ĐÚNG TP. Trả 0=thử lại, 1=OK, 2=giá đã chạm TP -> cần đóng
+int EnsureTp(ulong tk, double want)
+{
+   if(tk == 0 || !PositionSelectByTicket(tk)) return 0;
    int d = (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS);
    double pt = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+   long typ = PositionGetInteger(POSITION_TYPE);
+   MqlTick t; if(!SymbolInfoTick(_Symbol, t)) return 0;
+   want = NormalizeDouble(want, d);
+   if(typ == (long)POSITION_TYPE_BUY && t.bid >= want) return 2;   // giá đã chạm TP
+   if(typ == (long)POSITION_TYPE_SELL && t.ask <= want) return 2;
+   double cur = PositionGetDouble(POSITION_TP);
+   if(MathAbs(cur - want) <= pt * 0.5) return 1;                   // đã có TP đúng
+   double sl = PositionGetDouble(POSITION_SL);
+   if(trade.PositionModify(tk, sl, want))
+   {
+      if(PositionSelectByTicket(tk) && MathAbs(PositionGetDouble(POSITION_TP) - want) <= pt * 0.5)
+         return 1;
+   }
+   return 0;
+}
+
+// Đặt TP mọi vị thế = giá mở ± InpTPUSD (dùng EnsureTp, KHÔNG bỏ qua TP=0)
+void NormalizeTP()
+{
    for(int i = PositionsTotal() - 1; i >= 0; i--)
    {
       ulong tk = PositionGetTicket(i);
@@ -187,81 +228,93 @@ void NormalizeTP()
       if(PositionGetString(POSITION_SYMBOL) != _Symbol) continue;
       if(PositionGetInteger(POSITION_MAGIC) != InpMagic) continue;
       double open = PositionGetDouble(POSITION_PRICE_OPEN);
-      long   typ  = PositionGetInteger(POSITION_TYPE);
-      double want = (typ == (long)POSITION_TYPE_BUY) ? NormalizeDouble(open + InpTPUSD, d)
-                                                     : NormalizeDouble(open - InpTPUSD, d);
-      double cur  = PositionGetDouble(POSITION_TP);
-      if(MathAbs(cur - want) > pt * 0.5)
-         trade.PositionModify(tk, PositionGetDouble(POSITION_SL), want);
+      long typ = PositionGetInteger(POSITION_TYPE);
+      double want = (typ == (long)POSITION_TYPE_BUY) ? open + InpTPUSD : open - InpTPUSD;
+      EnsureTp(tk, want);
    }
 }
 
-// Neo TP cho MỘT vị thế theo giá khớp thực tế — khớp Python _open_pair phase 2
-void NormalizeTpTicket(ulong tk)
-{
-   if(!PositionSelectByTicket(tk)) return;
-   int d = (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS);
-   double open = PositionGetDouble(POSITION_PRICE_OPEN);
-   long   typ  = PositionGetInteger(POSITION_TYPE);
-   double want = (typ == (long)POSITION_TYPE_BUY) ? NormalizeDouble(open + InpTPUSD, d)
-                                                  : NormalizeDouble(open - InpTPUSD, d);
-   double cur  = PositionGetDouble(POSITION_TP);
-   double pt   = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-   if(MathAbs(cur - want) > pt * 0.5)
-      trade.PositionModify(tk, PositionGetDouble(POSITION_SL), want);
-}
-
-// Mở 1 cặp BUY + SELL
-bool OpenPair()
+// Mở 1 chân (BUY/SELL), đảm bảo TP; trả về vé position hoặc 0
+ulong OpenOne(bool isBuy)
 {
    double lot = NormLot(InpLot);
    int d = (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS);
-   bool okBuy = false, okSell = false;
-   int tries = (int)MathMax(1, InpOpenRetries);
-   ulong opened[];
-   int nOpen = 0;
-
-   for(int attempt = 0; attempt < tries; attempt++)
+   MqlTick t;
+   if(!SymbolInfoTick(_Symbol, t)) return 0;
+   double tp = NormalizeDouble(isBuy ? t.ask + InpTPUSD : t.bid - InpTPUSD, d);
+   bool ok = isBuy ? trade.Buy(lot, _Symbol, 0.0, 0.0, tp, InpComment)
+                   : trade.Sell(lot, _Symbol, 0.0, 0.0, tp, InpComment);
+   if(!ok) return 0;
+   ulong ptk = NewestPositionTicket(isBuy ? (long)POSITION_TYPE_BUY : (long)POSITION_TYPE_SELL);
+   if(ptk && PositionSelectByTicket(ptk))
    {
-      MqlTick t;
-      if(!SymbolInfoTick(_Symbol, t)) { Sleep(200); continue; }
-      if(!okBuy)
-      {
-         if(trade.Buy(lot, _Symbol, 0.0, 0.0, NormalizeDouble(t.ask + InpTPUSD, d), InpComment))
-         {
-            okBuy = true;
-            ArrayResize(opened, nOpen + 1);
-            opened[nOpen++] = (ulong)trade.ResultOrder();
-         }
-      }
-      if(!okSell)
-      {
-         if(SymbolInfoTick(_Symbol, t) &&
-            trade.Sell(lot, _Symbol, 0.0, 0.0, NormalizeDouble(t.bid - InpTPUSD, d), InpComment))
-         {
-            okSell = true;
-            ArrayResize(opened, nOpen + 1);
-            opened[nOpen++] = (ulong)trade.ResultOrder();
-         }
-      }
-      if(okBuy && okSell) break;
-      Sleep(300);
+      double open = PositionGetDouble(POSITION_PRICE_OPEN);
+      EnsureTp(ptk, isBuy ? open + InpTPUSD : open - InpTPUSD);
    }
+   return ptk;
+}
 
-   // Neo TP theo giá khớp thực tế — CHỈ các chân vừa mở (khớp Python _open_pair phase 2)
-   for(int i = 0; i < nOpen; i++) NormalizeTpTicket(opened[i]);
+// Mở 1 cặp BUY + SELL; chân nào fail -> ghi vào g_owed* để mở bù vòng sau
+bool OpenPair()
+{
+   int ok = 0;
+   ulong tb = 0, ts = 0;
+   for(int attempt = 0; attempt < (int)MathMax(1, InpOpenRetries) && !tb; attempt++)
+   {
+      tb = OpenOne(true);
+      if(!tb) Sleep(200);
+   }
+   for(int attempt = 0; attempt < (int)MathMax(1, InpOpenRetries) && !ts; attempt++)
+   {
+      ts = OpenOne(false);
+      if(!ts) Sleep(200);
+   }
+   if(tb) ok++; else g_owedBuy++;
+   if(ts) ok++; else g_owedSell++;
 
-   int ok = (okBuy ? 1 : 0) + (okSell ? 1 : 0);
-   if(ok < 2)   // khớp Python: chỉ mở được < 2 chân -> kiểm tra margin
+   if(ok < 2)
    {
       double need = 0.0, freeMargin = AccountInfoDouble(ACCOUNT_MARGIN_FREE);
-      if(OrderCalcMargin(ORDER_TYPE_BUY, _Symbol, lot, SymbolInfoDouble(_Symbol, SYMBOL_ASK), need))
+      if(OrderCalcMargin(ORDER_TYPE_BUY, _Symbol, NormLot(InpLot), SymbolInfoDouble(_Symbol, SYMBOL_ASK), need))
          g_noMoney = (freeMargin < need + 0.01);
    }
-
    g_sessionOrders += ok;
-   PrintFormat("[HEDGE] Mo cap: BUY=%s SELL=%s lot=%.2f", okBuy ? "OK" : "FAIL", okSell ? "OK" : "FAIL", lot);
+   PrintFormat("[HEDGE] Mo cap: BUY=%s SELL=%s lot=%.2f",
+               tb ? "OK" : "OWED", ts ? "OK" : "OWED", NormLot(InpLot));
    return (ok > 0);
+}
+
+// TỰ HÀN GẮN: TP cho mọi vị thế + mở bù chân thiếu (chạy MỖI vòng)
+void Reconcile()
+{
+   // 1) Audit TP mọi vị thế
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+   {
+      ulong tk = PositionGetTicket(i);
+      if(tk == 0) continue;
+      if(PositionGetString(POSITION_SYMBOL) != _Symbol) continue;
+      if(PositionGetInteger(POSITION_MAGIC) != InpMagic) continue;
+      double open = PositionGetDouble(POSITION_PRICE_OPEN);
+      long typ = PositionGetInteger(POSITION_TYPE);
+      double want = (typ == (long)POSITION_TYPE_BUY) ? open + InpTPUSD : open - InpTPUSD;
+      int r = EnsureTp(tk, want);
+      if(r == 2)
+      {
+         if(trade.PositionClose(tk, (ulong)InpMaxDevPts))
+            PrintFormat("[HEDGE] self-heal TP: dong #%I64u (gia da cham TP)", tk);
+      }
+   }
+   // 2) Mở bù chân thiếu (mở bằng được mới thôi)
+   while(g_owedBuy > 0)
+   {
+      if(OpenOne(true)) g_owedBuy--;
+      else break;
+   }
+   while(g_owedSell > 0)
+   {
+      if(OpenOne(false)) g_owedSell--;
+      else break;
+   }
 }
 
 // Đóng toàn bộ vị thế của magic
@@ -284,6 +337,8 @@ void CloseAll()
    // (nếu không, vòng Process kế tiếp thấy g_known cũ -> mở bù hàng loạt cặp)
    ArrayResize(g_known, 0);
    g_fresh = true;
+   g_owedBuy = 0;
+   g_owedSell = 0;
    PrintFormat("[HEDGE] Da dong toan bo vi the");
 }
 
@@ -335,6 +390,7 @@ void Process()
    if(!IsMarketOpen()) return;
 
    g_noMoney = false;
+   Reconcile();               // tự hàn gắn TP + chân thiếu mỗi vòng
    int n = CountOurPositions();
    ulong current[];
    GetOurTickets(current);

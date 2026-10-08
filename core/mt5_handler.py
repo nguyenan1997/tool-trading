@@ -428,23 +428,26 @@ def open_position(
     fill = float(getattr(result, "price", 0) or price)
     slip_points = abs(fill - price) / info.point
 
+    # Vé POSITION thật (result.order chỉ là vé order, có thể khác vé position)
+    pos_ticket = resolve_position_ticket(symbol, magic, result.order, mt5_type)
+
     # Broker có thể bỏ qua `deviation` -> khớp lệch quá ngưỡng thì đóng ngay, coi như không vào
     if max_slippage_points > 0 and slip_points > max_slippage_points:
         logger.warning(
             f"⚠️ TRƯỢT GIÁ {slip_points:.0f} points (> {max_slippage_points})  |  "
             f"yêu cầu {price:.{digits}f} -> khớp {fill:.{digits}f}  |  ĐÓNG LỆNH, coi như không vào"
         )
-        pos = get_position_by_ticket(result.order)
+        pos = get_position_by_ticket(pos_ticket)
         if pos is not None:
             close_position(pos, magic, "slippage cancel")
         return False
 
     logger.info(
         f"{'🟢 BUY' if order_type == 'BUY' else '🔴 SELL'} OPENED  |  "
-        f"Ticket={result.order}  |  Fill={fill:.5f}  |  Yêu cầu={price:.5f}  |  "
+        f"Ticket={pos_ticket}  |  Fill={fill:.5f}  |  Yêu cầu={price:.5f}  |  "
         f"SL={sl:.5f}  |  TP={tp:.5f}  |  Lot={lot}  |  trượt={slip_points:.0f}pts"
     )
-    return result.order
+    return pos_ticket
 
 
 def close_position(position, magic: int, comment: str = "close") -> bool:
@@ -582,6 +585,9 @@ def modify_position(symbol: str, ticket: int, sl=None, tp=None, magic: int = Non
 
     with _SEND_LOCK:
         result = mt5.order_send(request)
+    if result is None:
+        logger.error(f"modify_position FAILED (order_send None)  |  ticket={ticket}")
+        return False
     if result.retcode != mt5.TRADE_RETCODE_DONE:
         if result.retcode == _MARKET_CLOSED_RETCODE:
             logger.debug(f"modify_position bỏ qua (thị trường đóng) | ticket={ticket}")
@@ -593,6 +599,53 @@ def modify_position(symbol: str, ticket: int, sl=None, tp=None, magic: int = Non
         return False
     logger.info(f"✅ MODIFIED  |  ticket={ticket}  |  SL={sl}  |  TP={tp}")
     return True
+
+
+def ensure_tp(symbol: str, position, tp: float, magic: int = None) -> str:
+    """Đảm bảo vị thế có ĐÚNG mức TP mong muốn. BẰNG MỌI GIÁ (ngoại trừ sàn đóng).
+
+    Trả về:
+      "OK"    : vị thế đã có TP đúng (hoặc vừa đặt + xác minh thành công).
+      "CLOSE" : giá đã chạm/vượt TP -> coi như chốt, cần ĐÓNG vị thế.
+      "RETRY" : chưa đặt được -> để vòng sau thử lại.
+    """
+    info = get_symbol_info(symbol)
+    tick = get_tick(symbol)
+    if info is None or tick is None:
+        return "RETRY"
+    point = info.point or 0.01
+    tp = round(float(tp), int(info.digits))
+
+    # Giá đã chạm/vượt TP? (BUY chốt theo BID, SELL chốt theo ASK)
+    if position.type == mt5.POSITION_TYPE_BUY and tick.bid >= tp:
+        return "CLOSE"
+    if position.type == mt5.POSITION_TYPE_SELL and tick.ask <= tp:
+        return "CLOSE"
+
+    # Đã có TP đúng?
+    if abs((position.tp or 0.0) - tp) <= point:
+        return "OK"
+
+    # Thử đặt rồi ĐỌC LẠI xác minh
+    if modify_position(symbol, position.ticket, sl=(position.sl or 0.0), tp=tp, magic=magic):
+        p2 = get_position_by_ticket(position.ticket)
+        if p2 is not None and abs((p2.tp or 0.0) - tp) <= point:
+            return "OK"
+    return "RETRY"
+
+
+def resolve_position_ticket(symbol: str, magic: int, order_ticket: int, order_type: int) -> int:
+    """Tìm vé POSITION thật (tránh nhầm vé ORDER). Fallback: quét theo magic + type, mới nhất."""
+    ps = mt5.positions_get(ticket=order_ticket)
+    if ps:
+        return int(ps[0].ticket)
+    ps = mt5.positions_get(symbol=symbol)
+    if ps:
+        cand = [p for p in ps if p.magic == magic and p.type == order_type]
+        if cand:
+            cand.sort(key=lambda p: p.time, reverse=True)
+            return int(cand[0].ticket)
+    return int(order_ticket)
 
 
 # ────────────────────────────────────────────────
