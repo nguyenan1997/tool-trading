@@ -33,6 +33,12 @@ input double InpMinFvgATR   = 0.3;        // Lọc FVG size >= k×ATR (0=tắt)
 input double InpEntryFrac   = 0.62;       // Vào tại (0.5=CE, 0.62=OTE)
 input double InpSlBufATR    = 0.2;        // SL buffer (×ATR)
 input double InpMaxRATR     = 6.0;        // R tối đa (×ATR)
+input int    InpWarmupBars   = 600;       // Bỏ qua N nến M5 đầu (khớp warmup web ICT_WARMUP_BARS)
+input double InpMinRATR      = 0.0;       // Bỏ setup nếu R < k×ATR (0=tắt) — khớp ICT_MIN_R_ATR
+input int    InpVolMA        = 20;        // Chu kỳ MA volume — khớp ICT_VOL_MA
+input double InpVolMin       = 0.0;       // Volume nến FVG >= k×volMA (0=tắt) — khớp ICT_VOL_MIN
+input bool   InpSkipMitigated= false;     // Bỏ FVG đã bị lấp — khớp ICT_SKIP_MITIGATED
+input double InpMitigateMax  = 0.5;       // Ngưỡng lấp (0..1) — khớp ICT_MITIGATE_MAX
 input int    InpPendMin     = 120;        // Lệnh chờ hết hạn (phút)
 input double InpPartFracPct = 0.5;        // Chốt % khi +1R (0 = tắt)
 input double InpPartialAtR  = 1.0;        // Ngưỡng R chốt
@@ -52,6 +58,7 @@ double   g_manR = 0.0;       // R ban đầu của vị thế (cho BE)
 bool     g_beDone = false;   // đã dời SL về hòa vốn chưa
 string   g_biasMode = "prevday";
 int      g_hH4ema = INVALID_HANDLE;
+datetime g_startTime = 0;    // thời điểm bắt đầu (để bỏ qua warmup)
 
 //────────────────────────────── Helpers ──────────────────────────────
 int HourOf(datetime t) { MqlDateTime d; TimeToStruct(t, d); return d.hour; }
@@ -64,6 +71,13 @@ double ATR(int shift)
    double b[];
    if(CopyBuffer(g_hATR, 0, shift, 1, b) != 1) return 0.0;
    return b[0];
+}
+
+double TickVol(int shift)
+{
+   long v[];
+   if(CopyTickVolume(_Symbol, PERIOD_M5, shift, 1, v) != 1) return 0.0;
+   return (double)v[0];
 }
 
 // EMA H4 của nến H4 ĐÃ ĐÓNG liền trước nến H4 chứa thời điểm t — khớp Python _add_bias(h4ema)
@@ -103,9 +117,9 @@ bool SweptHigh(int i, const double &H[], const double &C[], double a,
    return false;
 }
 
-// FVG tăng: low[m] > high[m-2] và low[m] < close[i]; lọc size >= k*ATR
+// FVG tăng: low[m] > high[m-2] và low[m] < close[i]; lọc size/volume/mitigate
 bool BullZone(int i, const double &H[], const double &L[], const double &C[], double atrI,
-              double &zl, double &zh)
+              const double &V[], const double &VM[], double &zl, double &zh)
 {
    int lo = i - InpZoneLB; if(lo < 2) lo = 2;
    for(int m = i; m >= lo; m--)
@@ -114,13 +128,24 @@ bool BullZone(int i, const double &H[], const double &L[], const double &C[], do
       {
          zl = H[m - 2]; zh = L[m];
          if(InpMinFvgATR > 0 && (zh - zl) < InpMinFvgATR * atrI) continue;
+         if(InpVolMin > 0 && VM[m] > 0 && V[m] < InpVolMin * VM[m]) continue;
+         if(InpSkipMitigated)
+         {
+            double size = zh - zl;
+            if(size > 0 && m + 1 <= i)
+            {
+               double mn = L[m + 1];
+               for(int x = m + 2; x <= i; x++) if(L[x] < mn) mn = L[x];
+               if((zh - mn) / size >= InpMitigateMax) continue;
+            }
+         }
          return true;
       }
    }
    return false;
 }
 bool BearZone(int i, const double &H[], const double &L[], const double &C[], double atrI,
-              double &zl, double &zh)
+              const double &V[], const double &VM[], double &zl, double &zh)
 {
    int lo = i - InpZoneLB; if(lo < 2) lo = 2;
    for(int m = i; m >= lo; m--)
@@ -129,6 +154,17 @@ bool BearZone(int i, const double &H[], const double &L[], const double &C[], do
       {
          zl = H[m]; zh = L[m - 2];
          if(InpMinFvgATR > 0 && (zh - zl) < InpMinFvgATR * atrI) continue;
+         if(InpVolMin > 0 && VM[m] > 0 && V[m] < InpVolMin * VM[m]) continue;
+         if(InpSkipMitigated)
+         {
+            double size = zh - zl;
+            if(size > 0 && m + 1 <= i)
+            {
+               double mx = H[m + 1];
+               for(int x = m + 2; x <= i; x++) if(H[x] > mx) mx = H[x];
+               if((mx - zl) / size >= InpMitigateMax) continue;
+            }
+         }
          return true;
       }
    }
@@ -157,10 +193,11 @@ double DolTp(bool isBuy, double entry, double R, double pdh, double pdl,
 bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
 {
    int nb = InpHistoryBars; if(nb < 60) nb = 60;
-   double O[], H[], L[], C[], A[], BE[];
+   double O[], H[], L[], C[], A[], BE[], V[], VM[];
    int HH[], DD[];
    ArrayResize(O, nb); ArrayResize(H, nb); ArrayResize(L, nb);
    ArrayResize(C, nb); ArrayResize(A, nb); ArrayResize(BE, nb);
+   ArrayResize(V, nb); ArrayResize(VM, nb);
    ArrayResize(HH, nb); ArrayResize(DD, nb);
 
    int n = 0;
@@ -173,11 +210,22 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
       L[n] = iLow(_Symbol, PERIOD_M5, s);
       C[n] = iClose(_Symbol, PERIOD_M5, s);
       A[n] = ATR(s);
+      V[n] = TickVol(s);
       BE[n] = (g_biasMode == "h4ema") ? H4EmaAt(t) : 0.0;
       HH[n] = HourOf(t); DD[n] = DayId(t);
       n++;
    }
    if(n < 60) return false;
+
+   // MA volume (rolling InpVolMA) — khớp Python vol_ma
+   int vmw = (InpVolMA > 1) ? InpVolMA : 1;
+   for(int j = 0; j < n; j++)
+   {
+      int a0 = j - vmw + 1; if(a0 < 0) a0 = 0;
+      double sm = 0.0; int cnt = 0;
+      for(int x = a0; x <= j; x++) { sm += V[x]; cnt++; }
+      VM[j] = (cnt > 0) ? sm / cnt : 0.0;
+   }
 
    // PDH/PDL + bias prevday (nến ngày hôm trước)
    double pdh = iHigh(_Symbol, PERIOD_D1, 1);
@@ -290,12 +338,12 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
             else if(refHigh > 0 && C[i] > refHigh && (C[i] - O[i]) >= InpDispATR * a)
             {
                double zl, zh;
-               if(BullZone(i, H, L, C, a, zl, zh))
+               if(BullZone(i, H, L, C, a, V, VM, zl, zh))
                {
                   double e = zh - InpEntryFrac * (zh - zl);
                   double s = MathMin(sweepLow, zl) - InpSlBufATR * a;
                   double R = e - s;
-                  if(R > 0 && e < C[i] && R <= InpMaxRATR * a)
+                  if(R > 0 && e < C[i] && R <= InpMaxRATR * a && R >= InpMinRATR * a)
                   {
                      double tpv = DolTp(true, e, R, pdh, pdl, asiaHi[i], asiaLo[i], lastSH[i], lastSL[i]);
                      if(i == n - 1) { dir = 1; entry = e; sl = s; tp = tpv; return true; }
@@ -321,12 +369,12 @@ bool EvalSignal(int &dir, double &entry, double &sl, double &tp)
             else if(refLow > 0 && C[i] < refLow && (O[i] - C[i]) >= InpDispATR * a)
             {
                double zl, zh;
-               if(BearZone(i, H, L, C, a, zl, zh))
+               if(BearZone(i, H, L, C, a, V, VM, zl, zh))
                {
                   double e = zl + InpEntryFrac * (zh - zl);
                   double s = MathMax(sweepHigh, zh) + InpSlBufATR * a;
                   double R = s - e;
-                  if(R > 0 && e > C[i] && R <= InpMaxRATR * a)
+                  if(R > 0 && e > C[i] && R <= InpMaxRATR * a && R >= InpMinRATR * a)
                   {
                      double tpv = DolTp(false, e, R, pdh, pdl, asiaHi[i], asiaLo[i], lastSH[i], lastSL[i]);
                      if(i == n - 1) { dir = -1; entry = e; sl = s; tp = tpv; return true; }
@@ -589,9 +637,10 @@ int OnInit()
       }
    }
    LoadManual();
+   g_startTime = iTime(_Symbol, PERIOD_M5, 0);
    EventSetMillisecondTimer(InpPollMs);
-   PrintFormat("[ICT] Khởi động %s M5 | lot=%.2f | bias=%s | minFvgATR=%.2f | partial=%.2f@%.1fR | be=%.1fR | manualSLTP=%s",
-               _Symbol, InpLot, g_biasMode, InpMinFvgATR, InpPartFracPct, InpPartialAtR, InpBeAtR, InpManualSLTP ? "ON" : "OFF");
+   PrintFormat("[ICT] Khởi động %s M5 | lot=%.2f | bias=%s | minFvgATR=%.2f | warmup=%d | partial=%.2f@%.1fR | be=%.1fR | manualSLTP=%s",
+               _Symbol, InpLot, g_biasMode, InpMinFvgATR, InpWarmupBars, InpPartFracPct, InpPartialAtR, InpBeAtR, InpManualSLTP ? "ON" : "OFF");
    return INIT_SUCCEEDED;
 }
 
@@ -616,6 +665,13 @@ void OnTimer()
 
    if(!TerminalInfoInteger(TERMINAL_TRADE_ALLOWED)) return;
    if(SymbolInfoInteger(_Symbol, SYMBOL_TRADE_MODE) != (long)SYMBOL_TRADE_MODE_FULL) return;
+
+   // Warmup: bỏ qua N nến M5 đầu (khớp web config.ICT_WARMUP_BARS)
+   if(InpWarmupBars > 0 && g_startTime > 0)
+   {
+      int elapsed = iBarShift(_Symbol, PERIOD_M5, g_startTime, false);
+      if(elapsed < InpWarmupBars) { ManagePosition(); return; }
+   }
 
    ManagePosition();
    if(HasOurPositionOrPending()) return;
