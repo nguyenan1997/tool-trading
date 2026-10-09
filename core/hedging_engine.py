@@ -80,11 +80,12 @@ class HedgingEngine:
             self._session_start_balance = data.get("session_start_balance")
             t = data.get("session_start_time_vn")
             self._session_start_time = datetime.fromisoformat(t) if t else None
+            target = float(getattr(config, "HEDGE_TAKE_PROFIT_USD", 0) or 0)
             logger.info(
                 f"[HEDGE] ♻️ Tiếp tục phiên cũ: bắt đầu "
                 f"{self._session_start_time.strftime('%Y-%m-%d %H:%M') if self._session_start_time else '?'} (VN) "
                 f"| equity mốc {self._session_start_equity:.2f}$ "
-                f"| mục tiêu +{data.get('target_usd', '?')}$"
+                f"| mục tiêu +{target:.0f}$"
             )
             return True
         except Exception as e:
