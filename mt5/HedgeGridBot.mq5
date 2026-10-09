@@ -12,8 +12,8 @@
 //|   - Lưu mốc phiên ra file, tiếp quản vị thế khi khởi động lại     |
 //+------------------------------------------------------------------+
 #property copyright "tool-trading"
-#property version   "1.22"
-#property description "Hedging Grid: cap BUY+SELL, TP tung lenh, mo lai khi TP, muc tieu phien, can bang BUY/SELL, khong SL."
+#property version   "1.30"
+#property description "Hedging Grid: cap BUY+SELL, TP tung lenh, mo lai khi TP, muc tieu phien, can bang BUY/SELL tu 400 lenh, nghi cuoi tuan (Thu 0:00 -> Mon 7:00 VN), khong SL. Chay duoc ca backtest (Process trong OnTick)."
 
 #include <Trade\Trade.mqh>
 
@@ -34,6 +34,7 @@ input double InpBalancePct       = 0.05;          // |BUY-SELL| <= PCT*max(BUY,S
 input bool   InpTradingHoursEnabled = false;      // Giới hạn giờ giao dịch (giờ VN) — khớp HEDGE_TRADING_HOURS_ENABLED
 input string InpSkipHoursVN      = "";            // Khung giờ VN bị chặn, vd "0-6,23-24" — khớp HEDGE_SKIP_HOURS_VN
 input int    InpVNUtcOffset      = 7;             // Múi giờ VN (UTC+7) — khớp VN_UTC_OFFSET
+input int    InpBrokerUtcOffset  = 3;             // Server = UTC+? (CHỈ dùng khi backtest để quy VN; LiteFinance +3 hè / +2 đông)
 input bool   InpWeekendBlockEnabled = true;       // Chặn mở lệnh cuối tuần (thứ 5 00:00 -> thứ 2 07:00)
 input int    InpBlockFromWeekday = 3;             // Bắt đầu chặn: weekday (Mon=0..Sun=6), 3=thứ 5 — khớp HEDGE_BLOCK_FROM_WEEKDAY
 input int    InpBlockFromHour    = 0;             // Giờ bắt đầu chặn (VN) — khớp HEDGE_BLOCK_FROM_HOUR
@@ -79,12 +80,22 @@ bool IsMarketOpen()
    return (now - g_lastChangeMs) < 300000;   // tick đứng yên > 5 phút -> coi như đóng
 }
 
+// "Bây giờ" theo giờ VN — nguồn thời gian khớp giữa LIVE và BACKTEST.
+// - Live: đồng hồ GMT máy + offset VN (giống Python _vn_now()).
+// - Strategy Tester: TimeGMT() là đồng hồ máy THẬT (không mô phỏng) -> dùng
+//   TimeCurrent() (server mô phỏng), quy VN = server + (VNoffset - brokerOffset).
+datetime VNTime()
+{
+   if(MQLInfoInteger(MQL_TESTER))
+      return TimeCurrent() + (long)(InpVNUtcOffset - InpBrokerUtcOffset) * 3600;
+   return TimeGMT() + (long)InpVNUtcOffset * 3600;
+}
+
 // Giờ Việt Nam hiện tại — khớp Python _vn_now() = UTC + VN_UTC_OFFSET
 int VNHour()
 {
-   datetime vn = TimeGMT() + InpVNUtcOffset * 3600;
    MqlDateTime d;
-   TimeToStruct(vn, d);
+   TimeToStruct(VNTime(), d);
    return d.hour;
 }
 
@@ -117,8 +128,7 @@ bool InSkipHours()
 bool InWeekBlock()
 {
    if(!InpWeekendBlockEnabled) return false;
-   datetime vn = TimeGMT() + InpVNUtcOffset * 3600;
-   MqlDateTime d; TimeToStruct(vn, d);
+   MqlDateTime d; TimeToStruct(VNTime(), d);
    int pyWd  = (d.day_of_week + 6) % 7;   // MQL5: Sun=0..Sat=6 -> Python: Mon=0..Sun=6
    int now   = pyWd * 1440 + d.hour * 60 + d.min;
    int start = (InpBlockFromWeekday % 7) * 1440 + (InpBlockFromHour % 24) * 60;
@@ -549,6 +559,8 @@ void OnTimer()
 
 void OnTick()
 {
-   // (Trống) — xử lý trong OnTimer, khớp Python poll mỗi HEDGE_POLL_SEC
+   // Strategy Tester KHÔNG gọi OnTimer -> phải chạy Process() ở OnTick để backtest hoạt động.
+   // Live: OnTick + OnTimer cùng gọi Process(); MQL5 chạy tuần tự nên không race.
+   Process();
 }
 //+------------------------------------------------------------------+
