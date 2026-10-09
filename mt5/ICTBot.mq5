@@ -16,7 +16,9 @@ input long   InpMagic       = 20260927;   // Magic
 input string InpComment     = "ICT_Bot";  // Comment
 input string InpBiasMode    = "h4ema";    // Bias: prevday | h4ema | none
 input int    InpBiasEma     = 50;         // EMA H4 (khi bias = h4ema)
-input double InpLot         = 0.02;       // Lot
+input double InpLot         = 0.02;       // Lot (khi InpRiskPercent=0)
+input double InpRiskPercent  = 0.0;        // % rủi ro/lệnh theo SL (0 = dùng InpLot cố định)
+input double InpMaxDDPercent = 0.0;        // Ngừng vào lệnh khi DD từ đỉnh >= X% (0=tắt)
 input int    InpAsiaStart   = 0;          // Vùng Á - bắt đầu (giờ broker)
 input int    InpAsiaEnd     = 6;          // Vùng Á - kết thúc
 input int    InpKz1s        = 7;          // Killzone 1 bắt đầu (London open)
@@ -59,6 +61,7 @@ bool     g_beDone = false;   // đã dời SL về hòa vốn chưa
 string   g_biasMode = "prevday";
 int      g_hH4ema = INVALID_HANDLE;
 datetime g_startTime = 0;    // thời điểm bắt đầu (để bỏ qua warmup)
+double   g_peakEquity = 0.0; // đỉnh equity (cho DD guard)
 
 //────────────────────────────── Helpers ──────────────────────────────
 int HourOf(datetime t) { MqlDateTime d; TimeToStruct(t, d); return d.hour; }
@@ -414,6 +417,42 @@ bool HasOurPositionOrPending()
    return false;
 }
 
+double NormLot(double lot)
+{
+   double step = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP);
+   double vmin = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
+   double vmax = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
+   if(step <= 0.0) step = 0.01;
+   lot = MathFloor(lot / step + 0.5) * step;
+   lot = MathMax(vmin, MathMin(vmax, lot));
+   return NormalizeDouble(lot, 2);
+}
+
+// Lot theo % rủi ro (dựa khoảng SL). Nếu InpRiskPercent<=0 -> lot cố định InpLot.
+double CalcLot(double entry, double sl)
+{
+   if(InpRiskPercent <= 0) return NormLot(InpLot);
+   double bal = AccountInfoDouble(ACCOUNT_BALANCE);
+   double risk = bal * InpRiskPercent / 100.0;
+   double slDist = MathAbs(entry - sl);
+   double tv = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
+   double ts = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
+   if(tv <= 0 || ts <= 0 || slDist <= 0) return NormLot(InpLot);
+   double lossPerLot = (slDist / ts) * tv;
+   if(lossPerLot <= 0) return NormLot(InpLot);
+   return NormLot(risk / lossPerLot);
+}
+
+// DD guard: true nếu drawdown từ đỉnh vượt ngưỡng -> KHÔNG vào lệnh mới
+bool DDGuardBlocked()
+{
+   if(InpMaxDDPercent <= 0) return false;
+   double eq = AccountInfoDouble(ACCOUNT_EQUITY);
+   if(eq > g_peakEquity) g_peakEquity = eq;
+   if(g_peakEquity <= 0) return false;
+   return ((g_peakEquity - eq) / g_peakEquity * 100.0) >= InpMaxDDPercent;
+}
+
 void PlaceLimit(int dir, double entry, double sl, double tp)
 {
    int d = (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS);
@@ -430,19 +469,20 @@ void PlaceLimit(int dir, double entry, double sl, double tp)
    if(dir < 0 && t >= e) return;
 
    datetime expire = TimeCurrent() + InpPendMin * 60;
+   double lot = CalcLot(e, s);   // lot cố định hoặc theo % rủi ro
    // Ẩn SL/TP khỏi sàn: nếu bật, KHÔNG gửi SL/TP lên broker; bot tự cắt market khi chạm
    double ordSL = InpManualSLTP ? 0.0 : s;
    double ordTP = InpManualSLTP ? 0.0 : t;
    bool ok;
    if(dir > 0)
-      ok = trade.BuyLimit(InpLot, e, _Symbol, ordSL, ordTP, ORDER_TIME_SPECIFIED, expire, InpComment);
+      ok = trade.BuyLimit(lot, e, _Symbol, ordSL, ordTP, ORDER_TIME_SPECIFIED, expire, InpComment);
    else
-      ok = trade.SellLimit(InpLot, e, _Symbol, ordSL, ordTP, ORDER_TIME_SPECIFIED, expire, InpComment);
+      ok = trade.SellLimit(lot, e, _Symbol, ordSL, ordTP, ORDER_TIME_SPECIFIED, expire, InpComment);
    if(ok)
    {
       if(InpManualSLTP) { g_manSL = s; g_manTP = t; g_manActive = true; SaveManual(); }
-      PrintFormat("[ICT] ĐẶT %s LIMIT | E=%.2f SL=%.2f TP=%.2f%s", dir > 0 ? "BUY" : "SELL",
-                  e, s, t, InpManualSLTP ? "  [ẩn SL/TP trên sàn]" : "");
+      PrintFormat("[ICT] ĐẶT %s LIMIT | E=%.2f SL=%.2f TP=%.2f lot=%.2f%s", dir > 0 ? "BUY" : "SELL",
+                  e, s, t, lot, InpManualSLTP ? "  [ẩn SL/TP trên sàn]" : "");
    }
    else
       PrintFormat("[ICT] Đặt lệnh thất bại: %d %s", trade.ResultRetcode(), trade.ResultRetcodeDescription());
@@ -638,9 +678,10 @@ int OnInit()
    }
    LoadManual();
    g_startTime = iTime(_Symbol, PERIOD_M5, 0);
+   g_peakEquity = AccountInfoDouble(ACCOUNT_EQUITY);
    EventSetMillisecondTimer(InpPollMs);
-   PrintFormat("[ICT] Khởi động %s M5 | lot=%.2f | bias=%s | minFvgATR=%.2f | warmup=%d | partial=%.2f@%.1fR | be=%.1fR | manualSLTP=%s",
-               _Symbol, InpLot, g_biasMode, InpMinFvgATR, InpWarmupBars, InpPartFracPct, InpPartialAtR, InpBeAtR, InpManualSLTP ? "ON" : "OFF");
+   PrintFormat("[ICT] Khởi động %s M5 | lot=%.2f | risk%%=%.2f | maxDD%%=%.2f | bias=%s | warmup=%d | partial=%.2f@%.1fR | be=%.1fR | manualSLTP=%s",
+               _Symbol, InpLot, InpRiskPercent, InpMaxDDPercent, g_biasMode, InpWarmupBars, InpPartFracPct, InpPartialAtR, InpBeAtR, InpManualSLTP ? "ON" : "OFF");
    return INIT_SUCCEEDED;
 }
 
@@ -675,6 +716,7 @@ void OnTimer()
 
    ManagePosition();
    if(HasOurPositionOrPending()) return;
+   if(DDGuardBlocked()) return;   // dừng vào lệnh mới khi DD từ đỉnh vượt ngưỡng
 
    int dir; double e, s, t;
    if(EvalSignal(dir, e, s, t)) PlaceLimit(dir, e, s, t);
