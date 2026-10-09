@@ -117,7 +117,7 @@ HEDGE_LOG_BALANCE_SEC    = 0     # 0 = chỉ log khi có lệnh thoát; >0 = th�
 HEDGE_BALANCE_MIN_ORDERS = 400   # Từ số lệnh này trong phiên mới xét cân bằng (0 = tắt)
 HEDGE_BALANCE_PCT        = 0.05  # |BUY−SELL| ≤ PCT×max(BUY,SELL) → coi là cân bằng → đóng phiên
 # --- Chốt theo tổng lãi trong phiên (equity - đầu phiên) ---
-HEDGE_TAKE_PROFIT_USD    = 710.0   # Lãi phiên đạt mức này -> đóng toàn bộ, bắt đầu phiên mới
+HEDGE_TAKE_PROFIT_USD    = 750.0   # Lãi phiên đạt mức này -> đóng toàn bộ, bắt đầu phiên mới
 HEDGE_STATE_FILE         = "logs/hedge_session.json"  # Lưu mốc phiên để khởi động lại tiếp tục
 HEDGE_STOP_AFTER_TARGET  = False   # True = dừng hẳn bot sau khi chốt mục tiêu
 # --- Khung giờ giao dịch (GIỜ VIỆT NAM, UTC+7) ---

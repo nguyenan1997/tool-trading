@@ -22,7 +22,7 @@ input long   InpMagic           = 20260601;      // Magic number
 input string InpComment         = "HedgeGrid_Bot";// Comment lệnh
 input double InpLot             = 0.01;           // Lot mỗi lệnh
 input double InpTPUSD           = 7.0;            // TP cách giá vào (USD; XAUUSD 1.0 = 1$)
-input double InpTargetUSD       = 710.0;          // Mục tiêu lãi phiên (USD; 0 = tắt)
+input double InpTargetUSD       = 750.0;          // Mục tiêu lãi phiên (USD; 0 = tắt)
 input bool   InpStopAfterTarget = false;          // Dừng hẳn sau khi đạt mục tiêu
 input bool   InpResetOnNoMargin = true;           // Hết margin -> đóng hết, chu kỳ mới
 input int    InpMaxDevPts       = 30;             // Trượt tối đa (points)
