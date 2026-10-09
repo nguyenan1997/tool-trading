@@ -87,8 +87,8 @@ bool IsMarketOpen()
 datetime VNTime()
 {
    if(MQLInfoInteger(MQL_TESTER))
-      return TimeCurrent() + (long)(InpVNUtcOffset - InpBrokerUtcOffset) * 3600;
-   return TimeGMT() + (long)InpVNUtcOffset * 3600;
+      return (datetime)(TimeCurrent() + (long)(InpVNUtcOffset - InpBrokerUtcOffset) * 3600);
+   return (datetime)(TimeGMT() + (long)InpVNUtcOffset * 3600);
 }
 
 // Giờ Việt Nam hiện tại — khớp Python _vn_now() = UTC + VN_UTC_OFFSET
