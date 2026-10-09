@@ -68,6 +68,11 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
         skip_mitigated=config.ICT_SKIP_MITIGATED,
         mitigate_max=config.ICT_MITIGATE_MAX,
         fvg_select=config.ICT_FVG_SELECT,
+        use_weekly_liq=config.ICT_USE_WEEKLY_LIQ,
+        use_midnight=config.ICT_USE_MIDNIGHT,
+        news_skip_times=config.ICT_NEWS_SKIP_TIMES,
+        news_skip_min=config.ICT_NEWS_SKIP_MIN,
+        min_confluence=config.ICT_MIN_CONFLUENCE,
         magic=config.MAGIC_ICT,
     ):
         super().__init__("ICT KZ→Sweep→FVG", magic=magic)
@@ -104,6 +109,17 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
         self.skip_mitigated = skip_mitigated
         self.mitigate_max = mitigate_max
         self.fvg_select = str(fvg_select).lower()
+        self.use_weekly_liq = bool(use_weekly_liq)
+        self.use_midnight = bool(use_midnight)
+        self.min_confluence = int(min_confluence or 0)
+        self.news_skip_min = int(news_skip_min or 0)
+        self.news_skip_times = []
+        for t in (news_skip_times or []):
+            try:
+                hh, mm = str(t).split(":")
+                self.news_skip_times.append((int(hh), int(mm)))
+            except Exception:
+                continue
         self.lot = config.ICT_LOT
         self.comment = config.ICT_COMMENT
         self.timeframe = "M5"
@@ -141,11 +157,20 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
         base["hour"] = base["ts"].dt.hour
         base["date"] = base["ts"].dt.date
 
-        # PDH/PDL ngày hôm trước (thanh khoản đối diện = draw on liquidity)
-        day = base.groupby("date").agg(day_hi=("high", "max"), day_lo=("low", "min"))
+        # PDH/PDL ngày hôm trước + Midnight open (giá mở ngày) = draw on liquidity
+        day = base.groupby("date").agg(day_hi=("high", "max"), day_lo=("low", "min"),
+                                       day_open=("open", "first"))
         prev = day.shift(1)
         base["pdh"] = base["date"].map(prev["day_hi"])
         base["pdl"] = base["date"].map(prev["day_lo"])
+        base["day_open"] = base["date"].map(day["day_open"])
+
+        # PWH/PWL tuần trước (chuẩn ICT)
+        wk = (base.set_index("ts").resample("W")
+              .agg(w_hi=("high", "max"), w_lo=("low", "min")).shift(1))
+        base = pd.merge_asof(base, wk.reset_index()[["ts", "w_hi", "w_lo"]],
+                             on="ts", direction="backward")
+        base["minute"] = base["ts"].dt.minute
 
         # Biên vùng tích lũy Á hôm nay (chỉ dùng SAU khi phiên Á kết thúc)
         in_asia = base["hour"].between(self.asia[0], self.asia[1])
@@ -198,6 +223,10 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
         bias = base["bias"].to_numpy()
         pdh = base["pdh"].to_numpy()
         pdl = base["pdl"].to_numpy()
+        pwh = base["w_hi"].to_numpy()
+        pwl = base["w_lo"].to_numpy()
+        day_open = base["day_open"].to_numpy()
+        minute = base["minute"].to_numpy()
         asia_hi = base["asia_hi"].to_numpy()
         asia_lo = base["asia_lo"].to_numpy()
         vol = base["volume"].to_numpy()
@@ -240,6 +269,13 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
             if not np.isfinite(a) or a <= 0:
                 continue
 
+            # Lọc tin tức: bỏ nến nằm trong ±news_skip_min quanh giờ tin (giờ broker)
+            if self.news_skip_times and self.news_skip_min > 0:
+                mod = int(hour[i]) * 60 + int(minute[i])
+                if any(abs(mod - (nh * 60 + nm)) <= self.news_skip_min
+                       for nh, nm in self.news_skip_times):
+                    continue
+
             # Chỉ trade cùng chiều bias (bias = 0 khi mode "none" → cho cả hai)
             allow_buy = self.bias_mode == "none" or bias[i] > 0
             allow_sell = self.bias_mode == "none" or bias[i] < 0
@@ -255,15 +291,19 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
                             if self.entry_mode == "market":
                                 res = self._market_buy(zone, sweep_low, close[i], a)
                             else:
-                                res = self._build_buy(zone, sweep_low, close[i], a,
-                                                      [pdh[i], asia_hi[i], last_sh[i]])
+                                liq_b = [pdh[i], asia_hi[i], last_sh[i]]
+                                if self.use_weekly_liq:
+                                    liq_b.append(pwh[i])
+                                if self.use_midnight:
+                                    liq_b.append(day_open[i])
+                                res = self._build_buy(zone, sweep_low, close[i], a, liq_b)
                             if res is not None:
                                 lvl_buy[i], sl_buy[i], tp_buy[i] = res
                                 sig_buy[i] = True
                                 done_buy = True
                                 act_b = False
                 if not act_b and not done_buy:
-                    if self._swept_low(i, low, close, a, asia_lo, pdl, last_sl):
+                    if self._swept_low(i, low, close, a, asia_lo, pdl, last_sl, pwl, day_open):
                         act_b = True
                         sweep_low = low[i]
                         ref_high = last_sh[i]
@@ -280,15 +320,19 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
                             if self.entry_mode == "market":
                                 res = self._market_sell(zone, sweep_high, close[i], a)
                             else:
-                                res = self._build_sell(zone, sweep_high, close[i], a,
-                                                       [pdl[i], asia_lo[i], last_sl[i]])
+                                liq_s = [pdl[i], asia_lo[i], last_sl[i]]
+                                if self.use_weekly_liq:
+                                    liq_s.append(pwl[i])
+                                if self.use_midnight:
+                                    liq_s.append(day_open[i])
+                                res = self._build_sell(zone, sweep_high, close[i], a, liq_s)
                             if res is not None:
                                 lvl_sell[i], sl_sell[i], tp_sell[i] = res
                                 sig_sell[i] = True
                                 done_sell = True
                                 act_s = False
                 if not act_s and not done_sell:
-                    if self._swept_high(i, high, close, a, asia_hi, pdh, last_sh):
+                    if self._swept_high(i, high, close, a, asia_hi, pdh, last_sh, pwh, day_open):
                         act_s = True
                         sweep_high = high[i]
                         ref_low = last_sl[i]
@@ -327,33 +371,45 @@ class ICTKillzoneFVGStrategy(BaseStrategy):
     # ------------------------------------------------------------------
     # Kiểm tra quét thanh khoản
     # ------------------------------------------------------------------
-    def _swept_low(self, i, low, close, a, asia_lo, pdl, last_sl):
+    def _swept_low(self, i, low, close, a, asia_lo, pdl, last_sl, pwl, day_open):
         need = self.min_sweep_atr * a
-        for lv in self._levels(self.use_asia_liq, asia_lo[i],
-                               self.use_pdhpdl, pdl[i],
-                               self.use_swing_liq, last_sl[i]):
+        levels = self._levels(asia_lo[i], pdl[i], last_sl[i], pwl[i], day_open[i])
+        for lv in levels:
             if np.isfinite(lv) and low[i] < lv - need and close[i] > lv:
-                return True
+                if self.min_confluence <= 1 or self._confluence(levels, lv, a) >= self.min_confluence:
+                    return True
         return False
 
-    def _swept_high(self, i, high, close, a, asia_hi, pdh, last_sh):
+    def _swept_high(self, i, high, close, a, asia_hi, pdh, last_sh, pwh, day_open):
         need = self.min_sweep_atr * a
-        for lv in self._levels(self.use_asia_liq, asia_hi[i],
-                               self.use_pdhpdl, pdh[i],
-                               self.use_swing_liq, last_sh[i]):
+        levels = self._levels(asia_hi[i], pdh[i], last_sh[i], pwh[i], day_open[i])
+        for lv in levels:
             if np.isfinite(lv) and high[i] > lv + need and close[i] < lv:
-                return True
+                if self.min_confluence <= 1 or self._confluence(levels, lv, a) >= self.min_confluence:
+                    return True
         return False
 
-    @staticmethod
-    def _levels(use_a, a, use_p, p, use_s, s):
+    def _confluence(self, levels, lv, a):
+        """Đếm số mức thanh khoản TRÙNG gần nhau (trong 0.5×ATR) — confluence ICT."""
+        band = 0.5 * a
+        c = 0
+        for x in levels:
+            if np.isfinite(x) and abs(x - lv) <= band:
+                c += 1
+        return c
+
+    def _levels(self, a, p, s, w, m):
         out = []
-        if use_a:
+        if self.use_asia_liq:
             out.append(a)
-        if use_p:
+        if self.use_pdhpdl:
             out.append(p)
-        if use_s:
+        if self.use_swing_liq:
             out.append(s)
+        if self.use_weekly_liq:
+            out.append(w)
+        if self.use_midnight:
+            out.append(m)
         return out
 
     # ------------------------------------------------------------------

@@ -84,6 +84,13 @@ ICT_SKIP_MITIGATED = False   # Bỏ FVG đã bị lấp ≥ ICT_MITIGATE_MAX
 ICT_MITIGATE_MAX   = 0.5     # Ngưỡng lấp (0..1) coi như FVG hết giá trị
 ICT_FVG_SELECT     = "near"  # "near" = FVG gần nhất | "score" = điểm chất lượng cao nhất
 
+# --- ICT nâng cấp (chuẩn ICT) ---
+ICT_USE_WEEKLY_LIQ  = False    # PWH/PWL (đỉnh/đáy tuần trước) làm mức thanh khoản + DOL
+ICT_USE_MIDNIGHT    = False    # Midnight open (giá mở ngày) làm mức thanh khoản + DOL
+ICT_NEWS_SKIP_TIMES = []       # Bỏ vào lệnh quanh tin: ["14:30","20:00"] (giờ BROKER)
+ICT_NEWS_SKIP_MIN   = 45       # Bỏ +/- bao nhiêu phút quanh giờ tin
+ICT_MIN_CONFLUENCE  = 0        # Số PD array tối thiểu trùng nhau tại điểm quét (0 = tắt)
+
 # ============================================================
 #  HEDGING GRID (HỆ THỐNG 4, XAUUSD) — CHẠY LIÊN TỤC 24/7
 # ------------------------------------------------------------
