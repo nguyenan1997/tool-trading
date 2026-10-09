@@ -116,6 +116,26 @@ class HedgingEngine:
         off = int(getattr(config, "VN_UTC_OFFSET", 7))
         return datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=off)
 
+    def _in_week_block(self) -> bool:
+        """True nếu đang trong khung CHẶN mở lệnh mới cuối tuần (giờ VN).
+
+        Mặc định: từ 00:00 thứ 5 đến 07:00 thứ 2 → không mở cặp mới.
+        Chỉ chặn MỞ; vị thế đang mở vẫn giữ (broker tự đóng theo TP).
+        """
+        if not getattr(config, "HEDGE_WEEKEND_BLOCK_ENABLED", True):
+            return False
+        vn = self._vn_now()
+        start_wd = int(getattr(config, "HEDGE_BLOCK_FROM_WEEKDAY", 3)) % 7
+        start_h = int(getattr(config, "HEDGE_BLOCK_FROM_HOUR", 0)) % 24
+        end_wd = int(getattr(config, "HEDGE_RESUME_WEEKDAY", 0)) % 7
+        end_h = int(getattr(config, "HEDGE_RESUME_HOUR", 7)) % 24
+        now = vn.weekday() * 1440 + vn.hour * 60 + vn.minute
+        start = start_wd * 1440 + start_h * 60
+        end = end_wd * 1440 + end_h * 60
+        if start <= end:
+            return start <= now < end
+        return now >= start or now < end
+
     def reset(self):
         """Xóa trạng thái để lần chạy tới tiếp quản vị thế hiện có."""
         with self._lock:
@@ -201,20 +221,22 @@ class HedgingEngine:
                     return
 
             # --- Giới hạn giờ giao dịch (giờ VN): chỉ chặn MỞ lệnh mới ---
-            if getattr(config, "HEDGE_TRADING_HOURS_ENABLED", True):
-                vn = self._vn_now()
-                h = vn.hour
-                skip = getattr(config, "HEDGE_SKIP_HOURS_VN", []) or []
-                if any(a <= h < b for a, b in skip):
-                    # Ngoài giờ: không mở mới; giữ nguyên vị thế (broker tự đóng theo TP)
-                    if current:
-                        self._known = set(current)
-                        self._fresh = False
-                    else:
-                        self._known = set()
-                        self._fresh = True
-                    self._maybe_log_balance(strategy)
-                    return
+            # Gồm khung giờ bị chặn trong ngày (HEDGE_SKIP_HOURS_VN) và khung
+            # cuối tuần (thứ 5 00:00 → thứ 2 07:00).
+            skip = getattr(config, "HEDGE_SKIP_HOURS_VN", []) or []
+            h = self._vn_now().hour
+            in_skip_hours = (getattr(config, "HEDGE_TRADING_HOURS_ENABLED", True)
+                             and any(a <= h < b for a, b in skip))
+            if in_skip_hours or self._in_week_block():
+                # Ngoài giờ: không mở mới; giữ nguyên vị thế (broker tự đóng theo TP)
+                if current:
+                    self._known = set(current)
+                    self._fresh = False
+                else:
+                    self._known = set()
+                    self._fresh = True
+                self._maybe_log_balance(strategy)
+                return
 
             # --- Lần đầu của magic này: mở cặp đầu HOẶC tiếp quản ---
             if self._fresh:

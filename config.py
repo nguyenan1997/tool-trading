@@ -107,7 +107,7 @@ HEDGE_ENABLED    = True
 MAGIC_HEDGE      = 20260601
 HEDGE_COMMENT    = "HedgeGrid_Bot"
 HEDGE_LOT        = 0.01     # Khối lượng mỗi lệnh (0.01 = nhỏ nhất)
-HEDGE_TP_USD     = 5.0      # TP cách giá vào = 5.0 USD ≈ 50 pip (1 pip XAUUSD = 0.1)
+HEDGE_TP_USD     = 7.0      # TP cách giá vào = 7.0 USD ≈ 70 pip (1 pip XAUUSD = 0.1)
 HEDGE_POLL_SEC   = 0.5      # Chu kỳ bot kiểm tra TP/mở cặp mới (giây) — nhỏ để chốt sát mốc lãi
 HEDGE_MAX_DEVIATION_PTS = 30  # Giới hạn trượt mỗi lệnh (points). 0 = tắt (không giới hạn)
 HEDGE_OPEN_RETRIES = 3        # Số lần thử lại mỗi chân nếu sàn từ chối do trượt
@@ -117,9 +117,7 @@ HEDGE_LOG_BALANCE_SEC    = 0     # 0 = chỉ log khi có lệnh thoát; >0 = th�
 HEDGE_BALANCE_MIN_ORDERS = 400   # Từ số lệnh này trong phiên mới xét cân bằng (0 = tắt)
 HEDGE_BALANCE_PCT        = 0.05  # |BUY−SELL| ≤ PCT×max(BUY,SELL) → coi là cân bằng → đóng phiên
 # --- Chốt theo tổng lãi trong phiên (equity - đầu phiên) ---
-HEDGE_TAKE_PROFIT_USD    = 1100.0  # Lãi phiên đạt mức này -> đóng toàn bộ, bắt đầu phiên mới
-                                   # (để 1100 thay vì 1000 nhằm bù spread/trượt khi đóng loạt,
-                                   #  thực nhận sau khi đóng ~1000$)
+HEDGE_TAKE_PROFIT_USD    = 710.0   # Lãi phiên đạt mức này -> đóng toàn bộ, bắt đầu phiên mới
 HEDGE_STATE_FILE         = "logs/hedge_session.json"  # Lưu mốc phiên để khởi động lại tiếp tục
 HEDGE_STOP_AFTER_TARGET  = False   # True = dừng hẳn bot sau khi chốt mục tiêu
 # --- Khung giờ giao dịch (GIỜ VIỆT NAM, UTC+7) ---
@@ -127,6 +125,16 @@ HEDGE_STOP_AFTER_TARGET  = False   # True = dừng hẳn bot sau khi chốt mụ
 HEDGE_SKIP_HOURS_VN      = []
 HEDGE_CLOSE_BEFORE_HOURS = 2   # (không dùng)
 HEDGE_TRADING_HOURS_ENABLED = False
+
+# --- Chặn mở lệnh mới cuối tuần (GIỜ VIỆT NAM) ---
+# Từ 00:00 THỨ 5 đến 07:00 THỨ 2: KHÔNG mở cặp mới (vị thế đang mở vẫn giữ,
+# broker tự đóng theo TP). Từ 07:00 thứ 2 bắt đầu mở lại bình thường.
+# Python weekday: Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6.
+HEDGE_WEEKEND_BLOCK_ENABLED = True
+HEDGE_BLOCK_FROM_WEEKDAY    = 3   # Thứ 5 (bắt đầu chặn)
+HEDGE_BLOCK_FROM_HOUR       = 0   # 00:00
+HEDGE_RESUME_WEEKDAY        = 0   # Thứ 2 (mở lại)
+HEDGE_RESUME_HOUR           = 7   # 07:00
 
 # Chiến lược chạy mặc định khi khởi động chương trình.
 # "hedging" | "ict"  (phải chọn PP trên UI rồi bấm Start mới chạy)

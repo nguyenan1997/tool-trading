@@ -34,6 +34,11 @@ input double InpBalancePct       = 0.05;          // |BUY-SELL| <= PCT*max(BUY,S
 input bool   InpTradingHoursEnabled = false;      // Giới hạn giờ giao dịch (giờ VN) — khớp HEDGE_TRADING_HOURS_ENABLED
 input string InpSkipHoursVN      = "";            // Khung giờ VN bị chặn, vd "0-6,23-24" — khớp HEDGE_SKIP_HOURS_VN
 input int    InpVNUtcOffset      = 7;             // Múi giờ VN (UTC+7) — khớp VN_UTC_OFFSET
+input bool   InpWeekendBlockEnabled = true;       // Chặn mở lệnh cuối tuần (thứ 5 00:00 -> thứ 2 07:00)
+input int    InpBlockFromWeekday = 3;             // Bắt đầu chặn: weekday (Mon=0..Sun=6), 3=thứ 5 — khớp HEDGE_BLOCK_FROM_WEEKDAY
+input int    InpBlockFromHour    = 0;             // Giờ bắt đầu chặn (VN) — khớp HEDGE_BLOCK_FROM_HOUR
+input int    InpResumeWeekday    = 0;             // Mở lại: weekday, 0=thứ 2 — khớp HEDGE_RESUME_WEEKDAY
+input int    InpResumeHour       = 7;             // Giờ mở lại (VN) — khớp HEDGE_RESUME_HOUR
 
 //────────────────────────────── Trạng thái ──────────────────────────────
 CTrade   trade;
@@ -106,6 +111,20 @@ bool InSkipHours()
       if(h >= s && h < e) return true;
    }
    return false;
+}
+
+// True nếu đang trong khung CHẶN mở lệnh mới cuối tuần (giờ VN) — khớp Python _in_week_block
+bool InWeekBlock()
+{
+   if(!InpWeekendBlockEnabled) return false;
+   datetime vn = TimeGMT() + InpVNUtcOffset * 3600;
+   MqlDateTime d; TimeToStruct(vn, d);
+   int pyWd  = (d.day_of_week + 6) % 7;   // MQL5: Sun=0..Sat=6 -> Python: Mon=0..Sun=6
+   int now   = pyWd * 1440 + d.hour * 60 + d.min;
+   int start = (InpBlockFromWeekday % 7) * 1440 + (InpBlockFromHour % 24) * 60;
+   int end   = (InpResumeWeekday % 7) * 1440 + (InpResumeHour % 24) * 60;
+   if(start <= end) return (now >= start && now < end);
+   return (now >= start || now < end);
 }
 
 double NormLot(double lot)
@@ -435,7 +454,8 @@ void Process()
    }
 
    // 2b) Giới hạn giờ giao dịch (giờ VN): chỉ chặn MỞ lệnh mới — khớp Python
-   if(InSkipHours())
+   //     Gồm khung giờ trong ngày + khung cuối tuần (thứ 5 00:00 -> thứ 2 07:00)
+   if(InSkipHours() || InWeekBlock())
    {
       if(n > 0)
       {
