@@ -128,60 +128,8 @@ HEDGE_SKIP_HOURS_VN      = []
 HEDGE_CLOSE_BEFORE_HOURS = 2   # (không dùng)
 HEDGE_TRADING_HOURS_ENABLED = False
 
-# ============================================================
-#  SMART GOLD HUNTER (XAUUSD) — SINGLE ENTRY / ONE SHOT
-# ------------------------------------------------------------
-# Phỏng theo EA "Smart Gold Hunter" (MQL5 product 170050):
-#   No Grid / No Martingale / No Recovery / No Hedging — Single Entry with SL.
-#   Mỗi setup = 1 lệnh duy nhất, có SL/TP thật + Break Even + trailing.
-#   Nhiều profile (Striker mặc định / Scalper / Swinger / Prop / PRR / Custom)
-#   + lớp bảo vệ: giới hạn lãi/lỗ ngày, spread, news, đóng lệnh thứ 6.
-# ============================================================
-SGH_ENABLED  = True
-MAGIC_SGH    = 20260605
-SGH_COMMENT  = "SmartGoldHunter"
-SGH_TF       = "M15"
-SGH_LOT      = 0.02
-SGH_HISTORY_BARS = 3000
-SGH_WARMUP_BARS  = 200
-SGH_PROFILE  = "PRR Scalping"   # Striker | Ultimate Scalper | Swinger | Prop Scalper | PRR Scalping | Custom
-
-# --- Entry (breakout Donchian + xác nhận) ---
-SGH_BREAK_LOOKBACK = 20      # Số nến cho đỉnh/đáy phá vỡ
-SGH_BREAK_BUF_ATR  = 0.1     # Buffer phá vỡ (bội ATR)
-SGH_MIN_BODY_ATR   = 0.3     # Thân nến tối thiểu (bội ATR)
-SGH_TREND_MODE     = "ema"   # "none" | "ema"
-SGH_EMA            = 50
-SGH_SL_ATR         = 1.5     # SL = entry ∓ bội ATR
-SGH_TP_R           = 1.5
-SGH_MAX_TRADES_PER_DAY = 3
-SGH_MIN_BARS_BETWEEN   = 3   # Tối thiểu số nến giữa 2 lệnh
-
-# --- Quản lý lệnh (áp dụng cả backtest + live) ---
-SGH_PARTIAL_FRAC = 0.0       # 0 = không chốt một phần
-SGH_PARTIAL_AT_R = 1.0
-SGH_BE_AT_R      = 1.0       # Dời SL về hòa vốn
-SGH_TRAIL_AT_R   = 1.0       # Bắt đầu trailing sau X R
-SGH_TRAIL_GAP_R  = 0.8       # SL bám cách giá tốt nhất Y R
-
-# --- Lớp bảo vệ ---
-SGH_MAX_SPREAD_POINTS = 40   # Không vào lệnh nếu spread > mức này (points). 0 = tắt
-SGH_FRIDAY_CLOSE_HOUR = 21   # >= giờ này thứ 6 -> không vào lệnh (25 = tắt)
-SGH_NEWS_FILTER   = True
-SGH_NEWS_HOUR     = 12       # Tin mạnh ~12:30 (xấp xỉ)
-SGH_NEWS_MINUTE   = 30
-SGH_NEWS_SKIP_MIN = 45
-SGH_NEWS_TIMES    = []       # Thêm giờ tin "HH:MM" ngoài NFP, vd ["14:00","15:30"]
-SGH_DAILY_PROFIT_TARGET_PCT = 0.0   # Chạm mục tiêu lãi ngày (%) -> ngừng vào lệnh. 0 = tắt
-SGH_DAILY_LOSS_LIMIT_PCT    = 3.0   # Lỗ ngày vượt mức (%) -> ngừng vào lệnh. 0 = tắt
-SGH_EQUITY_PROTECTION_PCT   = 5.0   # Equity giảm quá X% từ đỉnh ngày -> ngừng vào lệnh. 0 = tắt
-# --- Kiểu SL / randomizer (giống bản gốc) ---
-SGH_SL_FROM_EXEC = True      # True = SL/TP tính từ GIÁ KHỚP thực tế
-SGH_HIDE_INITIAL_SL = False  # True = ẩn SL ban đầu khỏi sàn (bot tự cắt nội bộ)
-SGH_ENTRY_RANDOM_POINTS = 0  # Làm lệch SL/TP ngẫu nhiên ±N points (0 = tắt)
-
 # Chiến lược chạy mặc định khi khởi động chương trình.
-# "hedging" | "sgh" | "ict"  (phải chọn PP trên UI rồi bấm Start mới chạy)
+# "hedging" | "ict"  (phải chọn PP trên UI rồi bấm Start mới chạy)
 DEFAULT_STRATEGY = "hedging"
 
 # ============================================================

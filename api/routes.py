@@ -17,7 +17,6 @@ from backtest.engine import Backtester
 from backtest.data_loader import get_historical_data, get_with_warmup, _BAR_MINUTES
 from strategies.ict import ICTKillzoneFVGStrategy
 from strategies.hedging import HedgingStrategy
-from strategies.sgh import SmartGoldHunterStrategy
 
 logger = logging.getLogger(__name__)
 
@@ -51,26 +50,6 @@ def _build_strategy(data):
             tp_usd=_num(data, "hedge_tp_usd", config.HEDGE_TP_USD),
             lot=_num(data, "hedge_lot", config.HEDGE_LOT),
         ), "hedging"
-
-    if sid == "sgh":
-        return SmartGoldHunterStrategy(
-            profile=(data.get("sgh_profile") or config.SGH_PROFILE),
-            break_lookback=_num(data, "sgh_break_lookback", config.SGH_BREAK_LOOKBACK, int),
-            break_buf_atr=_num(data, "sgh_break_buf_atr", config.SGH_BREAK_BUF_ATR),
-            min_body_atr=_num(data, "sgh_min_body_atr", config.SGH_MIN_BODY_ATR),
-            trend_mode=(data.get("sgh_trend_mode") or config.SGH_TREND_MODE),
-            ema_period=_num(data, "sgh_ema", config.SGH_EMA, int),
-            sl_atr=_num(data, "sgh_sl_atr", config.SGH_SL_ATR),
-            tp_r=_num(data, "sgh_tp_r", config.SGH_TP_R),
-            max_trades=_num(data, "sgh_max_trades", config.SGH_MAX_TRADES_PER_DAY, int),
-            lot=_num(data, "sgh_lot", config.SGH_LOT),
-            hide_initial_sl=_flag(data, "sgh_hide_initial_sl", config.SGH_HIDE_INITIAL_SL),
-            sl_from_exec=_flag(data, "sgh_sl_from_exec", config.SGH_SL_FROM_EXEC),
-            entry_random_points=_num(data, "sgh_entry_random_points", config.SGH_ENTRY_RANDOM_POINTS, int),
-            equity_protection_pct=_num(data, "sgh_equity_protection_pct", config.SGH_EQUITY_PROTECTION_PCT),
-            daily_loss_limit_pct=_num(data, "sgh_daily_loss_limit_pct", config.SGH_DAILY_LOSS_LIMIT_PCT),
-            max_spread_points=_num(data, "sgh_max_spread_points", config.SGH_MAX_SPREAD_POINTS, int),
-        ), "sgh"
 
     return ICTKillzoneFVGStrategy(
         swing_k=_num(data, "ict_swing_k", config.ICT_SWING_K, int),
