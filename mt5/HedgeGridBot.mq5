@@ -12,7 +12,7 @@
 //|   - Lưu mốc phiên ra file, tiếp quản vị thế khi khởi động lại     |
 //+------------------------------------------------------------------+
 #property copyright "tool-trading"
-#property version   "1.30"
+#property version   "1.31"
 #property description "Hedging Grid: cap BUY+SELL, TP tung lenh, mo lai khi TP, muc tieu phien, can bang BUY/SELL tu 400 lenh, nghi cuoi tuan (Thu 0:00 -> Mon 7:00 VN), khong SL. Chay duoc ca backtest (Process trong OnTick)."
 
 #include <Trade\Trade.mqh>
@@ -21,8 +21,8 @@
 input long   InpMagic           = 20260601;      // Magic number
 input string InpComment         = "HedgeGrid_Bot";// Comment lệnh
 input double InpLot             = 0.01;           // Lot mỗi lệnh
-input double InpTPUSD           = 7.0;            // TP cách giá vào (USD; XAUUSD 1.0 = 1$)
-input double InpTargetUSD       = 750.0;          // Mục tiêu lãi phiên (USD; 0 = tắt)
+input double InpTPUSD           = 10.0;           // TP cách giá vào (USD; XAUUSD 1.0 = 1$)
+input double InpTargetUSD       = 550.0;          // Mục tiêu lãi phiên (USD; 0 = tắt)
 input bool   InpStopAfterTarget = false;          // Dừng hẳn sau khi đạt mục tiêu
 input bool   InpResetOnNoMargin = true;           // Hết margin -> đóng hết, chu kỳ mới
 input int    InpMaxDevPts       = 30;             // Trượt tối đa (points)
